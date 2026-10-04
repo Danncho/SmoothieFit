@@ -21,6 +21,10 @@ Luego abre http://localhost:3000 en el navegador. Para detener el servidor, pres
 - `backend/routes/`: carpeta para las rutas de la API que se agregarán después.
 - `backend/data/`: carpeta para los datos del proyecto.
 - `frontend/index.html`: página inicial de prueba.
-- `frontend/css/`: hojas de estilos.
-- `frontend/js/`: archivos de JavaScript del navegador.
+- `frontend/css/styles.css`: colores, tipografías, componentes y diseño responsive.
+- `frontend/js/layout.js`: agrega el encabezado, menú, pie de página y control del menú móvil. Cada página HTML debe cargar este script.
 - `frontend/img/`: imágenes del sitio.
+
+## Diseño y navegación
+
+La página usa Nunito desde Google Fonts y fuentes de respaldo locales. En pantallas pequeñas, el botón de menú muestra u oculta la navegación y actualiza `aria-expanded`; también se puede cerrar con Escape o al elegir un enlace.
