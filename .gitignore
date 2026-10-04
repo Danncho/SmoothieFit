@@ -1,0 +1,5 @@
+node_modules/
+.env
+backend/data/pedidos.json
+backend/data/contactos.json
+backend/data/alianzas.json
