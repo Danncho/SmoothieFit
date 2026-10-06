@@ -22,9 +22,11 @@ Luego abre http://localhost:3000 en el navegador. Para detener el servidor, pres
 - `backend/data/`: carpeta para los datos del proyecto.
 - `frontend/index.html`: página inicial de prueba.
 - `frontend/css/styles.css`: colores, tipografías, componentes y diseño responsive.
-- `frontend/js/layout.js`: agrega el encabezado, menú, pie de página y control del menú móvil. Cada página HTML debe cargar este script.
+- `frontend/js/layout.js`: agrega el encabezado, menú, pie de página, control del menú móvil y aparición de secciones al desplazarse. Cada página HTML debe cargar este script.
 - `frontend/img/`: imágenes del sitio.
 
 ## Diseño y navegación
 
 La página usa Nunito desde Google Fonts y fuentes de respaldo locales. En pantallas pequeñas, el botón de menú muestra u oculta la navegación y actualiza `aria-expanded`; también se puede cerrar con Escape o al elegir un enlace.
+
+La página de inicio usa `IntersectionObserver` para mostrar suavemente las secciones al entrar en pantalla. Si el navegador no lo admite o está activada la preferencia de movimiento reducido, el contenido permanece visible sin esa animación.
