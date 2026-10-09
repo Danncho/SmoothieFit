@@ -428,6 +428,69 @@ button:focus-visible {
   padding: 0.25rem var(--space-medium) var(--space-medium);
 }
 
+.smoothie-ingredients,
+.smoothie-category,
+.smoothie-price,
+.sample-label {
+  margin-top: 0.6rem !important;
+  font-size: 0.9rem;
+}
+
+.smoothie-category {
+  display: inline-block;
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  background: var(--color-pink);
+  color: var(--color-purple) !important;
+  font-weight: 800;
+}
+
+.smoothie-price {
+  color: var(--color-red) !important;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.sample-label {
+  color: var(--color-muted) !important;
+  font-style: italic;
+}
+
+.catalog-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-small);
+  margin-bottom: var(--space-medium);
+}
+
+.catalog-filter label {
+  color: var(--color-purple);
+  font-weight: 800;
+}
+
+.catalog-filter select {
+  min-width: 12rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.catalog-status {
+  min-height: 1.6em;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.catalog-error {
+  color: var(--color-red);
+  font-weight: 800;
+}
+
 .section-action {
   margin-top: var(--space-large);
   text-align: center;

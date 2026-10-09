@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <script src="js/layout.js" defer></script>
+  <script src="js/inicio.js" defer></script>
 </head>
 <body>
   <main>
@@ -74,31 +75,8 @@
           <h2 id="featured-title">Tres mezclas favoritas</h2>
           <p>¿Cuál probarías primero?</p>
         </div>
-        <p class="sample-note">Ideas de ejemplo</p>
-        <!-- Sabores e ingredientes de esta vista previa son ejemplos para el proyecto. -->
-        <div class="grid smoothie-grid">
-          <article class="card smoothie-card reveal">
-            <div class="smoothie-art smoothie-art-pink" aria-hidden="true">🍓</div>
-            <div class="smoothie-info">
-              <h3>Fresa Alegre</h3>
-              <p>Fresa, banano y yogur.</p>
-            </div>
-          </article>
-          <article class="card smoothie-card reveal">
-            <div class="smoothie-art smoothie-art-yellow" aria-hidden="true">🥭</div>
-            <div class="smoothie-info">
-              <h3>Mango Soleado</h3>
-              <p>Mango, naranja y chía.</p>
-            </div>
-          </article>
-          <article class="card smoothie-card reveal">
-            <div class="smoothie-art smoothie-art-purple" aria-hidden="true">🫐</div>
-            <div class="smoothie-info">
-              <h3>Morado Feliz</h3>
-              <p>Mora, frutilla y avena.</p>
-            </div>
-          </article>
-        </div>
+        <p class="sample-note" id="featured-status" role="status" aria-live="polite">Cargando smoothies...</p>
+        <div class="grid smoothie-grid" id="featured-smoothies"></div>
         <div class="section-action reveal">
           <a class="button button-secondary" href="smoothies.html">Ver todos los smoothies</a>
         </div>

@@ -1,0 +1,87 @@
+[
+  {
+    "id": 1,
+    "esEjemplo": true,
+    "nombre": "Mora Andina",
+    "descripcion": "Una mezcla frutal con un toque de semillas.",
+    "ingredientes": [
+      "mora",
+      "banano",
+      "chía"
+    ],
+    "precio": 3.5,
+    "imagen": "🫐",
+    "categoria": "Frutal"
+  },
+  {
+    "id": 2,
+    "esEjemplo": true,
+    "nombre": "Maracuyá Alegre",
+    "descripcion": "Maracuyá y naranjilla en una combinación cítrica.",
+    "ingredientes": [
+      "maracuyá",
+      "naranjilla",
+      "banano"
+    ],
+    "precio": 3.75,
+    "imagen": "🍊",
+    "categoria": "Frutal"
+  },
+  {
+    "id": 3,
+    "esEjemplo": true,
+    "nombre": "Verde Fresco",
+    "descripcion": "Frutas con un poco de espinaca y chía.",
+    "ingredientes": [
+      "piña",
+      "banano",
+      "espinaca",
+      "chía"
+    ],
+    "precio": 4,
+    "imagen": "🥬",
+    "categoria": "Frutal"
+  },
+  {
+    "id": 4,
+    "esEjemplo": true,
+    "nombre": "Naranjilla Tropical",
+    "descripcion": "Una mezcla de naranjilla, mango y avena.",
+    "ingredientes": [
+      "naranjilla",
+      "mango",
+      "avena"
+    ],
+    "precio": 3.5,
+    "imagen": "🥭",
+    "categoria": "Frutal"
+  },
+  {
+    "id": 5,
+    "esEjemplo": true,
+    "nombre": "Banano con Cacao",
+    "descripcion": "Banano y cacao con una textura suave.",
+    "ingredientes": [
+      "banano",
+      "cacao",
+      "avena"
+    ],
+    "precio": 3.25,
+    "imagen": "🍌",
+    "categoria": "Especial"
+  },
+  {
+    "id": 6,
+    "esEjemplo": true,
+    "nombre": "Piña y Hierbaluisa",
+    "descripcion": "Piña fresca con hierbaluisa y semillas de chía.",
+    "ingredientes": [
+      "piña",
+      "hierbaluisa",
+      "chía"
+    ],
+    "precio": 3.75,
+    "imagen": "🍍",
+    "categoria": "Especial"
+  }
+]

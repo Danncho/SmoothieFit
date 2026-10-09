@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smoothies | SmoothieFit</title>
+  <meta name="description" content="Conoce los smoothies de ejemplo de SmoothieFit.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/layout.js" defer></script>
+  <script src="js/smoothies.js" defer></script>
+</head>
+<body>
+  <main class="container page-content">
+    <section aria-labelledby="catalog-title">
+      <div class="section-heading">
+        <p class="eyebrow">Colores para disfrutar</p>
+        <h1 id="catalog-title">Nuestros smoothies</h1>
+        <p>Explora las mezclas de ejemplo y elige la que más te guste.</p>
+      </div>
+      <div class="catalog-filter">
+        <label for="category-filter">Filtrar por categoría</label>
+        <select id="category-filter">
+          <option value="">Todas las categorías</option>
+        </select>
+      </div>
+      <p class="catalog-status" id="catalog-status" role="status" aria-live="polite">Cargando smoothies...</p>
+      <div class="grid smoothie-grid" id="smoothies-list"></div>
+    </section>
+  </main>
+</body>
+</html>
