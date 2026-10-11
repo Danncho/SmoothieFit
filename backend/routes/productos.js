@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs/promises');
 const path = require('path');
+const adminAuth = require('../middleware/adminAuth');
 
 const router = express.Router();
 const productsFile = path.join(__dirname, '..', 'data', 'productos.json');
@@ -97,7 +98,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', adminAuth, async (req, res) => {
   const resultado = validarProducto(req.body);
 
   if (resultado.errores.length > 0) {
@@ -119,7 +120,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', adminAuth, async (req, res) => {
   const resultado = validarProducto(req.body);
 
   if (resultado.errores.length > 0) {
@@ -150,7 +151,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', adminAuth, async (req, res) => {
   try {
     const productos = await leerProductos();
     const indice = productos.findIndex((item) => String(item.id) === req.params.id);

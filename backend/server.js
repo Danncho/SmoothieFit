@@ -1,8 +1,12 @@
 const express = require('express');
 const path = require('path');
+const dotenv = require('dotenv');
 
 const app = express();
 const frontendPath = path.join(__dirname, '..', 'frontend');
+
+dotenv.config({ path: path.join(__dirname, '.env') });
+
 const productosRoutes = require('./routes/productos');
 
 app.use(express.json({ limit: '100kb' }));
