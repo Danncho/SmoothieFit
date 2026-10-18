@@ -1,0 +1,155 @@
+[
+  {
+    "id": 1,
+    "esEjemplo": true,
+    "nombre": "Agua",
+    "categoria": "base",
+    "precioExtra": 0,
+    "color": "#dff4ff",
+    "alergenos": []
+  },
+  {
+    "id": 2,
+    "esEjemplo": true,
+    "nombre": "Leche",
+    "categoria": "base",
+    "precioExtra": 0,
+    "color": "#fff8e7",
+    "alergenos": ["lácteos"]
+  },
+  {
+    "id": 3,
+    "esEjemplo": true,
+    "nombre": "Leche vegetal",
+    "categoria": "base",
+    "precioExtra": 0,
+    "color": "#f5e8cc",
+    "alergenos": ["frutos secos"]
+  },
+  {
+    "id": 4,
+    "esEjemplo": true,
+    "nombre": "Yogur",
+    "categoria": "base",
+    "precioExtra": 0,
+    "color": "#fff4f6",
+    "alergenos": ["lácteos"]
+  },
+  {
+    "id": 5,
+    "esEjemplo": true,
+    "nombre": "Mora",
+    "categoria": "frutas",
+    "precioExtra": 0.45,
+    "color": "#754283",
+    "alergenos": []
+  },
+  {
+    "id": 6,
+    "esEjemplo": true,
+    "nombre": "Maracuyá",
+    "categoria": "frutas",
+    "precioExtra": 0.5,
+    "color": "#f4c64e",
+    "alergenos": []
+  },
+  {
+    "id": 7,
+    "esEjemplo": true,
+    "nombre": "Naranjilla",
+    "categoria": "frutas",
+    "precioExtra": 0.45,
+    "color": "#e8a43a",
+    "alergenos": []
+  },
+  {
+    "id": 8,
+    "esEjemplo": true,
+    "nombre": "Banano",
+    "categoria": "frutas",
+    "precioExtra": 0.35,
+    "color": "#f4df65",
+    "alergenos": []
+  },
+  {
+    "id": 9,
+    "esEjemplo": true,
+    "nombre": "Frutilla",
+    "categoria": "frutas",
+    "precioExtra": 0.45,
+    "color": "#e95270",
+    "alergenos": []
+  },
+  {
+    "id": 10,
+    "esEjemplo": true,
+    "nombre": "Mango",
+    "categoria": "frutas",
+    "precioExtra": 0.5,
+    "color": "#f59c38",
+    "alergenos": []
+  },
+  {
+    "id": 11,
+    "esEjemplo": true,
+    "nombre": "Espinaca",
+    "categoria": "verduras",
+    "precioExtra": 0.3,
+    "color": "#5a9b63",
+    "alergenos": []
+  },
+  {
+    "id": 12,
+    "esEjemplo": true,
+    "nombre": "Pepino",
+    "categoria": "verduras",
+    "precioExtra": 0.25,
+    "color": "#80b96d",
+    "alergenos": []
+  },
+  {
+    "id": 13,
+    "esEjemplo": true,
+    "nombre": "Zanahoria",
+    "categoria": "verduras",
+    "precioExtra": 0.3,
+    "color": "#ee853d",
+    "alergenos": []
+  },
+  {
+    "id": 14,
+    "esEjemplo": true,
+    "nombre": "Chía",
+    "categoria": "semillas",
+    "precioExtra": 0.2,
+    "color": "#56505d",
+    "alergenos": []
+  },
+  {
+    "id": 15,
+    "esEjemplo": true,
+    "nombre": "Linaza",
+    "categoria": "semillas",
+    "precioExtra": 0.2,
+    "color": "#a77a4a",
+    "alergenos": []
+  },
+  {
+    "id": 16,
+    "esEjemplo": true,
+    "nombre": "Avena",
+    "categoria": "extras",
+    "precioExtra": 0.25,
+    "color": "#d3b17a",
+    "alergenos": ["gluten"]
+  },
+  {
+    "id": 17,
+    "esEjemplo": true,
+    "nombre": "Miel",
+    "categoria": "extras",
+    "precioExtra": 0.3,
+    "color": "#d99a35",
+    "alergenos": []
+  }
+]

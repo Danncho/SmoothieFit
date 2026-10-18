@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crea tu smoothie | SmoothieFit</title>
+  <meta name="description" content="Arma una combinación de ejemplo a tu manera con SmoothieFit.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/layout.js" defer></script>
+  <script src="js/constructor.js" defer></script>
+</head>
+<body>
+  <main class="container page-content builder-page">
+    <section aria-labelledby="builder-title">
+      <div class="section-heading">
+        <p class="eyebrow">Tú eliges la mezcla</p>
+        <h1 id="builder-title">Crea tu smoothie</h1>
+        <p>Elige tamaño e ingredientes y arma una combinación a tu manera.</p>
+      </div>
+
+      <p class="builder-status" id="builder-status" role="status" aria-live="polite">Cargando ingredientes y reglas...</p>
+
+      <div class="builder-layout" id="builder-content" hidden>
+        <form class="builder-form card" id="builder-form">
+          <fieldset class="builder-step">
+            <legend><span class="step-number">1</span> Elige el tamaño</legend>
+            <div class="builder-options builder-size-options" id="size-options"></div>
+          </fieldset>
+
+          <fieldset class="builder-step">
+            <legend><span class="step-number">2</span> Elige una base</legend>
+            <div class="builder-options" id="base-options"></div>
+          </fieldset>
+
+          <fieldset class="builder-step">
+            <legend><span class="step-number">3</span> Frutas y verduras</legend>
+            <p class="builder-hint" id="produce-hint"></p>
+            <h2>Frutas</h2>
+            <div class="builder-options" id="fruit-options"></div>
+            <h2>Verduras</h2>
+            <div class="builder-options" id="vegetable-options"></div>
+          </fieldset>
+
+          <fieldset class="builder-step">
+            <legend><span class="step-number">4</span> Semillas y extras</legend>
+            <p class="builder-hint" id="extras-hint"></p>
+            <div class="builder-options" id="extras-options"></div>
+          </fieldset>
+
+          <fieldset class="builder-step">
+            <legend><span class="step-number">5</span> Nombra tu creación</legend>
+            <label for="creation-name">Nombre de tu smoothie</label>
+            <input class="builder-name-input" id="creation-name" name="nombre" type="text" maxlength="40" placeholder="Mi mezcla favorita" required>
+          </fieldset>
+
+          <div class="builder-actions">
+            <button class="button button-secondary" id="surprise-button" type="button">Sorpréndeme</button>
+            <button class="button button-primary" id="add-to-order-button" type="button">Agregar a mi pedido</button>
+          </div>
+        </form>
+
+        <aside class="builder-summary card" aria-labelledby="summary-title">
+          <h2 id="summary-title">Tu creación</h2>
+          <div class="smoothie-glass" role="img" aria-label="Vaso vacío" id="smoothie-glass">
+            <svg class="glass-svg" viewBox="0 0 200 250" aria-hidden="true">
+              <defs>
+                <clipPath id="glass-clip">
+                  <path d="M35 38 H165 L148 218 Q100 235 52 218 Z"></path>
+                </clipPath>
+              </defs>
+              <path class="glass-fill" d="M35 38 H165 L148 218 Q100 235 52 218 Z"></path>
+              <g id="glass-layers" clip-path="url(#glass-clip)"></g>
+              <path class="glass-outline" d="M35 38 H165 L148 218 Q100 235 52 218 Z"></path>
+              <path class="glass-rim" d="M31 38 Q100 29 169 38"></path>
+              <path class="glass-straw" d="M118 34 L130 5"></path>
+            </svg>
+          </div>
+          <p class="builder-price" id="builder-price">Precio: $0.00</p>
+          <h3>Ingredientes elegidos</h3>
+          <ul class="selected-ingredients" id="selected-ingredients">
+            <li>Aún no has elegido ingredientes.</li>
+          </ul>
+          <ul class="builder-warnings" id="builder-warnings" aria-live="polite"></ul>
+          <p class="allergen-notice" id="allergen-notice">No has elegido ingredientes con alérgenos declarados.</p>
+          <p class="allergen-reminder">Revisa los ingredientes si tienes alergias.</p>
+          <p class="cart-message" id="cart-message" role="status" aria-live="polite"></p>
+        </aside>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

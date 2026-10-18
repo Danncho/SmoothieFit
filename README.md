@@ -17,17 +17,23 @@ Luego abre http://localhost:3000 en el navegador. Para detener el servidor, pres
 
 - `backend/server.js`: inicia Express y publica los archivos de `frontend/`. Usa `path.join` para encontrar esa carpeta de forma compatible con Windows.
 - `backend/routes/productos.js`: ofrece las rutas de productos y valida los datos recibidos.
+- `backend/routes/ingredientes.js`: publica los ingredientes disponibles para el constructor.
+- `backend/routes/reglas-constructor.js`: comparte las reglas y tamaños definidos en `backend/config/constructorRules.js`.
+- `backend/config/constructorRules.js`: fuente única de límites y precios base de tamaños del constructor.
 - `backend/middleware/adminAuth.js`: comprueba la clave enviada en `x-admin-key` antes de permitir cambios en productos.
 - `backend/.env.example`: muestra el nombre de la variable necesaria para configurar la clave local.
 - `backend/package.json`: contiene Express y el comando `npm start`.
 - `backend/package-lock.json`: registra las versiones instaladas de las dependencias.
 - `backend/data/productos.json`: guarda los productos de ejemplo del catálogo.
+- `backend/data/ingredientes.json`: guarda ingredientes y alérgenos de ejemplo.
 - `frontend/index.html`: página de inicio y tres productos destacados cargados desde la API.
 - `frontend/smoothies.html`: catálogo que muestra los productos de la API y permite filtrarlos por categoría.
+- `frontend/crea-tu-smoothie.html`: constructor paso a paso, resumen y carrito.
 - `frontend/css/styles.css`: colores, tipografías, componentes y diseño responsive.
 - `frontend/js/layout.js`: agrega el encabezado, menú, pie de página, control del menú móvil y aparición de secciones al desplazarse. Cada página HTML debe cargar este script.
 - `frontend/js/inicio.js`: carga desde la API los tres smoothies destacados de la página de inicio.
 - `frontend/js/smoothies.js`: carga y filtra el catálogo de productos.
+- `frontend/js/constructor.js`: carga ingredientes y reglas, valida la selección y guarda creaciones en el carrito local.
 - `frontend/admin.html`: panel protegido para administrar el catálogo.
 - `frontend/js/admin.js`: gestiona el inicio de sesión, el formulario y las operaciones CRUD desde el panel.
 - `frontend/img/`: imágenes del sitio.
@@ -58,3 +64,7 @@ Si aún no tienes `backend/.env`, abre la terminal en `backend/` y copia la plan
 El panel crea la tabla y sus celdas con `document.createElement()` y asigna los valores con `textContent`, en vez de interpretar datos como HTML. Así un nombre o ingrediente que contenga etiquetas se muestra como texto y no se ejecuta como marcado o script.
 
 Esta clave compartida es una protección básica para una demostración y no sustituye una autenticación real. En producción se usarían cuentas individuales, contraseñas cifradas, sesiones seguras y conexiones HTTPS.
+
+## Constructor de smoothies
+
+La página `crea-tu-smoothie.html` carga ingredientes desde `GET /api/ingredientes` y límites y tamaños desde `GET /api/reglas-constructor`. Ambos endpoints usan los mismos datos del backend que utiliza el JavaScript para validar la selección y calcular el precio. Los ingredientes y precios son ejemplos; el total suma el precio base del tamaño y el `precioExtra` de cada ingrediente elegido. La creación se guarda en `localStorage` bajo `smoothiefitCart` con cantidad inicial de 1.
