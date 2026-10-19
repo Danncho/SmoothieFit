@@ -29,6 +29,9 @@ Luego abre http://localhost:3000 en el navegador. Para detener el servidor, pres
 - `frontend/index.html`: página de inicio y tres productos destacados cargados desde la API.
 - `frontend/smoothies.html`: catálogo que muestra los productos de la API y permite filtrarlos por categoría.
 - `frontend/crea-tu-smoothie.html`: constructor paso a paso, resumen y carrito.
+- `frontend/productores.html`: propuesta de colaboración local y perfiles ficticios de ejemplo.
+- `frontend/sostenibilidad.html`: enfoque propuesto para empaques y reducción de residuos.
+- `frontend/nosotros.html`: historia, misión, visión, valores y espacios para el equipo.
 - `frontend/css/styles.css`: colores, tipografías, componentes y diseño responsive.
 - `frontend/js/layout.js`: agrega el encabezado, menú, pie de página, control del menú móvil y aparición de secciones al desplazarse. Cada página HTML debe cargar este script.
 - `frontend/js/inicio.js`: carga desde la API los tres smoothies destacados de la página de inicio.
