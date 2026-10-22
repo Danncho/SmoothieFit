@@ -69,14 +69,15 @@ En el árbol local sí aparecen `.git/` y `backend/.env`. No se ejecutaron coman
 | GET | `/api/ingredientes` | No | `backend/routes/ingredientes.js` |
 | GET | `/api/reglas-constructor` | No | `backend/routes/reglas-constructor.js` |
 
-Las rutas se conectan en `backend/server.js`. El servidor también publica los archivos estáticos de `frontend-legacy/`, acepta cuerpos JSON y devuelve un mensaje JSON para JSON malformado o errores no controlados.
+Las rutas se conectan en `backend/server.js`. El servidor acepta cuerpos JSON y devuelve un mensaje JSON para JSON malformado o errores no controlados. Actualmente `server.js` también usa `express.static` sobre la ruta `../frontend` (no `frontend-legacy/`); esa ruta apunta al directorio del nuevo frontend, no a un build configurado de Vite.
 
 ### Datos, reglas y configuración
 
 - `backend/data/productos.json`: catálogo de seis productos con precios e ingredientes de ejemplo. Los registros tienen `esEjemplo: true`.
-- `backend/data/ingredientes.json`: lista de ingredientes con categoría, precio extra, color y alérgenos; los registros tienen `esEjemplo: true`.
+- `backend/data/ingredientes.json`: lista de 17 ingredientes con categoría, precio extra, color y alérgenos; los registros tienen `esEjemplo: true`.
 - No existen actualmente `pedidos.json`, `contactos.json` ni `alianzas.json`; esos nombres sí aparecen excluidos en `.gitignore`.
 - `backend/config/constructorRules.js`: fuente única de las categorías, límites de selección y precios base de los tamaños pequeño, mediano y grande. Sus precios están comentados como ejemplos.
+- Reglas actuales del constructor: exactamente una base, al menos una fruta, hasta cuatro frutas y verduras combinadas, y hasta dos semillas o extras; los tamaños pequeño, mediano y grande tienen precios base de ejemplo.
 - `backend/middleware/adminAuth.js`: compara `x-admin-key` con `process.env.ADMIN_KEY`; si no coincide o la variable no está configurada, responde HTTP 401. Protege solo las escrituras de productos.
 - `backend/.env.example` contiene una clave de reemplazo de muestra. `backend/.env` está presente localmente y `.gitignore` contiene `.env`; la clave no se ha copiado a este informe.
 - La variable de entorno utilizada por el código es `ADMIN_KEY`, cargada por `dotenv` en `backend/server.js`.
@@ -122,6 +123,12 @@ No se encontraron `contacto.html`, `colegios.html`, `puntos-de-venta.html` ni `p
 
 El constructor valida las reglas en el navegador, pero el backend no recibe ni vuelve a validar una orden de smoothie. El carrito permanece en el navegador y no se registra como pedido en el servidor.
 
+### Constructor de smoothies y reglas actuales
+
+`frontend-legacy/crea-tu-smoothie.html` presenta cinco pasos: tamaño, base, frutas/verduras, semillas/extras y nombre. `frontend-legacy/js/constructor.js` obtiene ingredientes y reglas de la API, valida la selección en el cliente, calcula el precio a partir del tamaño y los extras, dibuja el vaso SVG, muestra ingredientes y alérgenos declarados y permite generar una combinación aleatoria. Si la selección es válida, agrega la mezcla a `localStorage` bajo `smoothiefitCart`; esto no crea ni registra un pedido en el backend.
+
+Las reglas se comparten desde `GET /api/reglas-constructor` y `backend/config/constructorRules.js`. La validación actual solo está en el navegador: si el constructor se conserva, el backend deberá volver a validar ingredientes, cantidades y precio antes de aceptar un pedido.
+
 ### Estilos, colores y textos reutilizables
 
 `frontend-legacy/css/styles.css` define variables en `:root`:
@@ -149,12 +156,12 @@ Textos que pueden servir de base para componentes React: nombre `SmoothieFit`; n
 | `frontend-legacy/css/styles.css` y sus variables de color | **Se reutiliza como referencia y se adapta** a CSS de componentes React | Conserva la paleta, los contrastes, el espaciado y los estilos que ya se entienden. |
 | Encabezado y pie de `frontend-legacy/js/layout.js` | **Se reemplaza** por componentes compartidos de React y rutas de HashRouter | React debe renderizar el layout dentro de la aplicación y las rutas deben funcionar en GitHub Pages. |
 | Páginas HTML actuales | **Se reemplazan gradualmente** por páginas/componentes React | El requisito del curso exige React; conviene migrar por partes para comparar resultados. |
-| `inicio.js` y `smoothies.js` | **Se reemplazan** por componentes y servicios React para la API | Conservan el contrato del catálogo, pero no el mecanismo de manipulación manual del DOM. |
+| `frontend-legacy/js/inicio.js` y `frontend-legacy/js/smoothies.js` | **Se reemplazan** por componentes y servicios React para la API | Conservan el contrato del catálogo, pero no el mecanismo de manipulación manual del DOM. |
 | Endpoints REST de productos | **Se reutilizan inicialmente y se adaptan** para consultar la base de datos | La interfaz React puede seguir usando las rutas y campos del catálogo mientras cambia el almacenamiento. |
 | `productos.json` e `ingredientes.json` | **Se reemplazan como almacenamiento vivo** por MongoDB Atlas; se pueden usar como datos iniciales de carga | Los archivos locales no son una base persistente apropiada para hosting efímero. Conservarlos como ejemplos requiere una decisión explícita. |
-| `constructorRules.js` y su endpoint | **Se reutilizan** como contrato/reglas del constructor, con validación también en servidor si se aceptan pedidos | Evita duplicar límites y permite que el frontend lea reglas comunes. |
+| `backend/config/constructorRules.js` y su endpoint | **Se reutilizan** como contrato/reglas del constructor, con validación también en servidor si se aceptan pedidos | Evita duplicar límites y permite que el frontend lea reglas comunes. |
 | `frontend-legacy/js/constructor.js` y el carrito en `localStorage` | **Se reemplaza** si se mantiene el constructor; también puede posponerse porque es extra en el plan | El nuevo frontend será React y el pedido debe integrarse con una API real si se necesita persistencia. |
-| `adminAuth.js`, clave compartida y pantalla de clave actual | **Se reemplazan** por usuarios, contraseñas cifradas y JWT | Una clave compartida no distingue personas ni permite administrar sesiones de usuarios. |
+| `adminAuth.js`, clave compartida y pantalla de clave actual | **Se reemplazan** por usuarios, hashes seguros de contraseñas y JWT | Una clave compartida no distingue personas ni permite administrar sesiones de usuarios. |
 | `admin.js` y CRUD manual del DOM | **Se reemplaza** por un panel React que use el login real | Separa el acceso y la gestión del estado visual del navegador. |
 | Perfiles ficticios de productores y datos marcados `esEjemplo` | **Se reutilizan solo como ejemplos identificados** o se reemplazan con datos reales confirmados | No deben presentarse como proveedores reales. |
 | Espacios “Nombre del integrante” y “Foto del equipo” | **Se reemplazan** por información real cuando el equipo la entregue | Son marcadores, no datos finales. |
@@ -163,7 +170,21 @@ Textos que pueden servir de base para componentes React: nombre `SmoothieFit`; n
 
 No se debe borrar ni sobrescribir `frontend-legacy/`; se conservará como referencia mientras React se desarrolla en `frontend/`.
 
-## e. Riesgos y problemas para producción
+## e. Riesgos y cambios del backend para producción
+
+### Orden recomendado
+
+1. **Separar la publicación del frontend y la API.** `backend/server.js` sirve actualmente `../frontend` con `express.static`; GitHub Pages debe servir el build estático de Vite y Express debe quedar como API, sin servir archivos del frontend en producción. Para desarrollo local, Vite puede ejecutarse por separado.
+2. **Configurar la URL de la API y CORS.** El frontend no debe depender de rutas relativas como `/api/...` cuando se publique en otro dominio: usará una URL de API configurable por ambiente. Añadir `cors` al backend, permitir solo el origen publicado y los orígenes locales necesarios, y aceptar únicamente métodos y encabezados requeridos.
+3. **Sustituir los archivos JSON como almacenamiento operativo.** Crear modelos y conexión a MongoDB Atlas con Mongoose para productos, ingredientes y futuros registros de contacto/usuarios; importar los JSON actuales como datos iniciales solo después de validarlos. No depender de escrituras a archivos en el disco del hosting.
+4. **Añadir el registro real de contacto.** Crear un endpoint POST y validación del lado servidor que persistan las solicitudes en la base de datos; actualmente no existe página, ruta ni almacenamiento de contacto.
+5. **Reemplazar la clave compartida por autenticación individual.** Sustituir `adminAuth.js` y `x-admin-key` por login de usuarios, hash seguro de contraseñas, emisión/verificación de JWT y protección de las rutas CRUD; crear las cuentas iniciales de forma segura y guardar secretos solo en variables de entorno.
+6. **Incorporar la función de IA en el servidor.** Crear un endpoint que invoque al proveedor desde Express, mantenga la clave fuera del navegador y devuelva una respuesta de respaldo si el proveedor falla.
+7. **Preparar el proceso de hosting.** Usar el puerto proporcionado por el servicio mediante `process.env.PORT`, definir variables de entorno para base de datos, JWT, proveedor de IA, CORS y URL de frontend, y desplegar/probar API y frontend por separado con HTTPS.
+
+Los endpoints nuevos de contacto, login y la función de IA aún requieren diseño e implementación; no forman parte de la lista de rutas actuales.
+
+### Riesgos observados
 
 1. **Panel de administración con clave compartida:** existe una sola clave para todas las personas administradoras; queda en `sessionStorage` y se envía desde el navegador. La protección actual sirve para una demostración, no para usuarios reales. Usar HTTPS y sustituirla por autenticación individual.
 2. **Archivos JSON como almacenamiento:** los productos se modifican escribiendo directamente en disco. Algunos hostings gratuitos reinician o no conservan el disco, y dos escrituras simultáneas pueden pisarse. Migrar los datos a la base prevista.
@@ -206,30 +227,32 @@ Si un commit aparece, revísalo en privado y no pegues claves en chats, capturas
 | 3. Base de datos real (MongoDB Atlas + Mongoose) | Crear modelos y conexión segura; migrar productos e ingredientes; dejar de depender de JSON para datos editables. | Campos actuales y archivos JSON como posible semilla inicial después de validarlos. | Credenciales de conexión filtradas, modelo incorrecto o datos de muestra tomados como reales. |
 | 4. Contacto real con solicitudes | Crear formulario accesible, validación de servidor y endpoint persistente para registrar solicitudes. | Tono y diseño de marca; rutas Express existentes como patrón sencillo. | Recopilar datos personales sin reglas de acceso, retención y protección. |
 | 5. Primera publicación (GitHub Pages + hosting del backend) | Publicar frontend estático en GitHub Pages y desplegar backend en un servicio compatible; configurar URL de API y CORS por ambiente. | Vite y API después de separar frontend/backend. | GitHub Pages no ejecuta Node; dominios distintos requieren CORS, HTTPS y variables de entorno configuradas. |
-| 6. Login real con JWT y panel admin | Crear usuarios, guardar contraseñas cifradas, emitir/verificar JWT y proteger las rutas de gestión. JWT es un token firmado que permite identificar una sesión; no reemplaza una contraseña segura ni debe tratarse como secreto de texto plano. | Campos de producto, formularios y operaciones CRUD existentes. | Errores de autenticación, permisos insuficientes o almacenamiento inseguro de tokens. |
+| 6. Login real con JWT y panel admin | Crear usuarios, guardar hashes seguros de contraseñas, emitir/verificar JWT y proteger las rutas de gestión. JWT es un token firmado que permite identificar una sesión; no reemplaza una contraseña segura ni debe tratarse como secreto de texto plano. | Campos de producto, formularios y operaciones CRUD existentes. | Errores de autenticación, permisos insuficientes o almacenamiento inseguro de tokens. |
 | 7. Módulo de IA con respaldo | Implementar una función útil (por ejemplo, recomendar mezclas según preferencias), llamar al proveedor solo desde backend y devolver una respuesta determinista si la IA falla. | Ingredientes, catálogo y tono sencillo. | Proveedor/costo aún no elegido, filtrar una clave de IA o dar respuestas incorrectas como hechos. |
 | 8. Constructor de smoothies en React (extra) | Migrar el constructor y conectar selecciones válidas al backend y, si corresponde, al carrito/pedidos. | Ingredientes, `constructorRules.js`, alérgenos y SVG actual como referencia. | Validar precio solo en el navegador o prometer información de alérgenos no confirmada. |
 | 9. Animaciones y responsive (extra) | Probar en tamaños de pantalla y agregar animaciones pequeñas solo si aportan claridad y se respetan preferencias de movimiento reducido. | Variables CSS y diseño actual. | Dependencias adicionales, carga lenta o movimiento que dificulte la accesibilidad. |
 | 10. Revisión final y guía de defensa | Probar rutas y formularios, revisar seguridad, datos, contenido, publicación, documentación y preparar explicaciones en palabras del estudiante. | `README.md`, este diagnóstico y las reglas de contenido. | Declarar cumplido algo que no se haya probado o desplegado realmente. |
 
-## h. Dependencias nuevas
+## h. Dependencias nuevas en orden de incorporación
 
 Estas son candidatas para el plan, no están instaladas por esta tarea. La selección final debe respetar lo permitido por el curso y poder explicarse en la defensa.
 
-| Nombre | Para qué sirve y por qué se necesita |
-|---|---|
-| `vite` | Inicia y compila el frontend React con una configuración simple para desarrollo y publicación estática. |
-| `react` | Permite construir la interfaz con componentes reutilizables. |
-| `react-dom` | Muestra los componentes React en la página del navegador. |
-| `react-router-dom` | Proporciona `HashRouter` y navegación entre páginas que funciona en hosting estático como GitHub Pages. |
-| `mongoose` | Define modelos y conecta el backend Node.js con MongoDB Atlas. |
-| `cors` | Permite al navegador llamar al backend cuando frontend y backend estén en dominios separados, limitando los orígenes autorizados. |
-| `bcryptjs` (o `bcrypt`, decisión pendiente) | Cifra las contraseñas antes de guardarlas, de modo que no se almacenen como texto legible. |
-| `jsonwebtoken` | Crea y verifica los tokens JWT del login real. |
-| SDK del proveedor de IA (por decidir) | Facilita llamar a la IA desde el backend; no elegir ni instalar hasta decidir proveedor y revisar permisos/costos. |
-| Librería de animaciones (opcional, por decidir) | Puede simplificar animaciones, pero no es necesaria para los requisitos base y se debe confirmar con el mentor antes de añadirla. |
+| Orden | Dependencia | Para qué sirve y por qué se necesita |
+|---|---|---|
+| 1 | `react` | Permite construir la interfaz en componentes reutilizables. |
+| 2 | `react-dom` | Renderiza la aplicación React en el DOM del navegador. |
+| 3 | `vite` | Ejecuta el entorno de desarrollo y genera los archivos estáticos para GitHub Pages. |
+| 4 | `@vitejs/plugin-react` | Integra React y JSX con Vite durante desarrollo y compilación. |
+| 5 | `react-router-dom` | Proporciona `HashRouter` y rutas compatibles con hosting estático como GitHub Pages. |
+| 6 | `mongoose` | Define modelos y conecta el backend Node.js con MongoDB Atlas para reemplazar el almacenamiento operativo en JSON. |
+| 7 | `cors` | Permite llamadas del frontend alojado en otro dominio, limitando los orígenes autorizados. |
+| 8 | `bcryptjs` | Genera hashes de contraseña para guardar credenciales de forma no reversible; las contraseñas no deben almacenarse como texto plano. |
+| 9 | `jsonwebtoken` | Firma y verifica los tokens JWT usados para autenticar sesiones y proteger operaciones administrativas. |
+| 10 | SDK del proveedor de IA (por decidir) | Facilita la llamada al proveedor desde Express; elegirlo solo después de acordar proveedor, permisos y costos. |
+| Opcional | Librería de animaciones (por decidir) | Podría facilitar animaciones, pero no es necesaria para los requisitos base y se debe justificar antes de añadirla. |
 
 `express` y `dotenv` ya están declaradas en el backend y no cuentan como dependencias nuevas del plan.
+No se propone una dependencia separada para contacto: Express puede recibir el formulario y Mongoose puede persistirlo. Las dependencias nuevas siguen pendientes de autorización del curso y deben mantenerse al mínimo.
 
 ## i. Checklist de requisitos del curso
 
@@ -238,7 +261,7 @@ Estas son candidatas para el plan, no están instaladas por esta tarea. La selec
 | Landing / inicio con marca, mensaje, secciones y navegación | Parcial | `frontend-legacy/index.html` tiene hero, beneficios, destacados y llamadas a acción; todavía usa HTML/JS, no React. |
 | Catálogo con productos y detalles claros | Parcial | `frontend-legacy/smoothies.html`, `frontend-legacy/js/smoothies.js` y `backend/data/productos.json`; los productos son de ejemplo y el frontend debe migrarse a React. |
 | Contacto real que envíe o registre solicitudes | Falta | No se encontró página de contacto, endpoint ni archivo/base de solicitudes. El enlace `contacto.html` no tiene destino local. |
-| Panel admin con login y zona de gestión | Parcial | `frontend-legacy/admin.html`, `frontend-legacy/js/admin.js` y endpoints de escritura con `adminAuth`; usa una clave compartida, no usuarios y contraseñas cifradas. |
+| Panel admin con login y zona de gestión | Parcial | `frontend-legacy/admin.html`, `frontend-legacy/js/admin.js` y endpoints de escritura con `adminAuth`; usa una clave compartida, no usuarios ni hashes de contraseña. |
 | IA aplicada con respaldo sin IA | Falta | No se encontró módulo o llamada de IA ni respuesta de respaldo. |
 | Publicación disponible en internet | Falta / No verificado | No se encontró configuración local de GitHub Pages ni hosting del backend. No se comprobó una URL pública. |
 | Frontend con React | Falta | No hay `package.json` de frontend, Vite, dependencias React ni componentes React en el árbol. |
