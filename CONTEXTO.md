@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Construir la página web de SmoothieFit, un emprendimiento de smoothies saludables en Ecuador. El proyecto será presentado ante jueces que revisarán la página y el código (HTML, CSS, JavaScript y Node.js). El código debe ser claro para que quien lo presenta pueda explicar cada parte.
+Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo ante jueces. La nueva arquitectura requerida usa React en el frontend y Node.js con Express en el backend. El código y las decisiones deben ser claros para que el estudiante pueda explicar cada parte.
 
 ## Contexto de la marca
 
@@ -16,19 +16,24 @@ Construir la página web de SmoothieFit, un emprendimiento de smoothies saludabl
 
 ## Arquitectura
 
-- `backend/`: Node.js y Express para una API REST.
-- `frontend/`: HTML, CSS y JavaScript puros, sin frameworks.
-- El frontend consume el backend con `fetch()`.
-- El código debe estar organizado, ser claro y fácil de entender.
+- **Estado real observado:** `backend/` contiene una API Express; `frontend-legacy/` contiene la versión anterior en HTML, CSS y JavaScript puros. `frontend/` queda libre para la nueva aplicación; todavía no se encontraron React, Vite, HashRouter ni una base de datos real.
+- **Arquitectura objetivo:** `frontend/` usará React con Vite y HashRouter; `backend/` seguirá separado con Express. El frontend se publicará en GitHub Pages y el backend en un hosting aparte.
+- **Datos objetivo:** reemplazar el almacenamiento operativo en JSON por MongoDB Atlas con Mongoose.
+- **Acceso objetivo:** sustituir la clave compartida por usuarios, contraseñas cifradas y autenticación con token JWT.
+- **IA objetivo:** llamar al servicio de IA desde el backend y ofrecer una respuesta de respaldo sin IA si el servicio no está disponible.
+- **Backend actual:** productos e ingredientes se leen desde archivos JSON; las escrituras de productos usan una clave compartida en `.env`. El diagnóstico y el plan están en `MIGRACION.md`.
 
 ## Reglas de código
 
-- Mantener carpetas claras, nombres descriptivos y consistentes, y comentarios breves que expliquen el porqué.
-- No usar librerías ni técnicas avanzadas difíciles de explicar para un estudiante de Ingeniería en Sistemas. Si se necesita una dependencia, justificarla.
-- Diseñar primero para celular y asegurar que la página sea responsive y accesible: etiquetas adecuadas, texto alternativo en imágenes y buen contraste.
-- Después de cada tarea, entregar un resumen corto de qué se hizo y por qué.
-- No eliminar ni sobrescribir archivos o carpetas existentes sin preguntar antes.
-- No ejecutar comandos de Git; el usuario los ejecuta manualmente.
+- Mantener carpetas claras, nombres descriptivos consistentes y comentarios breves que expliquen el porqué.
+- Escribir código simple y explicable para un estudiante de Ingeniería en Sistemas. Justificar cada dependencia nueva y confirmar con el mentor si se permiten dependencias del backend.
+- Diseñar primero para celular y mantener accesibilidad: etiquetas adecuadas, texto alternativo y buen contraste.
+- No eliminar, mover ni sobrescribir archivos o carpetas existentes sin preguntar antes; en especial, conservar `frontend-legacy/` como referencia al crear la nueva app en `frontend/`.
+- No ejecutar comandos de Git; el usuario los ejecuta manualmente. El proyecto requiere al menos 15 commits y un repositorio en GitHub.
+- Después de cada tarea, entregar un resumen corto y sencillo de lo realizado y por qué.
+- El frontend debe poder publicarse como sitio estático en GitHub Pages; el backend Express se desplegará por separado.
+- La autenticación final debe usar usuarios, contraseñas cifradas y JWT. La IA debe llamarse desde el backend y contar con un respaldo sin IA.
+- Evitar afirmaciones médicas o nutricionales no respaldadas y marcar los datos de muestra como ejemplos.
 
 ## Reglas de contenido
 
@@ -36,46 +41,16 @@ Construir la página web de SmoothieFit, un emprendimiento de smoothies saludabl
 - No usar frases como «100% ecológico», «cero impacto» ni «único en el mercado».
 - Marcar en el código como ejemplos todos los datos de muestra, incluidos precios, sabores, ingredientes y productores.
 
-## Secuencia de trabajo y comprobaciones
+## Requisitos del curso
 
-Al completar cada base, el usuario realizará manualmente los pasos de Git indicados en la Parte 2 de sus instrucciones. Antes de cada commit, comprobará lo siguiente:
+- Entregar una landing, un catálogo, contacto real, un panel admin con login, una función de IA con respaldo y una publicación disponible en internet.
+- Usar React en el frontend, Git con mínimo 15 commits, un repositorio GitHub y GitHub Pages para el frontend.
+- Mantener diseño responsive y elegir dependencias que el estudiante pueda justificar y explicar.
+- El estado real revisado y la evidencia disponible están en `MIGRACION.md`. No se verificaron el historial de commits, el remoto de GitHub ni una URL pública porque esta tarea prohíbe ejecutar Git.
 
-| Prompt | Qué probar antes del commit | Mensaje del commit |
-|---|---|---|
-| 0 | Existe `CONTEXTO.md` | `Prompt 0: contexto del proyecto` |
-| 1 | Desde `backend/`, `npm start` abre `localhost:3000` | `Prompt 1: estructura backend y frontend` |
-| 2 | Header, footer y menú hamburguesa funcionan | `Prompt 2: estilos, header y footer` |
-| 3 | El inicio se ve bien en celular y PC | `Prompt 3: página de inicio` |
-| 4 | `localhost:3000/api/productos` muestra el JSON y cargan las tarjetas | `Prompt 4: API REST de productos y catálogo` |
-| 5 | En `admin.html` se puede crear, editar y eliminar con la clave correcta; una clave incorrecta es rechazada | `Prompt 5: panel de administración con clave` |
-| 6 | Se puede armar un smoothie, ver su precio y agregarlo al carrito | `Prompt 6: constructor Crea tu smoothie` |
-| 7 | Abren las tres páginas informativas | `Prompt 7: páginas informativas` |
-| 8 | Los formularios muestran errores si se dejan vacíos | `Prompt 8: colegios y puntos de venta` |
-| 9 | Se envían pedidos, contactos y alianzas, y se guardan en los JSON | `Prompt 9: backend de pedidos y formularios` |
-| 10 | Funcionan todos los enlaces y el README está completo | `Prompt 10: revisión final y documentación` |
+## Estado del proyecto
 
-Para ejecutar el proyecto cuando exista el backend, la terminal debe estar en `backend/`, donde se encuentra `package.json`:
-
-```powershell
-cd backend
-npm install
-npm start
-```
-
-## Protección de datos y configuración de Git
-
-El archivo `.gitignore` de la raíz debe excluir exactamente:
-
-```gitignore
-node_modules/
-.env
-backend/data/pedidos.json
-backend/data/contactos.json
-backend/data/alianzas.json
-```
-
-Estas exclusiones evitan subir dependencias, la clave de administrador y los datos de clientes a GitHub. El primer push será `git push -u origin main`; después, bastará con `git push`. El usuario ejecuta todos los comandos de Git manualmente.
-
-## Clave de administrador
-
-La clave simple en `.env` queda como opción por defecto para facilitar su explicación y demostración en vivo. El panel administrativo deberá rechazar solicitudes con una clave incorrecta (401). Si se decide dejar el panel sin protección, se quitarán el requisito de protección del Prompt 5 y las menciones al 401 en el Prompt 10.
+- **Fecha de revisión:** 22 de octubre de 2026.
+- **Fase actual:** diagnóstico y planificación de la migración, después de las páginas informativas (Fase 7 del trabajo anterior).
+- **Estado técnico:** existe una API Express y un frontend anterior de HTML/CSS/JavaScript en `frontend-legacy/`; todavía no se inició la migración a React, la base de datos, el contacto real, el login de usuarios, la IA ni el despliegue requerido.
+- **Precaución:** `frontend-legacy/` conserva la versión anterior; `frontend/` queda disponible para crear React.
