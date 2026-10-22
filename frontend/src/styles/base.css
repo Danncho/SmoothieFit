@@ -340,6 +340,7 @@ button {
 }
 
 .section-heading h2,
+.section-heading h1,
 .custom-banner h2,
 .school-banner h2,
 .final-cta h2 {
@@ -371,6 +372,7 @@ button {
 }
 
 .benefit-card h3,
+.smoothie-card h2,
 .smoothie-card h3 {
   margin: 0.8rem 0 0.25rem;
   color: var(--color-purple);
@@ -398,6 +400,12 @@ button {
   min-height: 10rem;
   place-items: center;
   font-size: 4rem;
+}
+
+.smoothie-art img {
+  width: 100%;
+  height: 10rem;
+  object-fit: cover;
 }
 
 .smoothie-art-pink {
@@ -433,6 +441,167 @@ button {
 
 .sample-label {
   margin-top: 0.5rem !important;
+}
+
+.smoothie-ingredients {
+  margin-top: 0.6rem !important;
+}
+
+.smoothie-category {
+  display: inline-block;
+  margin-top: 0.65rem !important;
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  background: var(--color-pink);
+  color: var(--color-purple) !important;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.catalog-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0 auto var(--space-large);
+}
+
+.catalog-filter label {
+  color: var(--color-purple);
+  font-weight: 700;
+}
+
+.catalog-filter select {
+  min-width: 12rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.products-status {
+  margin: 0 auto var(--space-medium);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.products-error {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-small);
+}
+
+.products-error p {
+  margin: 0;
+}
+
+.info-page > section + section {
+  margin-top: var(--space-large);
+}
+
+.info-hero {
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border-radius: var(--radius-large);
+  background: linear-gradient(135deg, var(--color-pink), #fff4e9);
+}
+
+.info-hero .section-heading {
+  margin-bottom: 0;
+}
+
+.info-section {
+  display: grid;
+  gap: var(--space-large);
+  align-items: center;
+}
+
+.info-section > .section-heading,
+.info-section > .grid {
+  width: 100%;
+  grid-column: 1 / -1;
+}
+
+.info-copy {
+  max-width: 48rem;
+}
+
+.info-copy h2,
+.info-cta h2,
+.info-card h3,
+.producer-card h3,
+.purpose-card h3,
+.value-card h3,
+.team-card h3 {
+  color: var(--color-purple);
+}
+
+.info-highlight {
+  padding: var(--space-large);
+  border-radius: var(--radius-large);
+  background: var(--color-pink);
+}
+
+.info-highlight p:last-child {
+  margin-bottom: 0;
+  color: var(--color-muted);
+}
+
+.highlight-icon,
+.info-card-icon,
+.producer-mark {
+  font-size: 2rem;
+}
+
+.info-card-number {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-pink);
+  color: var(--color-purple);
+  font-weight: 800;
+}
+
+.info-card p,
+.producer-card p,
+.purpose-card p,
+.value-card p,
+.team-card p {
+  color: var(--color-muted);
+}
+
+.producer-location,
+.team-name {
+  font-weight: 700;
+}
+
+.info-cta {
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border-radius: var(--radius-large);
+  background: var(--color-pink);
+  text-align: center;
+}
+
+.info-cta p {
+  color: var(--color-muted);
+}
+
+.info-cta .button {
+  margin-top: var(--space-small);
+}
+
+.team-photo {
+  display: grid;
+  min-height: 8rem;
+  place-items: center;
+  border-radius: var(--radius-small);
+  background: var(--color-pink);
+  color: var(--color-purple);
+  font-weight: 700;
 }
 
 .section-action {
@@ -613,5 +782,14 @@ button {
 
   .footer-inner {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .info-section:not(.info-section-soft) {
+    grid-template-columns: minmax(0, 1.3fr) minmax(15rem, 0.7fr);
+  }
+
+  .info-section > .section-heading,
+  .info-section > .grid {
+    grid-column: 1 / -1;
   }
 }

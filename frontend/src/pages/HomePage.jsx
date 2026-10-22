@@ -1,28 +1,8 @@
 import { Link } from 'react-router-dom';
-
-const featuredSmoothies = [
-  {
-    name: 'Mora Andina',
-    description: 'Una mezcla frutal con un toque de semillas.',
-    price: '$3.50',
-    art: '🫐',
-    style: 'pink'
-  },
-  {
-    name: 'Maracuyá Alegre',
-    description: 'Maracuyá y naranjilla en una combinación cítrica.',
-    price: '$3.75',
-    art: '🍊',
-    style: 'yellow'
-  },
-  {
-    name: 'Verde Fresco',
-    description: 'Frutas con un poco de espinaca y chía.',
-    price: '$4.00',
-    art: '🥬',
-    style: 'purple'
-  }
-];
+import ProductCard from '../components/ProductCard.jsx';
+import ProductsStatus from '../components/ProductsStatus.jsx';
+import SectionTitle from '../components/SectionTitle.jsx';
+import useProducts from '../hooks/useProducts.js';
 
 const benefits = [
   { icon: '♥', title: 'Sabor', description: 'Mezclas coloridas para disfrutar cada sorbo.' },
@@ -32,6 +12,10 @@ const benefits = [
 ];
 
 function HomePage() {
+  const { products, loading, error, retry } = useProducts();
+  const featuredProducts = products.filter((product) => product.destacado).slice(0, 3);
+  const featuredSmoothies = (featuredProducts.length ? featuredProducts : products).slice(0, 3);
+
   return (
     <>
       <section className="hero">
@@ -62,11 +46,12 @@ function HomePage() {
       </section>
 
       <section className="home-section container" aria-labelledby="why-title">
-        <div className="section-heading">
-          <p className="eyebrow">Así nos gusta</p>
-          <h2 id="why-title">¿Por qué SmoothieFit?</h2>
-          <p>Ideas frescas, preparadas para acompañar tu día.</p>
-        </div>
+        <SectionTitle
+          eyebrow="Así nos gusta"
+          title="¿Por qué SmoothieFit?"
+          description="Ideas frescas, preparadas para acompañar tu día."
+          id="why-title"
+        />
         <div className="grid benefit-grid">
           {benefits.map((benefit) => (
             <article className="card benefit-card" key={benefit.title}>
@@ -80,26 +65,25 @@ function HomePage() {
 
       <section className="home-section featured-section" aria-labelledby="featured-title">
         <div className="container">
-          <div className="section-heading">
-            <p className="eyebrow">Para empezar a elegir</p>
-            <h2 id="featured-title">Tres mezclas de ejemplo</h2>
-            <p>Ideas de muestra para explorar el catálogo.</p>
-          </div>
-          <div className="grid smoothie-grid">
-            {featuredSmoothies.map((smoothie) => (
-              <article className="card smoothie-card" key={smoothie.name}>
-                <div className={`smoothie-art smoothie-art-${smoothie.style}`} role="img" aria-label={`Ilustración de ${smoothie.name}`}>
-                  {smoothie.art}
-                </div>
-                <div className="smoothie-info">
-                  <h3>{smoothie.name}</h3>
-                  <p>{smoothie.description}</p>
-                  <p className="smoothie-price">{smoothie.price} <span>precio de ejemplo</span></p>
-                  <p className="sample-label">Producto de ejemplo</p>
-                </div>
-              </article>
-            ))}
-          </div>
+          <SectionTitle
+            eyebrow="Para empezar a elegir"
+            title="Tres mezclas del catálogo"
+            description="Productos de ejemplo para explorar el catálogo."
+            id="featured-title"
+          />
+          <ProductsStatus
+            loading={loading}
+            error={error}
+            empty={!loading && !error && featuredSmoothies.length === 0}
+            onRetry={retry}
+          />
+          {!loading && !error && featuredSmoothies.length > 0 && (
+            <div className="grid smoothie-grid">
+              {featuredSmoothies.map((product) => (
+                <ProductCard product={product} key={product.id ?? product.nombre} />
+              ))}
+            </div>
+          )}
           <div className="section-action">
             <Link className="button button-secondary" to="/smoothies">Ver todos los smoothies</Link>
           </div>
