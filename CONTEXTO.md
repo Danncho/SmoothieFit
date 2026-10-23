@@ -16,12 +16,12 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 
 ## Arquitectura
 
-- **Estado real observado:** `backend/` contiene una API Express; `frontend-legacy/` conserva la versión anterior en HTML, CSS y JavaScript puros. `frontend/` se reserva para la nueva aplicación; aún no hay React, Vite, HashRouter ni una base de datos real.
-- **Arquitectura objetivo:** `frontend/` usará JavaScript, React, Vite y React Router con `HashRouter`; `backend/` seguirá separado con Express. GitHub Pages publicará el frontend estático y un servicio de hosting independiente ejecutará el backend.
-- **Datos objetivo:** migrar productos e ingredientes desde archivos JSON a una base de datos real, prevista como MongoDB Atlas con Mongoose.
+- **Estado real observado:** `backend/` contiene una API Express; `frontend-legacy/` conserva la versión anterior en HTML, CSS y JavaScript puros; `frontend/` ya contiene la app React con Vite y HashRouter.
+- **Arquitectura:** `frontend/` usa JavaScript, React, Vite y React Router con `HashRouter`; `backend/` está separado con Express. GitHub Pages publicará el frontend estático y un servicio de hosting independiente ejecutará el backend.
+- **Datos:** la API de productos ya está implementada con MongoDB Atlas y Mongoose; falta configurar `MONGODB_URI` localmente, cargar el seed y verificar la conexión real. Ingredientes y reglas del constructor continúan en JSON de solo lectura.
 - **Acceso objetivo:** reemplazar la clave compartida por cuentas de usuario, contraseñas guardadas mediante hash seguro y autenticación con tokens JWT.
 - **IA objetivo:** implementar una función útil, como recomendar mezclas según preferencias e ingredientes disponibles; el backend llamará al servicio de IA y ofrecerá una respuesta de respaldo si este no está disponible.
-- **Backend actual:** productos e ingredientes se leen desde archivos JSON; las escrituras de productos usan una clave compartida en `.env`. El diagnóstico y el orden de migración están en `MIGRACION.md`.
+- **Backend actual:** productos se consultan y modifican en MongoDB usando Mongoose; `backend/data/productos.json` se conserva como archivo de seed. Ingredientes y reglas siguen en JSON. Las escrituras de productos aún usan la clave compartida `ADMIN_KEY` en `.env`. El diagnóstico está en `MIGRACION.md`.
 
 ## Reglas de código
 
@@ -51,6 +51,6 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 ## Estado del proyecto
 
 - **Fecha de revisión:** 22 de octubre de 2026.
-- **Fase actual:** Fase 8, planificación del giro hacia la arquitectura full stack requerida.
-- **Estado técnico:** existe una API Express y un frontend anterior de HTML/CSS/JavaScript en `frontend-legacy/`; todavía no se inició la migración a React, la base de datos, el contacto real, el login de usuarios, la IA ni el despliegue requerido.
-- **Precaución:** `frontend-legacy/` conserva la versión anterior; `frontend/` queda disponible para crear React.
+- **Fase actual:** Fase 11, persistencia de productos con MongoDB y Mongoose.
+- **Estado técnico:** React ya tiene el inicio, catálogo conectado a la API y páginas informativas. La conexión real a MongoDB y el seed requieren configuración manual de Atlas; aún faltan contacto persistente, login individual, IA y despliegue final.
+- **Precaución:** `frontend-legacy/` conserva la versión anterior; la app actual se desarrolla en `frontend/`.

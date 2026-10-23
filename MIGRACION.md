@@ -14,6 +14,7 @@ smoothiefit/
 │   ├── .env                         (local, ignorado por Git)
 │   ├── .env.example
 │   ├── config/
+│   │   ├── db.js
 │   │   └── constructorRules.js
 │   ├── data/
 │   │   ├── .gitkeep
@@ -21,6 +22,9 @@ smoothiefit/
 │   │   └── productos.json
 │   ├── middleware/
 │   │   └── adminAuth.js
+│   ├── models/
+│   │   ├── Producto.js
+│   │   └── Solicitud.js
 │   ├── package.json
 │   ├── package-lock.json
 │   ├── routes/
@@ -28,7 +32,12 @@ smoothiefit/
 │   │   ├── ingredientes.js
 │   │   ├── productos.js
 │   │   └── reglas-constructor.js
+│   ├── scripts/
+│   │   └── seed.js
 │   └── server.js
+├── frontend/
+│   ├── package.json
+│   └── src/                          (React, Vite y HashRouter)
 └── frontend-legacy/
     ├── admin.html
     ├── crea-tu-smoothie.html
@@ -51,7 +60,7 @@ smoothiefit/
     └── sostenibilidad.html
 ```
 
-La carpeta `frontend-legacy/` contiene el frontend anterior, hecho con HTML, CSS y JavaScript puros. La carpeta `frontend/` queda libre para crear la nueva aplicación React.
+La carpeta `frontend-legacy/` contiene el frontend anterior, hecho con HTML, CSS y JavaScript puros. La aplicación React actual vive en `frontend/`.
 
 En el árbol local sí aparecen `.git/` y `backend/.env`. No se ejecutaron comandos de Git, no se inició el servidor y no se comprobó el contenido del historial. El valor de la clave local no se muestra en este documento.
 
@@ -68,15 +77,20 @@ En el árbol local sí aparecen `.git/` y `backend/.env`. No se ejecutaron coman
 | DELETE | `/api/productos/:id` | Sí, encabezado `x-admin-key` | `backend/routes/productos.js`, middleware `backend/middleware/adminAuth.js` |
 | GET | `/api/ingredientes` | No | `backend/routes/ingredientes.js` |
 | GET | `/api/reglas-constructor` | No | `backend/routes/reglas-constructor.js` |
+| GET | `/api/health` | No | `backend/server.js`; informa si MongoDB está disponible |
 
-Las rutas se conectan en `backend/server.js`. El servidor acepta cuerpos JSON y devuelve un mensaje JSON para JSON malformado o errores no controlados. Actualmente `server.js` también usa `express.static` sobre la ruta `../frontend` (no `frontend-legacy/`); esa ruta apunta al directorio del nuevo frontend, no a un build configurado de Vite.
+Las rutas se conectan en `backend/server.js`. El servidor acepta cuerpos JSON y devuelve un mensaje JSON para JSON malformado o errores no controlados. Ya no sirve archivos estáticos: espera una conexión MongoDB exitosa antes de abrir el puerto y publica la API para el frontend Vite, que se ejecuta aparte.
 
 ### Datos, reglas y configuración
 
-- `backend/data/productos.json`: catálogo de seis productos con precios e ingredientes de ejemplo. Los registros tienen `esEjemplo: true`.
+- `backend/data/productos.json`: catálogo de seis productos con precios e ingredientes de ejemplo. Los registros tienen `esEjemplo: true`; ahora se conserva como fuente del seed, no como almacenamiento operativo de la API.
 - `backend/data/ingredientes.json`: lista de 17 ingredientes con categoría, precio extra, color y alérgenos; los registros tienen `esEjemplo: true`.
 - No existen actualmente `pedidos.json`, `contactos.json` ni `alianzas.json`; esos nombres sí aparecen excluidos en `.gitignore`.
 - `backend/config/constructorRules.js`: fuente única de las categorías, límites de selección y precios base de los tamaños pequeño, mediano y grande. Sus precios están comentados como ejemplos.
+- `backend/models/Producto.js`: esquema de MongoDB para los campos del producto, con un `id` numérico único que se conserva en las respuestas de la API.
+- `backend/models/Solicitud.js`: modelo preparado para almacenar solicitudes de contacto; aún no tiene rutas.
+- `backend/config/db.js`: conecta con `process.env.MONGODB_URI` y da un error claro si la variable falta o MongoDB no está disponible.
+- `backend/scripts/seed.js`: inserta desde `productos.json` solo los IDs que todavía no existen; no sobrescribe productos existentes ni elimina el JSON.
 - Reglas actuales del constructor: exactamente una base, al menos una fruta, hasta cuatro frutas y verduras combinadas, y hasta dos semillas o extras; los tamaños pequeño, mediano y grande tienen precios base de ejemplo.
 - `backend/middleware/adminAuth.js`: compara `x-admin-key` con `process.env.ADMIN_KEY`; si no coincide o la variable no está configurada, responde HTTP 401. Protege solo las escrituras de productos.
 - `backend/.env.example` contiene una clave de reemplazo de muestra. `backend/.env` está presente localmente y `.gitignore` contiene `.env`; la clave no se ha copiado a este informe.
@@ -88,8 +102,9 @@ Leídas de `backend/package.json`:
 
 | Paquete | Versión declarada | Uso actual |
 |---|---:|---|
-| `express` | `^5.2.1` | Servidor HTTP, API y archivos estáticos. |
+| `express` | `^5.2.1` | Servidor HTTP y API REST. |
 | `dotenv` | `^18.0.7` | Cargar variables locales desde `backend/.env`. |
+| `mongoose` | `^9.11.3` | Esquemas/modelos y conexión a MongoDB Atlas. |
 
 No hay `devDependencies` declaradas. No se encontró configuración `engines` que indique la versión de Node.js requerida.
 
@@ -158,7 +173,8 @@ Textos que pueden servir de base para componentes React: nombre `SmoothieFit`; n
 | Páginas HTML actuales | **Se reemplazan gradualmente** por páginas/componentes React | El requisito del curso exige React; conviene migrar por partes para comparar resultados. |
 | `frontend-legacy/js/inicio.js` y `frontend-legacy/js/smoothies.js` | **Se reemplazan** por componentes y servicios React para la API | Conservan el contrato del catálogo, pero no el mecanismo de manipulación manual del DOM. |
 | Endpoints REST de productos | **Se reutilizan inicialmente y se adaptan** para consultar la base de datos | La interfaz React puede seguir usando las rutas y campos del catálogo mientras cambia el almacenamiento. |
-| `productos.json` e `ingredientes.json` | **Se reemplazan como almacenamiento vivo** por MongoDB Atlas; se pueden usar como datos iniciales de carga | Los archivos locales no son una base persistente apropiada para hosting efímero. Conservarlos como ejemplos requiere una decisión explícita. |
+| `productos.json` | **Se conserva como fuente de seed**, mientras MongoDB queda como almacenamiento operativo | El seed idempotente carga productos faltantes y mantiene intacto el JSON como respaldo/datos iniciales. |
+| `ingredientes.json` | **Se conserva como lectura local** por ahora | Es una lista pequeña, estática y de solo lectura; una base de datos no aporta valor mientras no necesite edición o consulta dinámica. |
 | `backend/config/constructorRules.js` y su endpoint | **Se reutilizan** como contrato/reglas del constructor, con validación también en servidor si se aceptan pedidos | Evita duplicar límites y permite que el frontend lea reglas comunes. |
 | `frontend-legacy/js/constructor.js` y el carrito en `localStorage` | **Se reemplaza** si se mantiene el constructor; también puede posponerse porque es extra en el plan | El nuevo frontend será React y el pedido debe integrarse con una API real si se necesita persistencia. |
 | `adminAuth.js`, clave compartida y pantalla de clave actual | **Se reemplazan** por usuarios, hashes seguros de contraseñas y JWT | Una clave compartida no distingue personas ni permite administrar sesiones de usuarios. |
@@ -176,7 +192,7 @@ No se debe borrar ni sobrescribir `frontend-legacy/`; se conservará como refere
 
 1. **Separar la publicación del frontend y la API.** `backend/server.js` sirve actualmente `../frontend` con `express.static`; GitHub Pages debe servir el build estático de Vite y Express debe quedar como API, sin servir archivos del frontend en producción. Para desarrollo local, Vite puede ejecutarse por separado.
 2. **Configurar la URL de la API y CORS.** El frontend no debe depender de rutas relativas como `/api/...` cuando se publique en otro dominio: usará una URL de API configurable por ambiente. Añadir `cors` al backend, permitir solo el origen publicado y los orígenes locales necesarios, y aceptar únicamente métodos y encabezados requeridos.
-3. **Sustituir los archivos JSON como almacenamiento operativo.** Crear modelos y conexión a MongoDB Atlas con Mongoose para productos, ingredientes y futuros registros de contacto/usuarios; importar los JSON actuales como datos iniciales solo después de validarlos. No depender de escrituras a archivos en el disco del hosting.
+3. **Productos en MongoDB (implementado; falta verificar con Atlas).** `Producto`, la conexión Mongoose y el seed idempotente ya están preparados. Configurar la URI y ejecutar el seed; mantener ingredientes y reglas en JSON mientras sigan siendo datos estáticos de solo lectura.
 4. **Añadir el registro real de contacto.** Crear un endpoint POST y validación del lado servidor que persistan las solicitudes en la base de datos; actualmente no existe página, ruta ni almacenamiento de contacto.
 5. **Reemplazar la clave compartida por autenticación individual.** Sustituir `adminAuth.js` y `x-admin-key` por login de usuarios, hash seguro de contraseñas, emisión/verificación de JWT y protección de las rutas CRUD; crear las cuentas iniciales de forma segura y guardar secretos solo en variables de entorno.
 6. **Incorporar la función de IA en el servidor.** Crear un endpoint que invoque al proveedor desde Express, mantenga la clave fuera del navegador y devuelva una respuesta de respaldo si el proveedor falla.
@@ -187,7 +203,7 @@ Los endpoints nuevos de contacto, login y la función de IA aún requieren dise�
 ### Riesgos observados
 
 1. **Panel de administración con clave compartida:** existe una sola clave para todas las personas administradoras; queda en `sessionStorage` y se envía desde el navegador. La protección actual sirve para una demostración, no para usuarios reales. Usar HTTPS y sustituirla por autenticación individual.
-2. **Archivos JSON como almacenamiento:** los productos se modifican escribiendo directamente en disco. Algunos hostings gratuitos reinician o no conservan el disco, y dos escrituras simultáneas pueden pisarse. Migrar los datos a la base prevista.
+2. **Datos de productos:** la API ya no modifica `productos.json`; utiliza MongoDB. El JSON sigue siendo el origen de la carga inicial. Ingredientes y reglas se leen de JSON porque no requieren escrituras.
 3. **Despliegue separado y CORS:** no se encontró configuración de CORS. GitHub Pages no ejecuta Express; al alojar el frontend y backend en dominios distintos, la API necesitará origen configurable y permiso CORS.
 4. **Falta de validación de orden en el backend:** las reglas del constructor se validan en JavaScript del navegador. El servidor no recibe la creación ni confirma allí ingredientes y precio; el cliente podría alterar datos locales.
 5. **Requisitos importantes aún ausentes:** no hay formulario/API de contacto, páginas de colegios/puntos de venta/pedidos, base de datos, IA, login por usuario ni configuración de despliegue en el árbol observado.
@@ -224,7 +240,7 @@ Si un commit aparece, revísalo en privado y no pegues claves en chats, capturas
 |---|---|---|---|
 | 1. React base con Vite, Router y layout | Crear la aplicación React dentro de `frontend/`, configurar Vite y HashRouter, y construir el layout compartido. Conservar `frontend-legacy/` como referencia. | Paleta, textos, navegación, estructura del header/footer y convenciones responsive de `frontend-legacy/`. | Sobrescribir la copia del frontend anterior o romper rutas de GitHub Pages. |
 | 2. Catálogo e informativas en React | Migrar landing, catálogo, productores, sostenibilidad y nosotros; agregar las páginas que faltan o ajustar navegación. | Datos y API de productos, contenido aprobado y estilo visual existente. | Enlaces incompletos o datos de ejemplo presentados como reales. |
-| 3. Base de datos real (MongoDB Atlas + Mongoose) | Crear modelos y conexión segura; migrar productos e ingredientes; dejar de depender de JSON para datos editables. | Campos actuales y archivos JSON como posible semilla inicial después de validarlos. | Credenciales de conexión filtradas, modelo incorrecto o datos de muestra tomados como reales. |
+| 3. Base de datos real (MongoDB Atlas + Mongoose) | Implementada para productos; configurar Atlas y verificar el seed. Ingredientes y reglas siguen como JSON estático de solo lectura. | `Producto`, conexión Mongoose y `productos.json` como fuente de seed. | Credenciales de conexión filtradas, modelo incorrecto o datos de muestra tomados como reales. |
 | 4. Contacto real con solicitudes | Crear formulario accesible, validación de servidor y endpoint persistente para registrar solicitudes. | Tono y diseño de marca; rutas Express existentes como patrón sencillo. | Recopilar datos personales sin reglas de acceso, retención y protección. |
 | 5. Primera publicación (GitHub Pages + hosting del backend) | Publicar frontend estático en GitHub Pages y desplegar backend en un servicio compatible; configurar URL de API y CORS por ambiente. | Vite y API después de separar frontend/backend. | GitHub Pages no ejecuta Node; dominios distintos requieren CORS, HTTPS y variables de entorno configuradas. |
 | 6. Login real con JWT y panel admin | Crear usuarios, guardar hashes seguros de contraseñas, emitir/verificar JWT y proteger las rutas de gestión. JWT es un token firmado que permite identificar una sesión; no reemplaza una contraseña segura ni debe tratarse como secreto de texto plano. | Campos de producto, formularios y operaciones CRUD existentes. | Errores de autenticación, permisos insuficientes o almacenamiento inseguro de tokens. |
@@ -244,7 +260,7 @@ Estas son candidatas para el plan, no están instaladas por esta tarea. La selec
 | 3 | `vite` | Ejecuta el entorno de desarrollo y genera los archivos estáticos para GitHub Pages. |
 | 4 | `@vitejs/plugin-react` | Integra React y JSX con Vite durante desarrollo y compilación. |
 | 5 | `react-router-dom` | Proporciona `HashRouter` y rutas compatibles con hosting estático como GitHub Pages. |
-| 6 | `mongoose` | Define modelos y conecta el backend Node.js con MongoDB Atlas para reemplazar el almacenamiento operativo en JSON. |
+| 6 | `mongoose` | Define modelos y conecta el backend Node.js con MongoDB Atlas; ya está instalado para persistir productos. |
 | 7 | `cors` | Permite llamadas del frontend alojado en otro dominio, limitando los orígenes autorizados. |
 | 8 | `bcryptjs` | Genera hashes de contraseña para guardar credenciales de forma no reversible; las contraseñas no deben almacenarse como texto plano. |
 | 9 | `jsonwebtoken` | Firma y verifica los tokens JWT usados para autenticar sesiones y proteger operaciones administrativas. |
@@ -258,17 +274,17 @@ No se propone una dependencia separada para contacto: Express puede recibir el f
 
 | Requisito | Estado | Evidencia local |
 |---|---|---|
-| Landing / inicio con marca, mensaje, secciones y navegación | Parcial | `frontend-legacy/index.html` tiene hero, beneficios, destacados y llamadas a acción; todavía usa HTML/JS, no React. |
-| Catálogo con productos y detalles claros | Parcial | `frontend-legacy/smoothies.html`, `frontend-legacy/js/smoothies.js` y `backend/data/productos.json`; los productos son de ejemplo y el frontend debe migrarse a React. |
+| Landing / inicio con marca, mensaje, secciones y navegación | Parcial | `frontend/src/pages/HomePage.jsx` ya está en React; algunas funciones siguen en construcción. |
+| Catálogo con productos y detalles claros | Parcial | `frontend/src/pages/SmoothiesPage.jsx` obtiene productos por API; la consulta real requiere configurar y cargar MongoDB Atlas. |
 | Contacto real que envíe o registre solicitudes | Falta | No se encontró página de contacto, endpoint ni archivo/base de solicitudes. El enlace `contacto.html` no tiene destino local. |
 | Panel admin con login y zona de gestión | Parcial | `frontend-legacy/admin.html`, `frontend-legacy/js/admin.js` y endpoints de escritura con `adminAuth`; usa una clave compartida, no usuarios ni hashes de contraseña. |
 | IA aplicada con respaldo sin IA | Falta | No se encontró módulo o llamada de IA ni respuesta de respaldo. |
 | Publicación disponible en internet | Falta / No verificado | No se encontró configuración local de GitHub Pages ni hosting del backend. No se comprobó una URL pública. |
-| Frontend con React | Falta | No hay `package.json` de frontend, Vite, dependencias React ni componentes React en el árbol. |
+| Frontend con React | Parcial | Vite, React, HashRouter, layout, landing, catálogo y páginas informativas ya existen en `frontend/`. |
 | Mínimo 15 commits | No verificado | No se ejecutaron comandos de Git, según la instrucción. Debe comprobarse con el historial local. |
 | Repositorio en GitHub | No verificado | Se inspeccionaron archivos, no el remoto ni GitHub. |
 | Despliegue del frontend en GitHub Pages | Falta / No verificado | No hay configuración de despliegue en el árbol; URL externa no verificada. |
-| Diseño responsive | Parcial | `frontend-legacy/css/styles.css` contiene media queries y estilos de móvil; la nueva versión React todavía no existe. |
+| Diseño responsive | Parcial | `frontend/src/styles/base.css` incluye estilos responsive; hace falta confirmar la experiencia en navegadores/tamaños reales. |
 | Dependencias justificadas y explicables | Parcial | El backend declara `express` y `dotenv` con usos documentados en `README.md`; las dependencias futuras y permiso del curso siguen pendientes. |
 | Reglas de contenido y muestras | Parcial | Productos e ingredientes tienen `esEjemplo`; productores indican que son ficticios. Revisar todo texto nuevo al migrar. |
 
