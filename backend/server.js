@@ -15,6 +15,7 @@ const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173')
   .filter(Boolean);
 
 const productosRoutes = require('./routes/productos');
+const solicitudesRoutes = require('./routes/solicitudes');
 const ingredientesRoutes = require('./routes/ingredientes');
 const reglasConstructorRoutes = require('./routes/reglas-constructor');
 
@@ -25,6 +26,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'x-admin-key']
 }));
 app.use('/api/productos', productosRoutes);
+app.use('/api/solicitudes', solicitudesRoutes);
 app.use('/api/ingredientes', ingredientesRoutes);
 app.use('/api/reglas-constructor', reglasConstructorRoutes);
 
