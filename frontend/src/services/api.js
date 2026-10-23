@@ -3,10 +3,22 @@ export const API_URL = import.meta.env.VITE_API_URL || '/api';
 export async function apiRequest(path, options = {}) {
   const endpoint = path.startsWith('/') ? path : `/${path}`;
   const response = await fetch(`${API_URL}${endpoint}`, options);
+  let data = null;
 
-  if (!response.ok) {
-    throw new Error(`La solicitud a la API falló (${response.status}).`);
+  try {
+    data = await response.json();
+  } catch {
+    if (response.ok) {
+      throw new Error('El servidor devolvió una respuesta inválida.');
+    }
   }
 
-  return response.json();
+  if (!response.ok) {
+    const error = new Error(data?.mensaje || `La solicitud a la API falló (${response.status}).`);
+    error.status = response.status;
+    error.data = data;
+    throw error;
+  }
+
+  return data;
 }

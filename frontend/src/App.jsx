@@ -8,6 +8,7 @@ import ProducersPage from './pages/ProducersPage.jsx';
 import SalesPointsPage from './pages/SalesPointsPage.jsx';
 import SmoothiesPage from './pages/SmoothiesPage.jsx';
 import SustainabilityPage from './pages/SustainabilityPage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
 
 const pages = [
   { path: '/smoothies', element: <SmoothiesPage /> },
@@ -17,7 +18,7 @@ const pages = [
   { path: '/puntos-de-venta', element: <SalesPointsPage /> },
   { path: '/sostenibilidad', element: <SustainabilityPage /> },
   { path: '/nosotros', element: <AboutPage /> },
-  { path: '/contacto', title: 'Contacto' },
+  { path: '/contacto', element: <ContactPage /> },
   { path: '/admin', title: 'Administración' }
 ];
 
