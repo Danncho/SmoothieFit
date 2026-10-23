@@ -1,24 +1,18 @@
 const express = require('express');
-const fs = require('fs/promises');
-const path = require('path');
+const mongoose = require('mongoose');
 const adminAuth = require('../middleware/adminAuth');
+const Producto = require('../models/Producto');
 
 const router = express.Router();
-const productsFile = path.join(__dirname, '..', 'data', 'productos.json');
 
-async function leerProductos() {
-  const contenido = await fs.readFile(productsFile, 'utf8');
-  const productos = JSON.parse(contenido);
-
-  if (!Array.isArray(productos)) {
-    throw new Error('El archivo de productos debe contener una lista.');
+function verificarConexion(req, res, next) {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({
+      mensaje: 'La base de datos no está disponible. Intenta de nuevo más tarde.'
+    });
   }
 
-  return productos;
-}
-
-async function guardarProductos(productos) {
-  await fs.writeFile(productsFile, `${JSON.stringify(productos, null, 2)}\n`, 'utf8');
+  return next();
 }
 
 function validarProducto(datos) {
@@ -73,32 +67,81 @@ function validarProducto(datos) {
   };
 }
 
-router.get('/', async (req, res) => {
+function serializarProducto(documento) {
+  const producto = typeof documento.toObject === 'function'
+    ? documento.toObject()
+    : documento;
+
+  return {
+    id: producto.id,
+    esEjemplo: producto.esEjemplo,
+    nombre: producto.nombre,
+    descripcion: producto.descripcion,
+    ingredientes: producto.ingredientes,
+    precio: producto.precio,
+    imagen: producto.imagen,
+    categoria: producto.categoria
+  };
+}
+
+function responderError(res, error, mensaje) {
+  console.error(`${mensaje}:`, error.message);
+
+  const databaseUnavailable = mongoose.connection.readyState !== 1
+    || error.name === 'MongooseServerSelectionError'
+    || error.name === 'MongoNetworkError';
+
+  if (databaseUnavailable) {
+    return res.status(503).json({
+      mensaje: 'La base de datos no está disponible. Intenta de nuevo más tarde.'
+    });
+  }
+
+  if (error.code === 11000) {
+    return res.status(409).json({ mensaje: 'Ya existe un producto con ese id.' });
+  }
+
+  return res.status(500).json({ mensaje });
+}
+
+function obtenerIdValido(id) {
+  if (!/^\d+$/.test(id)) {
+    return null;
+  }
+
+  const parsedId = Number(id);
+  return Number.isSafeInteger(parsedId) && parsedId > 0 ? parsedId : null;
+}
+
+router.get('/', verificarConexion, async (req, res) => {
   try {
-    res.json(await leerProductos());
+    const productos = await Producto.find().sort({ id: 1 }).lean();
+    return res.json(productos.map(serializarProducto));
   } catch (error) {
-    console.error('Error al leer productos:', error.message);
-    res.status(500).json({ mensaje: 'No se pudieron leer los productos.' });
+    return responderError(res, error, 'No se pudieron leer los productos.');
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', verificarConexion, async (req, res) => {
+  const id = obtenerIdValido(req.params.id);
+  if (id === null) {
+    return res.status(400).json({ mensaje: 'El id del producto debe ser un número entero positivo.' });
+  }
+
   try {
-    const productos = await leerProductos();
-    const producto = productos.find((item) => String(item.id) === req.params.id);
+    const producto = await Producto.findOne({ id }).lean();
 
     if (!producto) {
       return res.status(404).json({ mensaje: 'No se encontró el producto solicitado.' });
     }
 
-    return res.json(producto);
+    return res.json(serializarProducto(producto));
   } catch (error) {
-    console.error('Error al consultar producto:', error.message);
-    return res.status(500).json({ mensaje: 'No se pudo consultar el producto.' });
+    return responderError(res, error, 'No se pudo consultar el producto.');
   }
 });
 
-router.post('/', adminAuth, async (req, res) => {
+router.post('/', adminAuth, verificarConexion, async (req, res) => {
   const resultado = validarProducto(req.body);
 
   if (resultado.errores.length > 0) {
@@ -106,67 +149,74 @@ router.post('/', adminAuth, async (req, res) => {
   }
 
   try {
-    const productos = await leerProductos();
-    const nuevoId = productos.reduce((mayorId, producto) => Math.max(mayorId, Number(producto.id) || 0), 0) + 1;
-    const nuevoProducto = { id: nuevoId, esEjemplo: false, ...resultado.producto };
-
-    productos.push(nuevoProducto);
-    await guardarProductos(productos);
-
-    return res.status(201).json({ mensaje: 'Producto creado correctamente.', producto: nuevoProducto });
-  } catch (error) {
-    console.error('Error al crear producto:', error.message);
-    return res.status(500).json({ mensaje: 'No se pudo guardar el producto.' });
-  }
-});
-
-router.put('/:id', adminAuth, async (req, res) => {
-  const resultado = validarProducto(req.body);
-
-  if (resultado.errores.length > 0) {
-    return res.status(400).json({ mensaje: 'Revisa los datos del producto.', errores: resultado.errores });
-  }
-
-  try {
-    const productos = await leerProductos();
-    const indice = productos.findIndex((item) => String(item.id) === req.params.id);
-
-    if (indice === -1) {
-      return res.status(404).json({ mensaje: 'No se encontró el producto solicitado.' });
-    }
-
-    const productoActualizado = {
-      id: productos[indice].id,
+    const productoMayor = await Producto.findOne().sort({ id: -1 }).select({ id: 1 }).lean();
+    const nuevoProducto = await Producto.create({
+      id: (productoMayor?.id || 0) + 1,
       esEjemplo: false,
       ...resultado.producto
-    };
+    });
 
-    productos[indice] = productoActualizado;
-    await guardarProductos(productos);
-
-    return res.json({ mensaje: 'Producto actualizado correctamente.', producto: productoActualizado });
+    return res.status(201).json({
+      mensaje: 'Producto creado correctamente.',
+      producto: serializarProducto(nuevoProducto)
+    });
   } catch (error) {
-    console.error('Error al actualizar producto:', error.message);
-    return res.status(500).json({ mensaje: 'No se pudo actualizar el producto.' });
+    return responderError(res, error, 'No se pudo guardar el producto.');
   }
 });
 
-router.delete('/:id', adminAuth, async (req, res) => {
-  try {
-    const productos = await leerProductos();
-    const indice = productos.findIndex((item) => String(item.id) === req.params.id);
+router.put('/:id', adminAuth, verificarConexion, async (req, res) => {
+  const resultado = validarProducto(req.body);
 
-    if (indice === -1) {
+  if (resultado.errores.length > 0) {
+    return res.status(400).json({ mensaje: 'Revisa los datos del producto.', errores: resultado.errores });
+  }
+
+  const id = obtenerIdValido(req.params.id);
+  if (id === null) {
+    return res.status(400).json({ mensaje: 'El id del producto debe ser un número entero positivo.' });
+  }
+
+  try {
+    const producto = await Producto.findOne({ id });
+    if (!producto) {
       return res.status(404).json({ mensaje: 'No se encontró el producto solicitado.' });
     }
 
-    const [productoEliminado] = productos.splice(indice, 1);
-    await guardarProductos(productos);
+    Object.assign(producto, {
+      esEjemplo: false,
+      ...resultado.producto
+    });
+    await producto.save();
 
-    return res.json({ mensaje: 'Producto eliminado correctamente.', producto: productoEliminado });
+    return res.json({
+      mensaje: 'Producto actualizado correctamente.',
+      producto: serializarProducto(producto)
+    });
   } catch (error) {
-    console.error('Error al eliminar producto:', error.message);
-    return res.status(500).json({ mensaje: 'No se pudo eliminar el producto.' });
+    return responderError(res, error, 'No se pudo actualizar el producto.');
+  }
+});
+
+router.delete('/:id', adminAuth, verificarConexion, async (req, res) => {
+  const id = obtenerIdValido(req.params.id);
+  if (id === null) {
+    return res.status(400).json({ mensaje: 'El id del producto debe ser un número entero positivo.' });
+  }
+
+  try {
+    const producto = await Producto.findOneAndDelete({ id });
+
+    if (!producto) {
+      return res.status(404).json({ mensaje: 'No se encontró el producto solicitado.' });
+    }
+
+    return res.json({
+      mensaje: 'Producto eliminado correctamente.',
+      producto: serializarProducto(producto)
+    });
+  } catch (error) {
+    return responderError(res, error, 'No se pudo eliminar el producto.');
   }
 });
 

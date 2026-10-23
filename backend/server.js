@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const mongoose = require('mongoose');
+const connectDB = require('./config/db');
 
 const app = express();
 
@@ -26,6 +28,13 @@ app.use('/api/productos', productosRoutes);
 app.use('/api/ingredientes', ingredientesRoutes);
 app.use('/api/reglas-constructor', reglasConstructorRoutes);
 
+app.get('/api/health', (req, res) => {
+  const connected = mongoose.connection.readyState === 1;
+  return res.status(connected ? 200 : 503).json({
+    estado: connected ? 'disponible' : 'base de datos no disponible'
+  });
+});
+
 app.use((error, req, res, next) => {
   if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
     return res.status(400).json({ mensaje: 'El cuerpo de la solicitud no contiene JSON válido.' });
@@ -37,6 +46,21 @@ app.use((error, req, res, next) => {
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-  console.log(`SmoothieFit está disponible en http://localhost:${port}`);
-});
+async function startServer() {
+  try {
+    await connectDB();
+    app.listen(port, () => {
+      console.log(`SmoothieFit está disponible en http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error(`No se pudo iniciar el servidor: ${error.message}`);
+    try {
+      await mongoose.disconnect();
+    } catch (disconnectError) {
+      console.error(`No se pudo cerrar MongoDB: ${disconnectError.message}`);
+    }
+    process.exitCode = 1;
+  }
+}
+
+startServer();
