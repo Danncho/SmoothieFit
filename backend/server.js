@@ -9,10 +9,16 @@ const app = express();
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+app.set('trust proxy', 1);
+
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+
+if (allowedOrigins.includes('*')) {
+  throw new Error('CORS_ORIGINS debe especificar orígenes concretos; no se permite "*".');
+}
 
 const productosRoutes = require('./routes/productos');
 const solicitudesRoutes = require('./routes/solicitudes');
@@ -42,24 +48,24 @@ app.use((error, req, res, next) => {
     return res.status(400).json({ mensaje: 'El cuerpo de la solicitud no contiene JSON válido.' });
   }
 
-  console.error('Error del servidor:', error.message);
+  console.error('Error inesperado al procesar una solicitud.');
   return res.status(500).json({ mensaje: 'Ocurrió un error en el servidor.' });
 });
 
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 
 async function startServer() {
   try {
     await connectDB();
-    app.listen(port, () => {
-      console.log(`SmoothieFit está disponible en http://localhost:${port}`);
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`Servidor HTTP iniciado en el puerto ${port}.`);
     });
-  } catch (error) {
-    console.error(`No se pudo iniciar el servidor: ${error.message}`);
+  } catch {
+    console.error('No se pudo iniciar el servidor. Verifica MONGODB_URI y la disponibilidad de MongoDB.');
     try {
       await mongoose.disconnect();
-    } catch (disconnectError) {
-      console.error(`No se pudo cerrar MongoDB: ${disconnectError.message}`);
+    } catch {
+      console.error('No se pudo cerrar la conexión con MongoDB.');
     }
     process.exitCode = 1;
   }

@@ -133,7 +133,7 @@ router.post('/', async (req, res) => {
     await Solicitud.create(solicitud);
     return res.status(201).json({ mensaje: 'Tu solicitud se envió correctamente.' });
   } catch (error) {
-    console.error('No se pudo guardar la solicitud:', error.message);
+    console.error('No se pudo guardar la solicitud.');
 
     if (esFalloDeConexion(error)) {
       return res.status(503).json({
