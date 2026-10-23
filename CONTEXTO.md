@@ -17,7 +17,7 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 ## Arquitectura
 
 - **Estado real observado:** `backend/` contiene una API Express; `frontend-legacy/` conserva la versión anterior en HTML, CSS y JavaScript puros; `frontend/` ya contiene la app React con Vite y HashRouter.
-- **Arquitectura:** `frontend/` usa JavaScript, React, Vite y React Router con `HashRouter`; `backend/` está separado con Express. GitHub Pages publicará el frontend estático y un servicio de hosting independiente ejecutará el backend.
+- **Arquitectura:** `frontend/` usa JavaScript, React, Vite y React Router con `HashRouter`; el workflow de GitHub Pages construye y publica el frontend estático bajo `/SmoothieFit/`. `backend/` usa Express, lee el puerto de `PORT`, restringe CORS a orígenes explícitos y está preparado para desplegarse en Render.
 - **Datos:** la API de productos ya está implementada con MongoDB Atlas y Mongoose; falta configurar `MONGODB_URI` localmente, cargar el seed y verificar la conexión real. Ingredientes y reglas del constructor continúan en JSON de solo lectura.
 - **Acceso objetivo:** reemplazar la clave compartida por cuentas de usuario, contraseñas guardadas mediante hash seguro y autenticación con tokens JWT.
 - **IA objetivo:** implementar una función útil, como recomendar mezclas según preferencias e ingredientes disponibles; el backend llamará al servicio de IA y ofrecerá una respuesta de respaldo si este no está disponible.
@@ -46,11 +46,11 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 - Entregar una landing, un catálogo, contacto real, un panel admin con login, una función de IA con respaldo y una publicación disponible en internet.
 - Usar React en el frontend, Git con mínimo 15 commits, un repositorio GitHub y GitHub Pages para el frontend.
 - Mantener diseño responsive y elegir dependencias que el estudiante pueda justificar y explicar.
-- El estado real revisado y la evidencia disponible están en `MIGRACION.md`. No se verificaron el historial de commits, el remoto de GitHub ni una URL pública porque esta tarea prohíbe ejecutar Git.
+- El estado real revisado y la evidencia disponible están en `MIGRACION.md`. El archivo `.git/config` identifica el remoto `Danncho/SmoothieFit`; no se verificaron el historial de commits, la visibilidad pública ni una URL de despliegue.
 
 ## Estado del proyecto
 
 - **Fecha de revisión:** 22 de octubre de 2026.
-- **Fase actual:** Fase 12, formulario de contacto con registro de solicitudes.
-- **Estado técnico:** React tiene inicio, catálogo, páginas informativas y formulario de contacto; `POST /api/solicitudes` valida y guarda en MongoDB. La persistencia real requiere Atlas configurado y una prueba de envío; aún faltan login individual, IA y despliegue final.
+- **Fase actual:** Fase 13, configuración de publicación en GitHub Pages y preparación del backend para Render.
+- **Estado técnico:** React tiene inicio, catálogo, páginas informativas y formulario de contacto; `POST /api/solicitudes` valida y guarda en MongoDB. El workflow y los ajustes de hosting están configurados, pero los valores de entorno, la publicación y la prueba en servicios reales aún requieren configuración manual. También faltan login individual e IA.
 - **Precaución:** `frontend-legacy/` conserva la versión anterior; la app actual se desarrolla en `frontend/`.
