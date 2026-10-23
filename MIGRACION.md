@@ -75,6 +75,7 @@ En el árbol local sí aparecen `.git/` y `backend/.env`. No se ejecutaron coman
 | POST | `/api/productos` | Sí, encabezado `x-admin-key` | `backend/routes/productos.js`, middleware `backend/middleware/adminAuth.js` |
 | PUT | `/api/productos/:id` | Sí, encabezado `x-admin-key` | `backend/routes/productos.js`, middleware `backend/middleware/adminAuth.js` |
 | DELETE | `/api/productos/:id` | Sí, encabezado `x-admin-key` | `backend/routes/productos.js`, middleware `backend/middleware/adminAuth.js` |
+| POST | `/api/solicitudes` | No; formulario público con validación y límite anti-spam | `backend/routes/solicitudes.js` |
 | GET | `/api/ingredientes` | No | `backend/routes/ingredientes.js` |
 | GET | `/api/reglas-constructor` | No | `backend/routes/reglas-constructor.js` |
 | GET | `/api/health` | No | `backend/server.js`; informa si MongoDB está disponible |
@@ -88,7 +89,8 @@ Las rutas se conectan en `backend/server.js`. El servidor acepta cuerpos JSON y 
 - No existen actualmente `pedidos.json`, `contactos.json` ni `alianzas.json`; esos nombres sí aparecen excluidos en `.gitignore`.
 - `backend/config/constructorRules.js`: fuente única de las categorías, límites de selección y precios base de los tamaños pequeño, mediano y grande. Sus precios están comentados como ejemplos.
 - `backend/models/Producto.js`: esquema de MongoDB para los campos del producto, con un `id` numérico único que se conserva en las respuestas de la API.
-- `backend/models/Solicitud.js`: modelo preparado para almacenar solicitudes de contacto; aún no tiene rutas.
+- `backend/models/Solicitud.js`: modelo de solicitudes con tipo, estado inicial `nueva` y fecha de creación asignados por el servidor.
+- `backend/routes/solicitudes.js`: acepta envíos públicos validados, descarta campos adicionales, incluye honeypot y limita a cinco solicitudes por IP y hora en memoria. No expone consultas ni cambios de solicitudes.
 - `backend/config/db.js`: conecta con `process.env.MONGODB_URI` y da un error claro si la variable falta o MongoDB no está disponible.
 - `backend/scripts/seed.js`: inserta desde `productos.json` solo los IDs que todavía no existen; no sobrescribe productos existentes ni elimina el JSON.
 - Reglas actuales del constructor: exactamente una base, al menos una fruta, hasta cuatro frutas y verduras combinadas, y hasta dos semillas o extras; los tamaños pequeño, mediano y grande tienen precios base de ejemplo.
@@ -124,7 +126,7 @@ No hay `devDependencies` declaradas. No se encontró configuración `engines` qu
 | `frontend-legacy/sostenibilidad.html` | Propuesta cautelosa sobre empaques, materiales, residuos y proveedores locales. |
 | `frontend-legacy/nosotros.html` | Historia del proyecto, misión, visión, valores y cuatro espacios para nombres y fotos del equipo. |
 
-No se encontraron `contacto.html`, `colegios.html`, `puntos-de-venta.html` ni `pedidos.html`. Aunque sus enlaces aparecen en el layout y en el inicio, las páginas correspondientes no están en el árbol.
+En `frontend-legacy/` no se encontraron `contacto.html`, `colegios.html`, `puntos-de-venta.html` ni `pedidos.html`. La app React actual sí tiene página de Contacto y páginas informativas para Colegios y Puntos de venta.
 
 ### Scripts
 
@@ -193,12 +195,12 @@ No se debe borrar ni sobrescribir `frontend-legacy/`; se conservará como refere
 1. **Separar la publicación del frontend y la API.** `backend/server.js` sirve actualmente `../frontend` con `express.static`; GitHub Pages debe servir el build estático de Vite y Express debe quedar como API, sin servir archivos del frontend en producción. Para desarrollo local, Vite puede ejecutarse por separado.
 2. **Configurar la URL de la API y CORS.** El frontend no debe depender de rutas relativas como `/api/...` cuando se publique en otro dominio: usará una URL de API configurable por ambiente. Añadir `cors` al backend, permitir solo el origen publicado y los orígenes locales necesarios, y aceptar únicamente métodos y encabezados requeridos.
 3. **Productos en MongoDB (implementado; falta verificar con Atlas).** `Producto`, la conexión Mongoose y el seed idempotente ya están preparados. Configurar la URI y ejecutar el seed; mantener ingredientes y reglas en JSON mientras sigan siendo datos estáticos de solo lectura.
-4. **Añadir el registro real de contacto.** Crear un endpoint POST y validación del lado servidor que persistan las solicitudes en la base de datos; actualmente no existe página, ruta ni almacenamiento de contacto.
+4. **Contacto con solicitudes (implementado; falta verificar con Atlas).** La app React envía el formulario a `POST /api/solicitudes`; la ruta valida y guarda con el modelo `Solicitud`, y aplica honeypot y límite por IP. Configurar Atlas y verificar la escritura real.
 5. **Reemplazar la clave compartida por autenticación individual.** Sustituir `adminAuth.js` y `x-admin-key` por login de usuarios, hash seguro de contraseñas, emisión/verificación de JWT y protección de las rutas CRUD; crear las cuentas iniciales de forma segura y guardar secretos solo en variables de entorno.
 6. **Incorporar la función de IA en el servidor.** Crear un endpoint que invoque al proveedor desde Express, mantenga la clave fuera del navegador y devuelva una respuesta de respaldo si el proveedor falla.
 7. **Preparar el proceso de hosting.** Usar el puerto proporcionado por el servicio mediante `process.env.PORT`, definir variables de entorno para base de datos, JWT, proveedor de IA, CORS y URL de frontend, y desplegar/probar API y frontend por separado con HTTPS.
 
-Los endpoints nuevos de contacto, login y la función de IA aún requieren diseño e implementación; no forman parte de la lista de rutas actuales.
+Login y la función de IA aún requieren diseño e implementación; no forman parte de la lista de rutas actuales. El envío de contacto está implementado, pero su persistencia real depende de verificar la conexión con Atlas.
 
 ### Riesgos observados
 
@@ -206,7 +208,7 @@ Los endpoints nuevos de contacto, login y la función de IA aún requieren dise�
 2. **Datos de productos:** la API ya no modifica `productos.json`; utiliza MongoDB. El JSON sigue siendo el origen de la carga inicial. Ingredientes y reglas se leen de JSON porque no requieren escrituras.
 3. **Despliegue separado y CORS:** no se encontró configuración de CORS. GitHub Pages no ejecuta Express; al alojar el frontend y backend en dominios distintos, la API necesitará origen configurable y permiso CORS.
 4. **Falta de validación de orden en el backend:** las reglas del constructor se validan en JavaScript del navegador. El servidor no recibe la creación ni confirma allí ingredientes y precio; el cliente podría alterar datos locales.
-5. **Requisitos importantes aún ausentes:** no hay formulario/API de contacto, páginas de colegios/puntos de venta/pedidos, base de datos, IA, login por usuario ni configuración de despliegue en el árbol observado.
+5. **Requisitos importantes aún ausentes:** no hay login por usuario, IA ni configuración de despliegue; las páginas de pedidos siguen pendientes. La persistencia de productos y solicitudes requiere configuración/verificación de Atlas.
 6. **Enlaces sin destino:** el encabezado y la landing enlazan a páginas que aún no existen, entre ellas Contacto. Esto impide que la navegación completa esté lista.
 7. **Revisión de secretos histórica pendiente:** la búsqueda local no encontró asignaciones evidentes de contraseñas, cadenas de conexión ni encabezados de claves privadas en los archivos inspeccionados. `backend/.env` sí existe, pero `.gitignore` lo excluye. Sin comandos de Git no se puede confirmar si alguna clave fue subida anteriormente.
 8. **Muestras frente a información real:** productos e ingredientes actuales están marcados como ejemplo, y los productores se identifican como ficticios. Mantener esas etiquetas hasta reemplazarlos por información confirmada.
@@ -241,7 +243,7 @@ Si un commit aparece, revísalo en privado y no pegues claves en chats, capturas
 | 1. React base con Vite, Router y layout | Crear la aplicación React dentro de `frontend/`, configurar Vite y HashRouter, y construir el layout compartido. Conservar `frontend-legacy/` como referencia. | Paleta, textos, navegación, estructura del header/footer y convenciones responsive de `frontend-legacy/`. | Sobrescribir la copia del frontend anterior o romper rutas de GitHub Pages. |
 | 2. Catálogo e informativas en React | Migrar landing, catálogo, productores, sostenibilidad y nosotros; agregar las páginas que faltan o ajustar navegación. | Datos y API de productos, contenido aprobado y estilo visual existente. | Enlaces incompletos o datos de ejemplo presentados como reales. |
 | 3. Base de datos real (MongoDB Atlas + Mongoose) | Implementada para productos; configurar Atlas y verificar el seed. Ingredientes y reglas siguen como JSON estático de solo lectura. | `Producto`, conexión Mongoose y `productos.json` como fuente de seed. | Credenciales de conexión filtradas, modelo incorrecto o datos de muestra tomados como reales. |
-| 4. Contacto real con solicitudes | Crear formulario accesible, validación de servidor y endpoint persistente para registrar solicitudes. | Tono y diseño de marca; rutas Express existentes como patrón sencillo. | Recopilar datos personales sin reglas de acceso, retención y protección. |
+| 4. Contacto real con solicitudes | Implementado: formulario React y `POST /api/solicitudes` validado, con honeypot, límite por IP y persistencia Mongoose. Falta probarlo con Atlas configurado. | Modelo `Solicitud`, servicio API, estilo de marca. | Recopilar datos personales sin reglas de acceso, retención y protección. |
 | 5. Primera publicación (GitHub Pages + hosting del backend) | Publicar frontend estático en GitHub Pages y desplegar backend en un servicio compatible; configurar URL de API y CORS por ambiente. | Vite y API después de separar frontend/backend. | GitHub Pages no ejecuta Node; dominios distintos requieren CORS, HTTPS y variables de entorno configuradas. |
 | 6. Login real con JWT y panel admin | Crear usuarios, guardar hashes seguros de contraseñas, emitir/verificar JWT y proteger las rutas de gestión. JWT es un token firmado que permite identificar una sesión; no reemplaza una contraseña segura ni debe tratarse como secreto de texto plano. | Campos de producto, formularios y operaciones CRUD existentes. | Errores de autenticación, permisos insuficientes o almacenamiento inseguro de tokens. |
 | 7. Módulo de IA con respaldo | Implementar una función útil (por ejemplo, recomendar mezclas según preferencias), llamar al proveedor solo desde backend y devolver una respuesta determinista si la IA falla. | Ingredientes, catálogo y tono sencillo. | Proveedor/costo aún no elegido, filtrar una clave de IA o dar respuestas incorrectas como hechos. |
@@ -276,7 +278,7 @@ No se propone una dependencia separada para contacto: Express puede recibir el f
 |---|---|---|
 | Landing / inicio con marca, mensaje, secciones y navegación | Parcial | `frontend/src/pages/HomePage.jsx` ya está en React; algunas funciones siguen en construcción. |
 | Catálogo con productos y detalles claros | Parcial | `frontend/src/pages/SmoothiesPage.jsx` obtiene productos por API; la consulta real requiere configurar y cargar MongoDB Atlas. |
-| Contacto real que envíe o registre solicitudes | Falta | No se encontró página de contacto, endpoint ni archivo/base de solicitudes. El enlace `contacto.html` no tiene destino local. |
+| Contacto real que envíe o registre solicitudes | Implementado; persistencia por verificar | `frontend/src/pages/ContactPage.jsx` y `POST /api/solicitudes`; guardar en MongoDB requiere conexión Atlas configurada. |
 | Panel admin con login y zona de gestión | Parcial | `frontend-legacy/admin.html`, `frontend-legacy/js/admin.js` y endpoints de escritura con `adminAuth`; usa una clave compartida, no usuarios ni hashes de contraseña. |
 | IA aplicada con respaldo sin IA | Falta | No se encontró módulo o llamada de IA ni respuesta de respaldo. |
 | Publicación disponible en internet | Falta / No verificado | No se encontró configuración local de GitHub Pages ni hosting del backend. No se comprobó una URL pública. |

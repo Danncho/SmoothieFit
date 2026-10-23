@@ -51,6 +51,6 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 ## Estado del proyecto
 
 - **Fecha de revisión:** 22 de octubre de 2026.
-- **Fase actual:** Fase 11, persistencia de productos con MongoDB y Mongoose.
-- **Estado técnico:** React ya tiene el inicio, catálogo conectado a la API y páginas informativas. La conexión real a MongoDB y el seed requieren configuración manual de Atlas; aún faltan contacto persistente, login individual, IA y despliegue final.
+- **Fase actual:** Fase 12, formulario de contacto con registro de solicitudes.
+- **Estado técnico:** React tiene inicio, catálogo, páginas informativas y formulario de contacto; `POST /api/solicitudes` valida y guarda en MongoDB. La persistencia real requiere Atlas configurado y una prueba de envío; aún faltan login individual, IA y despliegue final.
 - **Precaución:** `frontend-legacy/` conserva la versión anterior; la app actual se desarrolla en `frontend/`.
