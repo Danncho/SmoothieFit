@@ -295,6 +295,11 @@ function ContactPage() {
           <button className="button button-primary" type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Enviando...' : 'Enviar solicitud'}
           </button>
+          {isSubmitting && (
+            <p className="form-status" role="status" aria-live="polite">
+              El servidor está despertando, puede tardar hasta un minuto.
+            </p>
+          )}
           <p className="privacy-note">
             Usaremos tus datos solo para responder a esta solicitud. SmoothieFit es un proyecto académico.
           </p>

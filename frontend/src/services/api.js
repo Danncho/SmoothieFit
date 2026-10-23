@@ -1,4 +1,5 @@
-export const API_URL = import.meta.env.VITE_API_URL || '/api';
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '');
+export const API_URL = configuredApiUrl || '/api';
 
 export async function apiRequest(path, options = {}) {
   const endpoint = path.startsWith('/') ? path : `/${path}`;

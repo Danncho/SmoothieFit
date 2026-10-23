@@ -533,7 +533,8 @@ button {
 }
 
 .message-counter,
-.privacy-note {
+.privacy-note,
+.form-status {
   margin: 0;
   color: var(--color-muted);
   font-size: 0.9rem;

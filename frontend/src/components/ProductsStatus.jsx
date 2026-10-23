@@ -2,7 +2,7 @@ function ProductsStatus({ loading, error, empty, onRetry }) {
   if (loading) {
     return (
       <p className="products-status" role="status" aria-live="polite">
-        Cargando... Puede tardar unos segundos mientras el servidor se activa.
+        El servidor está despertando, puede tardar hasta un minuto. Cargando smoothies...
       </p>
     );
   }
