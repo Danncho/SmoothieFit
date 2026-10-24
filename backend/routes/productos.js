@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const adminAuth = require('../middleware/adminAuth');
+const verificarToken = require('../middleware/verificarToken');
 const Producto = require('../models/Producto');
 
 const router = express.Router();
@@ -141,7 +141,7 @@ router.get('/:id', verificarConexion, async (req, res) => {
   }
 });
 
-router.post('/', adminAuth, verificarConexion, async (req, res) => {
+router.post('/', verificarToken, verificarConexion, async (req, res) => {
   const resultado = validarProducto(req.body);
 
   if (resultado.errores.length > 0) {
@@ -165,7 +165,7 @@ router.post('/', adminAuth, verificarConexion, async (req, res) => {
   }
 });
 
-router.put('/:id', adminAuth, verificarConexion, async (req, res) => {
+router.put('/:id', verificarToken, verificarConexion, async (req, res) => {
   const resultado = validarProducto(req.body);
 
   if (resultado.errores.length > 0) {
@@ -198,7 +198,7 @@ router.put('/:id', adminAuth, verificarConexion, async (req, res) => {
   }
 });
 
-router.delete('/:id', adminAuth, verificarConexion, async (req, res) => {
+router.delete('/:id', verificarToken, verificarConexion, async (req, res) => {
   const id = obtenerIdValido(req.params.id);
   if (id === null) {
     return res.status(400).json({ mensaje: 'El id del producto debe ser un número entero positivo.' });

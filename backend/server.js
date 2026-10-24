@@ -22,17 +22,21 @@ if (allowedOrigins.includes('*')) {
 
 const productosRoutes = require('./routes/productos');
 const solicitudesRoutes = require('./routes/solicitudes');
+const solicitudesAdminRoutes = require('./routes/solicitudes-admin');
+const authRoutes = require('./routes/auth');
 const ingredientesRoutes = require('./routes/ingredientes');
 const reglasConstructorRoutes = require('./routes/reglas-constructor');
 
 app.use(express.json({ limit: '100kb' }));
 app.use(cors({
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'x-admin-key']
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.use('/api/auth', authRoutes);
 app.use('/api/productos', productosRoutes);
 app.use('/api/solicitudes', solicitudesRoutes);
+app.use('/api/solicitudes', solicitudesAdminRoutes);
 app.use('/api/ingredientes', ingredientesRoutes);
 app.use('/api/reglas-constructor', reglasConstructorRoutes);
 
@@ -55,6 +59,15 @@ app.use((error, req, res, next) => {
 const port = Number(process.env.PORT) || 3000;
 
 async function startServer() {
+  const jwtSecretIsValid = typeof process.env.JWT_SECRET === 'string'
+    && process.env.JWT_SECRET.length >= 32;
+
+  if (process.env.NODE_ENV === 'production' && !jwtSecretIsValid) {
+    console.error('No se puede iniciar en producción: configura JWT_SECRET con al menos 32 caracteres.');
+    process.exitCode = 1;
+    return;
+  }
+
   try {
     await connectDB();
     app.listen(port, '0.0.0.0', () => {
