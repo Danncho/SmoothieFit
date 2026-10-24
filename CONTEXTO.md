@@ -20,8 +20,10 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 - **Arquitectura:** `frontend/` usa JavaScript, React, Vite y React Router con `HashRouter`; el workflow de GitHub Pages construye y publica el frontend estático bajo `/SmoothieFit/`. `backend/` usa Express, lee el puerto de `PORT`, restringe CORS a orígenes explícitos y está preparado para desplegarse en Render.
 - **Datos:** la API de productos ya está implementada con MongoDB Atlas y Mongoose; falta configurar `MONGODB_URI` localmente, cargar el seed y verificar la conexión real. Ingredientes y reglas del constructor continúan en JSON de solo lectura.
 - **Acceso actual:** el panel React usa cuentas administradoras, hashes de contraseñas con bcrypt y tokens JWT de dos horas.
-- **IA objetivo:** implementar una función útil, como recomendar mezclas según preferencias e ingredientes disponibles; el backend llamará al servicio de IA y ofrecerá una respuesta de respaldo si este no está disponible.
+- **IA aplicada:** Sorbi, el asistente público, solo usa respuestas preparadas y recomendaciones por palabras clave; no llama a servicios externos. Gemini se reserva para sugerencias creativas de nombres, descripciones y eslóganes dentro del panel administrativo protegido.
 - **Backend actual:** productos y solicitudes se administran en MongoDB usando Mongoose; `backend/data/productos.json` se conserva como archivo de seed. Ingredientes y reglas siguen en JSON. El acceso de administración usa usuarios y JWT; configura `JWT_SECRET` en el entorno privado.
+- **Proveedor de IA:** la llamada Gemini usa `fetch` nativo en el backend y requiere `GEMINI_API_KEY` y `MODELO_IA` configurados como variables privadas; no hay modelo predeterminado ni SDK. Solo envía campos del producto escritos por el administrador. El endpoint es exclusivo de sesión administrativa.
+- **Privacidad y edad:** los términos de Gemini API prohíben usar el servicio dentro de sitios o aplicaciones dirigidos a menores o que probablemente serán accedidos por menores ([términos oficiales](https://ai.google.dev/gemini-api/terms)). Por ello, Gemini no se usa en la experiencia pública destinada también a menores. La API de nivel gratuito puede usar entradas y respuestas para mejorar productos y puede permitir revisión humana; no incluir datos personales, confidenciales ni de clientes. Revisar términos y prácticas de privacidad antes de configurarlo.
 
 ## Reglas de código
 
@@ -50,7 +52,7 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 
 ## Estado del proyecto
 
-- **Fecha de revisión:** 22 de octubre de 2026.
-- **Fase actual:** Fase 14, login JWT y panel de administración React.
-- **Estado técnico:** React tiene inicio, catálogo, páginas informativas, contacto y panel admin para productos y solicitudes. El backend valida JWT y protege las escrituras y la gestión de solicitudes. Configura `JWT_SECRET` y crea el primer administrador localmente; también falta IA y completar la verificación del despliegue real.
+- **Fecha de revisión:** 24 de octubre de 2026.
+- **Fase actual:** Fase 16, Gemini para sugerencias creativas solo en administración; Sorbi público permanece sin IA externa.
+- **Estado técnico:** React tiene inicio, catálogo, páginas informativas, contacto, panel admin y Sorbi con respuestas preparadas. El backend valida JWT y protege el generador Gemini. Configura `JWT_SECRET`, crea el primer administrador y, si aceptas las condiciones de Google, configura `GEMINI_API_KEY` y `MODELO_IA` en privado; también falta completar la verificación del despliegue real.
 - **Precaución:** `frontend-legacy/` conserva la versión anterior; la app actual se desarrolla en `frontend/`.
