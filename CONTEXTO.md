@@ -19,9 +19,9 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 - **Estado real observado:** `backend/` contiene una API Express; `frontend-legacy/` conserva la versión anterior en HTML, CSS y JavaScript puros; `frontend/` ya contiene la app React con Vite y HashRouter.
 - **Arquitectura:** `frontend/` usa JavaScript, React, Vite y React Router con `HashRouter`; el workflow de GitHub Pages construye y publica el frontend estático bajo `/SmoothieFit/`. `backend/` usa Express, lee el puerto de `PORT`, restringe CORS a orígenes explícitos y está preparado para desplegarse en Render.
 - **Datos:** la API de productos ya está implementada con MongoDB Atlas y Mongoose; falta configurar `MONGODB_URI` localmente, cargar el seed y verificar la conexión real. Ingredientes y reglas del constructor continúan en JSON de solo lectura.
-- **Acceso objetivo:** reemplazar la clave compartida por cuentas de usuario, contraseñas guardadas mediante hash seguro y autenticación con tokens JWT.
+- **Acceso actual:** el panel React usa cuentas administradoras, hashes de contraseñas con bcrypt y tokens JWT de dos horas.
 - **IA objetivo:** implementar una función útil, como recomendar mezclas según preferencias e ingredientes disponibles; el backend llamará al servicio de IA y ofrecerá una respuesta de respaldo si este no está disponible.
-- **Backend actual:** productos se consultan y modifican en MongoDB usando Mongoose; `backend/data/productos.json` se conserva como archivo de seed. Ingredientes y reglas siguen en JSON. Las escrituras de productos aún usan la clave compartida `ADMIN_KEY` en `.env`. El diagnóstico está en `MIGRACION.md`.
+- **Backend actual:** productos y solicitudes se administran en MongoDB usando Mongoose; `backend/data/productos.json` se conserva como archivo de seed. Ingredientes y reglas siguen en JSON. El acceso de administración usa usuarios y JWT; configura `JWT_SECRET` en el entorno privado.
 
 ## Reglas de código
 
@@ -51,6 +51,6 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 ## Estado del proyecto
 
 - **Fecha de revisión:** 22 de octubre de 2026.
-- **Fase actual:** Fase 13, configuración de publicación en GitHub Pages y preparación del backend para Render.
-- **Estado técnico:** React tiene inicio, catálogo, páginas informativas y formulario de contacto; `POST /api/solicitudes` valida y guarda en MongoDB. El workflow y los ajustes de hosting están configurados, pero los valores de entorno, la publicación y la prueba en servicios reales aún requieren configuración manual. También faltan login individual e IA.
+- **Fase actual:** Fase 14, login JWT y panel de administración React.
+- **Estado técnico:** React tiene inicio, catálogo, páginas informativas, contacto y panel admin para productos y solicitudes. El backend valida JWT y protege las escrituras y la gestión de solicitudes. Configura `JWT_SECRET` y crea el primer administrador localmente; también falta IA y completar la verificación del despliegue real.
 - **Precaución:** `frontend-legacy/` conserva la versión anterior; la app actual se desarrolla en `frontend/`.

@@ -1,45 +1,41 @@
 # SmoothieFit
 
-Proyecto web de smoothies. El backend usa Node.js y Express para mostrar los archivos del frontend.
+Proyecto académico SmoothieFit. El frontend usa React y Vite; el backend Express publica la API y usa MongoDB para productos y solicitudes.
 
 ## Cómo ejecutarlo
 
-Abre una terminal en la carpeta `backend/` y ejecuta:
+Inicia el backend desde `backend/`:
 
 ```powershell
 npm install
 npm start
 ```
 
-Luego abre http://localhost:3000 en el navegador. Para detener el servidor, presiona `Ctrl+C` en la terminal.
+En otra terminal inicia el frontend desde `frontend/` con `npm run dev`. La dirección local de Vite se muestra en la terminal. Para detener cada servidor, presiona `Ctrl+C` en su terminal.
 
 ## Archivos principales
 
-- `backend/server.js`: inicia Express y publica los archivos de `frontend/`. Usa `path.join` para encontrar esa carpeta de forma compatible con Windows.
-- `backend/routes/productos.js`: ofrece las rutas de productos y valida los datos recibidos.
+- `backend/server.js`: inicia Express, conecta MongoDB, configura CORS y monta las rutas de API.
+- `backend/routes/productos.js`: ofrece las rutas de productos y valida los datos recibidos; las escrituras requieren JWT de administrador.
+- `backend/routes/auth.js` y `backend/middleware/verificarToken.js`: gestionan el login, la sesión JWT y el acceso protegido.
+- `backend/routes/solicitudes-admin.js`: permite al administrador revisar y actualizar solicitudes.
+- `backend/models/Usuario.js`: define las cuentas administrativas y excluye el hash de contraseña de las respuestas.
+- `backend/scripts/crear-admin.js`: crea el administrador inicial sin mostrar la contraseña introducida.
 - `backend/routes/ingredientes.js`: publica los ingredientes disponibles para el constructor.
 - `backend/routes/reglas-constructor.js`: comparte las reglas y tamaños definidos en `backend/config/constructorRules.js`.
 - `backend/config/constructorRules.js`: fuente única de límites y precios base de tamaños del constructor.
-- `backend/middleware/adminAuth.js`: comprueba la clave enviada en `x-admin-key` antes de permitir cambios en productos.
-- `backend/.env.example`: muestra el nombre de la variable necesaria para configurar la clave local.
-- `backend/package.json`: contiene Express y el comando `npm start`.
+- `backend/middleware/verificarToken.js`: verifica el JWT para las operaciones administrativas.
+- `backend/.env.example`: plantilla con nombres de variables y marcadores no secretos.
+- `backend/package.json`: contiene dependencias y comandos `npm start`, `npm run seed` y `npm run crear-admin`.
 - `backend/package-lock.json`: registra las versiones instaladas de las dependencias.
 - `backend/data/productos.json`: guarda los productos de ejemplo del catálogo.
 - `backend/data/ingredientes.json`: guarda ingredientes y alérgenos de ejemplo.
-- `frontend/index.html`: página de inicio y tres productos destacados cargados desde la API.
-- `frontend/smoothies.html`: catálogo que muestra los productos de la API y permite filtrarlos por categoría.
-- `frontend/crea-tu-smoothie.html`: constructor paso a paso, resumen y carrito.
-- `frontend/productores.html`: propuesta de colaboración local y perfiles ficticios de ejemplo.
-- `frontend/sostenibilidad.html`: enfoque propuesto para empaques y reducción de residuos.
-- `frontend/nosotros.html`: historia, misión, visión, valores y espacios para el equipo.
-- `frontend/css/styles.css`: colores, tipografías, componentes y diseño responsive.
-- `frontend/js/layout.js`: agrega el encabezado, menú, pie de página, control del menú móvil y aparición de secciones al desplazarse. Cada página HTML debe cargar este script.
-- `frontend/js/inicio.js`: carga desde la API los tres smoothies destacados de la página de inicio.
-- `frontend/js/smoothies.js`: carga y filtra el catálogo de productos.
-- `frontend/js/constructor.js`: carga ingredientes y reglas, valida la selección y guarda creaciones en el carrito local.
-- `frontend/admin.html`: panel protegido para administrar el catálogo.
-- `frontend/js/admin.js`: gestiona el inicio de sesión, el formulario y las operaciones CRUD desde el panel.
-- `frontend/img/`: imágenes del sitio.
+- `frontend/src/App.jsx`: registra las páginas y las rutas del panel.
+- `frontend/src/pages/`: contiene la landing, el catálogo, las páginas informativas, contacto y panel React.
+- `frontend/src/context/AuthContext.jsx`: valida y conserva el estado de sesión en `sessionStorage`.
+- `frontend/src/services/api.js`: centraliza las llamadas HTTP y el encabezado de autenticación.
+- `frontend/src/styles/base.css`: variables de color, componentes y diseño responsive.
+- `frontend-legacy/`: referencia del frontend antiguo; no forma parte del flujo actual.
 
 ## Diseño y navegación
 
@@ -49,9 +45,9 @@ La página de inicio usa `IntersectionObserver` para mostrar suavemente las secc
 
 ## API de productos
 
-La API permite listar con `GET /api/productos`, consultar uno con `GET /api/productos/:id`, crear con `POST /api/productos`, actualizar con `PUT /api/productos/:id` y eliminar con `DELETE /api/productos/:id`. Los cambios se guardan en `backend/data/productos.json`. Los productos y precios iniciales son ejemplos del proyecto.
+La API permite listar con `GET /api/productos`, consultar uno con `GET /api/productos/:id`, crear con `POST /api/productos`, actualizar con `PUT /api/productos/:id` y eliminar con `DELETE /api/productos/:id`. Las escrituras requieren el token de administrador. MongoDB es el almacenamiento operativo; `backend/data/productos.json` solo es la fuente del seed. Los productos y precios iniciales son ejemplos del proyecto.
 
-El recorrido es: el navegador hace una solicitud con `fetch()`; Express recibe la solicitud y la ruta correspondiente lee o actualiza el archivo JSON; Express responde con un código HTTP y datos JSON; JavaScript usa esa respuesta para mostrar las tarjetas o un mensaje.
+El recorrido es: el navegador hace una solicitud con `fetch()`; Express recibe la solicitud y la ruta consulta o actualiza MongoDB; Express responde con un código HTTP y datos JSON; React usa esa respuesta para mostrar las tarjetas o un mensaje.
 
 - `GET` consulta datos sin modificarlos.
 - `POST` crea un producto nuevo.
@@ -60,14 +56,12 @@ El recorrido es: el navegador hace una solicitud con `fetch()`; Express recibe l
 
 ## Panel de administración
 
-Si aún no tienes `backend/.env`, abre la terminal en `backend/` y copia la plantilla con `Copy-Item .env.example .env`; luego cambia el valor de `ADMIN_KEY` en `.env`. Ejecuta `npm install` y `npm start` desde esa misma carpeta. El archivo `.env` está ignorado por Git; `backend/.env.example` sirve como plantilla sin incluir la clave local. El panel está disponible en `http://localhost:3000/admin.html`.
+Configura `MONGODB_URI` y `JWT_SECRET` en `backend/.env`; el secreto JWT debe tener al menos 32 caracteres y nunca debe subirse al repositorio. Si todavía no existe el archivo, cópialo desde `.env.example` y reemplaza los marcadores con valores privados en tu computadora.
 
-`dotenv` carga variables de entorno desde el archivo `.env`, para que la clave no quede escrita en el código del servidor. El middleware compara esa clave con el encabezado `x-admin-key` en POST, PUT y DELETE; GET continúa siendo público. El navegador conserva la clave en `sessionStorage` solo mientras dure la pestaña.
+Desde `backend/`, ejecuta `npm run crear-admin`. El script pide el correo y la contraseña en la terminal; la contraseña se escribe sin mostrarse y debe tener al menos 12 caracteres. Después inicia el API con `npm start` y abre el frontend React en `http://localhost:5173/#/admin/login`.
 
-El panel crea la tabla y sus celdas con `document.createElement()` y asigna los valores con `textContent`, en vez de interpretar datos como HTML. Así un nombre o ingrediente que contenga etiquetas se muestra como texto y no se ejecuta como marcado o script.
-
-Esta clave compartida es una protección básica para una demostración y no sustituye una autenticación real. En producción se usarían cuentas individuales, contraseñas cifradas, sesiones seguras y conexiones HTTPS.
+El login entrega un JWT que vence en dos horas. React guarda el token en `sessionStorage` y lo envía como Bearer para operaciones administrativas. El panel crea productos con React; no inserta los datos como HTML.
 
 ## Constructor de smoothies
 
-La página `crea-tu-smoothie.html` carga ingredientes desde `GET /api/ingredientes` y límites y tamaños desde `GET /api/reglas-constructor`. Ambos endpoints usan los mismos datos del backend que utiliza el JavaScript para validar la selección y calcular el precio. Los ingredientes y precios son ejemplos; el total suma el precio base del tamaño y el `precioExtra` de cada ingrediente elegido. La creación se guarda en `localStorage` bajo `smoothiefitCart` con cantidad inicial de 1.
+La implementación del constructor en `frontend-legacy/crea-tu-smoothie.html` sirve como referencia y no se modifica. Sus ingredientes y precios son ejemplos; la selección se guardaba en el navegador, no como pedido del backend.

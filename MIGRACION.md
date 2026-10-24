@@ -21,18 +21,23 @@ smoothiefit/
 │   │   ├── ingredientes.json
 │   │   └── productos.json
 │   ├── middleware/
-│   │   └── adminAuth.js
+│   │   └── verificarToken.js
 │   ├── models/
 │   │   ├── Producto.js
-│   │   └── Solicitud.js
+│   │   ├── Solicitud.js
+│   │   └── Usuario.js
 │   ├── package.json
 │   ├── package-lock.json
 │   ├── routes/
 │   │   ├── .gitkeep
+│   │   ├── auth.js
 │   │   ├── ingredientes.js
 │   │   ├── productos.js
-│   │   └── reglas-constructor.js
+│   │   ├── reglas-constructor.js
+│   │   ├── solicitudes-admin.js
+│   │   └── solicitudes.js
 │   ├── scripts/
+│   │   ├── crear-admin.js
 │   │   └── seed.js
 │   └── server.js
 ├── frontend/
@@ -62,7 +67,7 @@ smoothiefit/
 
 La carpeta `frontend-legacy/` contiene el frontend anterior, hecho con HTML, CSS y JavaScript puros. La aplicación React actual vive en `frontend/`.
 
-En el árbol local sí aparecen `.git/` y `backend/.env`. No se ejecutaron comandos de Git, no se inició el servidor y no se comprobó el contenido del historial. El valor de la clave local no se muestra en este documento.
+En el árbol local sí aparecen `.git/` y `backend/.env`. No se ejecutaron comandos de Git durante esta revisión ni se comprobó el contenido del historial. No se muestran valores de variables privadas.
 
 ## b. Backend
 
@@ -72,10 +77,14 @@ En el árbol local sí aparecen `.git/` y `backend/.env`. No se ejecutaron coman
 |---|---|---|---|
 | GET | `/api/productos` | No | `backend/routes/productos.js` |
 | GET | `/api/productos/:id` | No | `backend/routes/productos.js` |
-| POST | `/api/productos` | Sí, encabezado `x-admin-key` | `backend/routes/productos.js`, middleware `backend/middleware/adminAuth.js` |
-| PUT | `/api/productos/:id` | Sí, encabezado `x-admin-key` | `backend/routes/productos.js`, middleware `backend/middleware/adminAuth.js` |
-| DELETE | `/api/productos/:id` | Sí, encabezado `x-admin-key` | `backend/routes/productos.js`, middleware `backend/middleware/adminAuth.js` |
+| POST | `/api/productos` | Sí, JWT Bearer con rol admin | `backend/routes/productos.js`, middleware `backend/middleware/verificarToken.js` |
+| PUT | `/api/productos/:id` | Sí, JWT Bearer con rol admin | `backend/routes/productos.js`, middleware `backend/middleware/verificarToken.js` |
+| DELETE | `/api/productos/:id` | Sí, JWT Bearer con rol admin | `backend/routes/productos.js`, middleware `backend/middleware/verificarToken.js` |
 | POST | `/api/solicitudes` | No; formulario público con validación y límite anti-spam | `backend/routes/solicitudes.js` |
+| GET | `/api/solicitudes` | Sí, JWT Bearer con rol admin | `backend/routes/solicitudes-admin.js` |
+| PATCH | `/api/solicitudes/:id` | Sí, JWT Bearer con rol admin | `backend/routes/solicitudes-admin.js` |
+| POST | `/api/auth/login` | No; límite de cinco fallos por IP cada 15 minutos | `backend/routes/auth.js` |
+| GET | `/api/auth/me` | Sí, JWT Bearer con rol admin | `backend/routes/auth.js` |
 | GET | `/api/ingredientes` | No | `backend/routes/ingredientes.js` |
 | GET | `/api/reglas-constructor` | No | `backend/routes/reglas-constructor.js` |
 | GET | `/api/health` | No | `backend/server.js`; informa si MongoDB está disponible |
@@ -90,13 +99,17 @@ Las rutas se conectan en `backend/server.js`. El servidor acepta cuerpos JSON y 
 - `backend/config/constructorRules.js`: fuente única de las categorías, límites de selección y precios base de los tamaños pequeño, mediano y grande. Sus precios están comentados como ejemplos.
 - `backend/models/Producto.js`: esquema de MongoDB para los campos del producto, con un `id` numérico único que se conserva en las respuestas de la API.
 - `backend/models/Solicitud.js`: modelo de solicitudes con tipo, estado inicial `nueva` y fecha de creación asignados por el servidor.
-- `backend/routes/solicitudes.js`: acepta envíos públicos validados, descarta campos adicionales, incluye honeypot y limita a cinco solicitudes por IP y hora en memoria. No expone consultas ni cambios de solicitudes.
+- `backend/models/Usuario.js`: usuarios administradores con correo único y normalizado, hash de contraseña no seleccionado por defecto, rol y fecha de creación.
+- `backend/routes/auth.js`: login con comparación bcrypt, hash falso para correos inexistentes, limitador en memoria y JWT de dos horas; `/me` devuelve solo correo y rol.
+- `backend/middleware/verificarToken.js`: verifica el token Bearer y requiere el rol `admin`.
+- `backend/routes/solicitudes-admin.js`: consulta las solicitudes más recientes con filtro y límite, y permite cambiar solo a estados autorizados.
+- `backend/scripts/crear-admin.js`: crea la primera cuenta de forma interactiva con contraseña oculta o mediante variables de entorno, sin sobrescribir usuarios existentes.
+- `backend/routes/solicitudes.js`: acepta envíos públicos validados, descarta campos adicionales, incluye honeypot y limita a cinco solicitudes por IP y hora en memoria. La consulta y el cambio de estado se hacen en la ruta protegida `solicitudes-admin.js`.
 - `backend/config/db.js`: conecta con `process.env.MONGODB_URI` y da un error claro si la variable falta o MongoDB no está disponible.
 - `backend/scripts/seed.js`: inserta desde `productos.json` solo los IDs que todavía no existen; no sobrescribe productos existentes ni elimina el JSON.
 - Reglas actuales del constructor: exactamente una base, al menos una fruta, hasta cuatro frutas y verduras combinadas, y hasta dos semillas o extras; los tamaños pequeño, mediano y grande tienen precios base de ejemplo.
-- `backend/middleware/adminAuth.js`: compara `x-admin-key` con `process.env.ADMIN_KEY`; si no coincide o la variable no está configurada, responde HTTP 401. Protege solo las escrituras de productos.
-- `backend/.env.example` contiene una clave de reemplazo de muestra. `backend/.env` está presente localmente y `.gitignore` contiene `.env`; la clave no se ha copiado a este informe.
-- La variable de entorno utilizada por el código es `ADMIN_KEY`, cargada por `dotenv` en `backend/server.js`.
+- `backend/.env.example` incluye un marcador para `JWT_SECRET`, no un secreto real. `backend/.env` es local e ignorado por Git; no se leyó ni se modificó durante esta tarea.
+- En producción el servidor exige que `JWT_SECRET` exista y tenga al menos 32 caracteres. El login requiere un secreto válido para firmar tokens.
 
 ### Dependencias instaladas
 
@@ -107,6 +120,8 @@ Leídas de `backend/package.json`:
 | `express` | `^5.2.1` | Servidor HTTP y API REST. |
 | `dotenv` | `^18.0.7` | Cargar variables locales desde `backend/.env`. |
 | `mongoose` | `^9.11.3` | Esquemas/modelos y conexión a MongoDB Atlas. |
+| `bcryptjs` | `^3.0.3` | Compara contraseñas y almacena hashes de una sola vía. |
+| `jsonwebtoken` | `^9.0.3` | Firma y verifica tokens de sesión con expiración. |
 
 No hay `devDependencies` declaradas. No se encontró configuración `engines` que indique la versión de Node.js requerida.
 
@@ -136,7 +151,7 @@ En `frontend-legacy/` no se encontraron `contacto.html`, `colegios.html`, `punto
 | `frontend-legacy/js/inicio.js` | Pide productos a la API y presenta los tres primeros como destacados. |
 | `frontend-legacy/js/smoothies.js` | Pide productos, crea las tarjetas y filtra por categoría. |
 | `frontend-legacy/js/constructor.js` | Carga ingredientes y reglas, valida la selección en el navegador, calcula precio, dibuja capas SVG, muestra alérgenos, genera una combinación aleatoria y guarda en el carrito local. |
-| `frontend-legacy/js/admin.js` | Maneja la pantalla de clave, conserva la clave en `sessionStorage`, crea la tabla y envía POST, PUT y DELETE con `x-admin-key`. |
+| `frontend-legacy/js/admin.js` | Referencia antigua de gestión de productos; permanece intacta y no se usa en el panel React actual. |
 
 El constructor valida las reglas en el navegador, pero el backend no recibe ni vuelve a validar una orden de smoothie. El carrito permanece en el navegador y no se registra como pedido en el servidor.
 
@@ -179,8 +194,8 @@ Textos que pueden servir de base para componentes React: nombre `SmoothieFit`; n
 | `ingredientes.json` | **Se conserva como lectura local** por ahora | Es una lista pequeña, estática y de solo lectura; una base de datos no aporta valor mientras no necesite edición o consulta dinámica. |
 | `backend/config/constructorRules.js` y su endpoint | **Se reutilizan** como contrato/reglas del constructor, con validación también en servidor si se aceptan pedidos | Evita duplicar límites y permite que el frontend lea reglas comunes. |
 | `frontend-legacy/js/constructor.js` y el carrito en `localStorage` | **Se reemplaza** si se mantiene el constructor; también puede posponerse porque es extra en el plan | El nuevo frontend será React y el pedido debe integrarse con una API real si se necesita persistencia. |
-| `adminAuth.js`, clave compartida y pantalla de clave actual | **Se reemplazan** por usuarios, hashes seguros de contraseñas y JWT | Una clave compartida no distingue personas ni permite administrar sesiones de usuarios. |
-| `admin.js` y CRUD manual del DOM | **Se reemplaza** por un panel React que use el login real | Separa el acceso y la gestión del estado visual del navegador. |
+| Middleware de clave compartida y pantalla de acceso antigua | **Se reemplazan en el flujo activo** por usuarios, hashes seguros de contraseñas y JWT | Una clave compartida no distingue personas ni permite administrar sesiones de usuarios. El middleware legado queda sin usar hasta confirmar su eliminación. |
+| `admin.js` y CRUD manual del DOM | **Se reemplaza en el sitio actual** por un panel React con login JWT | Separa el acceso y la gestión del estado visual del navegador; `frontend-legacy/` se conserva sin cambios. |
 | Perfiles ficticios de productores y datos marcados `esEjemplo` | **Se reutilizan solo como ejemplos identificados** o se reemplazan con datos reales confirmados | No deben presentarse como proveedores reales. |
 | Espacios “Nombre del integrante” y “Foto del equipo” | **Se reemplazan** por información real cuando el equipo la entregue | Son marcadores, no datos finales. |
 | Aparición con `IntersectionObserver` | **Se puede reemplazar o reutilizar** durante la fase extra de animación | La nueva implementación debe respetar movimiento reducido y no agregar complejidad sin necesidad. |
@@ -196,19 +211,19 @@ No se debe borrar ni sobrescribir `frontend-legacy/`; se conservará como refere
 2. **Configurar la URL de la API y CORS.** El frontend usa `VITE_API_URL`; el backend permite una lista de orígenes separados por comas mediante `CORS_ORIGINS` y rechaza `*`. Falta configurar el dominio final de Render y comprobar las solicitudes entre ambos servicios.
 3. **Productos en MongoDB (implementado; falta verificar con Atlas).** `Producto`, la conexión Mongoose y el seed idempotente ya están preparados. Configurar la URI y ejecutar el seed; mantener ingredientes y reglas en JSON mientras sigan siendo datos estáticos de solo lectura.
 4. **Contacto con solicitudes (implementado; falta verificar con Atlas).** La app React envía el formulario a `POST /api/solicitudes`; la ruta valida y guarda con el modelo `Solicitud`, y aplica honeypot y límite por IP. Configurar Atlas y verificar la escritura real.
-5. **Reemplazar la clave compartida por autenticación individual.** Sustituir `adminAuth.js` y `x-admin-key` por login de usuarios, hash seguro de contraseñas, emisión/verificación de JWT y protección de las rutas CRUD; crear las cuentas iniciales de forma segura y guardar secretos solo en variables de entorno.
+5. **Autenticación y panel admin (implementados).** El login crea JWT de dos horas, las rutas privadas verifican el rol admin y el panel React gestiona productos y solicitudes. Configurar `JWT_SECRET` y crear el administrador inicial. El middleware antiguo permanece sin uso hasta recibir autorización para borrarlo.
 6. **Incorporar la función de IA en el servidor.** Crear un endpoint que invoque al proveedor desde Express, mantenga la clave fuera del navegador y devuelva una respuesta de respaldo si el proveedor falla.
 7. **Preparar el proceso de hosting.** El backend lee `process.env.PORT`, confía en un proxy para obtener la IP del cliente en el límite anti-spam y declara Node.js 22. Falta crear el servicio Render, configurar sus variables privadas y probar la API publicada con HTTPS.
 
-Login y la función de IA aún requieren diseño e implementación; no forman parte de la lista de rutas actuales. El envío de contacto está implementado, pero su persistencia real depende de verificar la conexión con Atlas.
+La función de IA aún requiere diseño e implementación. El envío de contacto está implementado, pero su persistencia real depende de verificar la conexión con Atlas.
 
 ### Riesgos observados
 
-1. **Panel de administración con clave compartida:** existe una sola clave para todas las personas administradoras; queda en `sessionStorage` y se envía desde el navegador. La protección actual sirve para una demostración, no para usuarios reales. Usar HTTPS y sustituirla por autenticación individual.
+1. **Límites de autenticación:** el token se conserva en `sessionStorage`, el limitador se guarda en memoria y no existe renovación de tokens. Para producción con mayores requisitos se recomiendan cookies `httpOnly`, HTTPS y limitación distribuida.
 2. **Datos de productos:** la API ya no modifica `productos.json`; utiliza MongoDB. El JSON sigue siendo el origen de la carga inicial. Ingredientes y reglas se leen de JSON porque no requieren escrituras.
 3. **Despliegue separado y CORS:** GitHub Pages no ejecuta Express. La API acepta los orígenes enumerados en `CORS_ORIGINS`; el valor de producción debe incluir `https://danncho.github.io`, sin una ruta de repositorio.
 4. **Falta de validación de orden en el backend:** las reglas del constructor se validan en JavaScript del navegador. El servidor no recibe la creación ni confirma allí ingredientes y precio; el cliente podría alterar datos locales.
-5. **Requisitos importantes aún ausentes:** no hay login por usuario ni IA. La configuración de despliegue está añadida, pero su publicación y la persistencia de productos y solicitudes requieren configuración/verificación de los servicios.
+5. **Requisitos importantes aún ausentes:** falta IA. La configuración de despliegue está añadida, pero su publicación y la persistencia de productos y solicitudes requieren configuración/verificación de los servicios.
 6. **Revisión de secretos histórica pendiente:** el escaneo local no encontró patrones de alta confianza para credenciales en los archivos examinados. `backend/.env` está excluido del escaneo y `.gitignore` lo excluye. Sin comandos de Git no se puede confirmar si alguna clave fue subida anteriormente.
 7. **Muestras frente a información real:** productos e ingredientes actuales están marcados como ejemplo, y los productores se identifican como ficticios. Mantener esas etiquetas hasta reemplazarlos por información confirmada.
 8. **Contenido de salud y sostenibilidad:** en el contenido promocional revisado no aparecen las afirmaciones prohibidas “cura”, “adelgaza”, “desintoxica”, “100% ecológico”, “cero impacto” o “único en el mercado”. Esas expresiones aparecen en `CONTEXTO.md` como ejemplos de frases que se deben evitar. Revisar el contenido al migrarlo.
@@ -218,10 +233,10 @@ Login y la función de IA aún requieren diseño e implementación; no forman pa
 
 La revisión fue sobre archivos presentes, no sobre el historial:
 
-- `backend/.env` existe localmente y contiene la variable `ADMIN_KEY`; su valor se omitió. `.gitignore` incluye `.env`, lo que también coincide con nombres `.env` en subcarpetas.
+- `backend/.env` existe localmente y `.gitignore` excluye los archivos `.env`. No se leyó ni se modificó su contenido.
 - `.gitignore` incluye `backend/data/pedidos.json`, `backend/data/contactos.json` y `backend/data/alianzas.json`. Esos tres archivos no existen en el árbol actual.
 - `backend/data/productos.json` y `backend/data/ingredientes.json` no están excluidos; contienen los ejemplos del proyecto y deben seguir siendo datos no sensibles.
-- `backend/.env.example` contiene un valor de sustitución, no la clave local.
+- `backend/.env.example` contiene marcadores para configurar variables, no valores privados.
 - En el escaneo de archivos actual no se encontraron cadenas de conexión a bases de datos ni encabezados de claves privadas. Esta búsqueda no garantiza detectar todos los secretos posibles.
 - **No verificado:** si `backend/.env` o algún dato sensible apareció en un commit anterior o sigue presente en ramas remotas. No se revisó el historial porque la instrucción de esta tarea prohíbe ejecutar comandos de Git.
 
@@ -229,7 +244,7 @@ Comandos de solo lectura que puedes ejecutar desde la raíz para revisar histori
 
 ```powershell
 git log --all --oneline --decorate
-git log --all -G "(ADMIN_KEY|password|passwd|secret|token|api[_-]?key|mongodb(\+srv)?://|postgres(ql)?://|mysql://|BEGIN .*PRIVATE KEY)" --format="%h %s" --name-only
+git log --all -G "(password|passwd|secret|token|api[_-]?key|mongodb(\+srv)?://|postgres(ql)?://|mysql://|BEGIN .*PRIVATE KEY)" --format="%h %s" --name-only
 git log --all --name-status -- .env backend/.env backend/data/pedidos.json backend/data/contactos.json backend/data/alianzas.json
 ```
 
@@ -244,7 +259,7 @@ Si un commit aparece, revísalo en privado y no pegues claves en chats, capturas
 | 3. Base de datos real (MongoDB Atlas + Mongoose) | Implementada para productos; configurar Atlas y verificar el seed. Ingredientes y reglas siguen como JSON estático de solo lectura. | `Producto`, conexión Mongoose y `productos.json` como fuente de seed. | Credenciales de conexión filtradas, modelo incorrecto o datos de muestra tomados como reales. |
 | 4. Contacto real con solicitudes | Implementado: formulario React y `POST /api/solicitudes` validado, con honeypot, límite por IP y persistencia Mongoose. Falta probarlo con Atlas configurado. | Modelo `Solicitud`, servicio API, estilo de marca. | Recopilar datos personales sin reglas de acceso, retención y protección. |
 | 5. Primera publicación (GitHub Pages + hosting del backend) | Publicar frontend estático en GitHub Pages y desplegar backend en un servicio compatible; configurar URL de API y CORS por ambiente. | Vite y API después de separar frontend/backend. | GitHub Pages no ejecuta Node; dominios distintos requieren CORS, HTTPS y variables de entorno configuradas. |
-| 6. Login real con JWT y panel admin | Crear usuarios, guardar hashes seguros de contraseñas, emitir/verificar JWT y proteger las rutas de gestión. JWT es un token firmado que permite identificar una sesión; no reemplaza una contraseña segura ni debe tratarse como secreto de texto plano. | Campos de producto, formularios y operaciones CRUD existentes. | Errores de autenticación, permisos insuficientes o almacenamiento inseguro de tokens. |
+| 6. Login real con JWT y panel admin | Implementado: usuarios, hashes con bcrypt, tokens de dos horas, rutas protegidas y panel React. Falta configurar `JWT_SECRET` y crear el primer usuario administrador. | Campos de producto, formularios y operaciones CRUD existentes. | El token se guarda en `sessionStorage`; el limitador es solo de memoria y no hay renovación de tokens. |
 | 7. Módulo de IA con respaldo | Implementar una función útil (por ejemplo, recomendar mezclas según preferencias), llamar al proveedor solo desde backend y devolver una respuesta determinista si la IA falla. | Ingredientes, catálogo y tono sencillo. | Proveedor/costo aún no elegido, filtrar una clave de IA o dar respuestas incorrectas como hechos. |
 | 8. Constructor de smoothies en React (extra) | Migrar el constructor y conectar selecciones válidas al backend y, si corresponde, al carrito/pedidos. | Ingredientes, `constructorRules.js`, alérgenos y SVG actual como referencia. | Validar precio solo en el navegador o prometer información de alérgenos no confirmada. |
 | 9. Animaciones y responsive (extra) | Probar en tamaños de pantalla y agregar animaciones pequeñas solo si aportan claridad y se respetan preferencias de movimiento reducido. | Variables CSS y diseño actual. | Dependencias adicionales, carga lenta o movimiento que dificulte la accesibilidad. |
@@ -252,7 +267,7 @@ Si un commit aparece, revísalo en privado y no pegues claves en chats, capturas
 
 ## h. Dependencias nuevas en orden de incorporación
 
-Estas son candidatas para el plan, no están instaladas por esta tarea. La selección final debe respetar lo permitido por el curso y poder explicarse en la defensa.
+Las dependencias indicadas reflejan el estado actual del proyecto.
 
 | Orden | Dependencia | Para qué sirve y por qué se necesita |
 |---|---|---|
@@ -263,13 +278,12 @@ Estas son candidatas para el plan, no están instaladas por esta tarea. La selec
 | 5 | `react-router-dom` | Proporciona `HashRouter` y rutas compatibles con hosting estático como GitHub Pages. |
 | 6 | `mongoose` | Define modelos y conecta el backend Node.js con MongoDB Atlas; ya está instalado para persistir productos. |
 | 7 | `cors` | Permite llamadas del frontend alojado en otro dominio, limitando los orígenes autorizados. |
-| 8 | `bcryptjs` | Genera hashes de contraseña para guardar credenciales de forma no reversible; las contraseñas no deben almacenarse como texto plano. |
+| 8 | `bcryptjs` | Genera y compara hashes de contraseña sin guardar la contraseña como texto plano. |
 | 9 | `jsonwebtoken` | Firma y verifica los tokens JWT usados para autenticar sesiones y proteger operaciones administrativas. |
 | 10 | SDK del proveedor de IA (por decidir) | Facilita la llamada al proveedor desde Express; elegirlo solo después de acordar proveedor, permisos y costos. |
 | Opcional | Librería de animaciones (por decidir) | Podría facilitar animaciones, pero no es necesaria para los requisitos base y se debe justificar antes de añadirla. |
 
-`express` y `dotenv` ya están declaradas en el backend y no cuentan como dependencias nuevas del plan.
-No se propone una dependencia separada para contacto: Express puede recibir el formulario y Mongoose puede persistirlo. Las dependencias nuevas siguen pendientes de autorización del curso y deben mantenerse al mínimo.
+`express` y `dotenv` ya están declaradas en el backend. No se requiere una dependencia separada para el formulario de contacto.
 
 ## i. Checklist de requisitos del curso
 
@@ -278,7 +292,7 @@ No se propone una dependencia separada para contacto: Express puede recibir el f
 | Landing / inicio con marca, mensaje, secciones y navegación | Parcial | `frontend/src/pages/HomePage.jsx` ya está en React; algunas funciones siguen en construcción. |
 | Catálogo con productos y detalles claros | Parcial | `frontend/src/pages/SmoothiesPage.jsx` obtiene productos por API; la consulta real requiere configurar y cargar MongoDB Atlas. |
 | Contacto real que envíe o registre solicitudes | Implementado; persistencia por verificar | `frontend/src/pages/ContactPage.jsx` y `POST /api/solicitudes`; guardar en MongoDB requiere conexión Atlas configurada. |
-| Panel admin con login y zona de gestión | Parcial | `frontend-legacy/admin.html`, `frontend-legacy/js/admin.js` y endpoints de escritura con `adminAuth`; usa una clave compartida, no usuarios ni hashes de contraseña. |
+| Panel admin con login y zona de gestión | Implementado; requiere configuración | `frontend/src/pages/AdminLoginPage.jsx`, `frontend/src/pages/AdminPage.jsx`, JWT y endpoints protegidos. Falta configurar `JWT_SECRET` y crear el primer usuario administrador. |
 | IA aplicada con respaldo sin IA | Falta | No se encontró módulo o llamada de IA ni respuesta de respaldo. |
 | Publicación disponible en internet | Configuración añadida; publicación pendiente | El workflow de GitHub Pages existe; falta configurar Pages, Render y probar las URL públicas. |
 | Frontend con React | Parcial | Vite, React, HashRouter, layout, landing, catálogo y páginas informativas ya existen en `frontend/`. |
