@@ -2,7 +2,7 @@ function ProductsStatus({ loading, error, empty, onRetry }) {
   if (loading) {
     return (
       <p className="products-status" role="status" aria-live="polite">
-        El servidor está despertando, puede tardar hasta un minuto. Cargando smoothies...
+        Smoothies en camino! esto puede tardar un poco. Cargando...
       </p>
     );
   }
@@ -10,7 +10,7 @@ function ProductsStatus({ loading, error, empty, onRetry }) {
   if (error) {
     return (
       <div className="products-status products-error" role="alert">
-        <p>No pudimos cargar los smoothies. {error}</p>
+        <p>Lo sentimos, no pudimos cargar los smoothies. {error}</p>
         <button className="button button-secondary" type="button" onClick={onRetry}>
           Reintentar
         </button>
@@ -19,7 +19,7 @@ function ProductsStatus({ loading, error, empty, onRetry }) {
   }
 
   if (empty) {
-    return <p className="products-status">Todavía no hay smoothies para mostrar.</p>;
+    return <p className="products-status">Nuevos smoothies estaran disponibles pronto.</p>;
   }
 
   return null;
