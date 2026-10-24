@@ -503,6 +503,14 @@ button {
   font-weight: 700;
 }
 
+.admin-field-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .form-field input,
 .form-field select,
 .form-field textarea {
@@ -579,6 +587,196 @@ button {
   margin: 0;
 }
 
+.assistant-page {
+  max-width: 58rem;
+}
+
+.assistant-chat {
+  display: grid;
+  gap: var(--space-medium);
+}
+
+.assistant-welcome {
+  display: flex;
+  align-items: center;
+  gap: var(--space-medium);
+  background: #fff4f7;
+}
+
+.assistant-welcome p {
+  margin: 0.25rem 0 0;
+}
+
+.assistant-name {
+  color: var(--color-purple);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.sorbi-avatar {
+  position: relative;
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 2px solid var(--color-purple);
+  border-radius: 1rem 1rem 1.25rem 1.25rem;
+  background: linear-gradient(160deg, #f7a6bd 0 38%, var(--color-red) 39% 100%);
+  color: var(--color-purple);
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+.sorbi-straw {
+  position: absolute;
+  top: -0.9rem;
+  right: 0.7rem;
+  width: 0.35rem;
+  height: 1.25rem;
+  border: 2px solid var(--color-purple);
+  border-radius: 1rem;
+  background: var(--color-white);
+  transform: rotate(12deg);
+}
+
+.assistant-quick-questions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.assistant-chip {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--color-purple);
+  border-radius: 999px;
+  background: var(--color-white);
+  color: var(--color-purple);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.assistant-chip:hover {
+  background: var(--color-pink);
+}
+
+.assistant-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.assistant-form label {
+  color: var(--color-purple);
+  font-weight: 800;
+}
+
+.assistant-form textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.assistant-form textarea:focus-visible {
+  outline: 3px solid var(--color-red);
+  outline-offset: 2px;
+}
+
+.assistant-form textarea[aria-invalid="true"] {
+  border-color: var(--color-red);
+}
+
+.assistant-form-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.assistant-form .button {
+  justify-self: start;
+}
+
+.assistant-privacy {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.assistant-status,
+.assistant-error {
+  margin: 0;
+}
+
+.assistant-status {
+  color: var(--color-muted);
+}
+
+.assistant-error,
+.assistant-reason {
+  color: #a9203b;
+}
+
+.assistant-answer {
+  display: grid;
+  gap: var(--space-medium);
+  padding: var(--space-large);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  background: #fff4f7;
+}
+
+.assistant-answer-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.assistant-answer-heading .sorbi-avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.3rem;
+}
+
+.assistant-mode {
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: var(--color-pink);
+  color: var(--color-purple);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.assistant-answer-message,
+.assistant-reason {
+  margin: 0;
+}
+
+.assistant-answer-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.assistant-recommendations {
+  align-items: start;
+}
+
+.assistant-recommendation {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.assistant-action {
+  justify-self: start;
+}
+
 .admin-login-page {
   max-width: 42rem;
 }
@@ -634,6 +832,7 @@ button {
 }
 
 .admin-form-grid input,
+.admin-form-grid select,
 .admin-request-toolbar select,
 .admin-request-state select {
   min-width: 0;
@@ -647,6 +846,92 @@ button {
 
 .admin-form-grid input[aria-invalid="true"] {
   border-color: var(--color-red);
+}
+
+.admin-ai-button {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.admin-suggestion-tone {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.admin-ai-slogan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-small);
+  padding-top: var(--space-small);
+  border-top: 1px solid var(--color-border);
+}
+
+.admin-ai-slogan h3,
+.admin-ai-results h3 {
+  margin: 0;
+  color: var(--color-purple);
+}
+
+.admin-ai-slogan p,
+.admin-ai-privacy,
+.admin-ai-results > p,
+.admin-ai-copy p {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.admin-ai-privacy {
+  font-size: 0.9rem;
+}
+
+.admin-ai-status {
+  margin: 0;
+  color: var(--color-purple);
+  font-weight: 700;
+}
+
+.admin-ai-results {
+  display: grid;
+  gap: var(--space-small);
+  padding: var(--space-medium);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: #fff9fb;
+}
+
+.admin-ai-results ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.admin-ai-option {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-white);
+  color: var(--color-purple);
+  cursor: pointer;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.admin-ai-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-small);
+  padding-top: var(--space-small);
+  border-top: 1px solid var(--color-border);
 }
 
 .admin-form-actions,
@@ -786,6 +1071,14 @@ button {
 
   .admin-table {
     min-width: 48rem;
+  }
+
+  .assistant-welcome {
+    align-items: flex-start;
+  }
+
+  .assistant-answer {
+    padding: var(--space-medium);
   }
 }
 

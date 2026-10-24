@@ -4,6 +4,7 @@ import { Link, NavLink } from 'react-router-dom';
 const navigationItems = [
   { label: 'Inicio', path: '/' },
   { label: 'Smoothies', path: '/smoothies' },
+  { label: 'Sorbi', path: '/asistente' },
   { label: 'Crea tu smoothie', path: '/crea-tu-smoothie', featured: true },
   { label: 'Productores', path: '/productores' },
   { label: 'Colegios', path: '/colegios' },

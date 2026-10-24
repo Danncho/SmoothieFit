@@ -30,6 +30,7 @@ function HomePage() {
             <div className="hero-actions">
               <Link className="button button-primary" to="/smoothies">Ver smoothies</Link>
               <Link className="button button-secondary" to="/crea-tu-smoothie">Crea tu smoothie</Link>
+              <Link className="button button-secondary" to="/asistente">Pregúntale a Sorbi</Link>
             </div>
           </div>
           <div className="hero-art" role="img" aria-label="Ilustración de un smoothie sonriente con sorbete">

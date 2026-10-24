@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import SectionTitle from '../components/SectionTitle.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { authenticatedRequest } from '../services/api.js';
@@ -58,6 +58,13 @@ function AdminPage() {
   const [requestMessage, setRequestMessage] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [busy, setBusy] = useState(false);
+  const [suggestionTone, setSuggestionTone] = useState('juvenil');
+  const [suggestionLoadingType, setSuggestionLoadingType] = useState('');
+  const [suggestionError, setSuggestionError] = useState('');
+  const [suggestion, setSuggestion] = useState(null);
+  const [suggestionMessage, setSuggestionMessage] = useState('');
+  const [selectedSlogan, setSelectedSlogan] = useState('');
+  const suggestionResultsRef = useRef(null);
 
   async function loadProducts() {
     setProductsLoading(true);
@@ -95,17 +102,29 @@ function AdminPage() {
     loadRequests();
   }, [statusFilter]);
 
+  useEffect(() => {
+    if (suggestion) suggestionResultsRef.current?.focus();
+  }, [suggestion]);
+
   function changeProductField(event) {
     const { name, value } = event.target;
     setProductForm((current) => ({ ...current, [name]: value }));
     setProductErrors((current) => ({ ...current, [name]: '' }));
     setProductMessage('');
+    setSuggestion(null);
+    setSuggestionError('');
+    setSuggestionMessage('');
+    setSelectedSlogan('');
   }
 
   function clearProductForm() {
     setProductForm(initialProduct);
     setProductErrors({});
     setEditingId(null);
+    setSuggestion(null);
+    setSuggestionError('');
+    setSuggestionMessage('');
+    setSelectedSlogan('');
   }
 
   function editProduct(product) {
@@ -120,7 +139,87 @@ function AdminPage() {
     });
     setProductErrors({});
     setProductMessage('');
+    setSuggestion(null);
+    setSuggestionError('');
+    setSuggestionMessage('');
+    setSelectedSlogan('');
     document.getElementById('admin-product-name')?.focus();
+  }
+
+  async function generarSugerencias(tipo) {
+    const ingredientes = productForm.ingredientes.split(',').map((ingredient) => ingredient.trim());
+    if (productForm.nombre.trim().length > 60) {
+      setSuggestionError('Para generar sugerencias, el nombre debe tener hasta 60 caracteres.');
+      return;
+    }
+    if (productForm.categoria.trim().length > 40) {
+      setSuggestionError('Para generar sugerencias, la categoría debe tener hasta 40 caracteres.');
+      return;
+    }
+    if (
+      ingredientes.length < 1
+      || ingredientes.length > 10
+      || ingredientes.some((ingredient) => !ingredient || ingredient.length > 40)
+    ) {
+      setSuggestionError('Escribe de 1 a 10 ingredientes de hasta 40 caracteres cada uno.');
+      return;
+    }
+
+    setSuggestionLoadingType(tipo);
+    setSuggestionError('');
+    setSuggestionMessage('');
+    setSuggestion(null);
+    setSelectedSlogan('');
+
+    try {
+      const result = await authenticatedRequest('/ia/admin/generar', {
+        method: 'POST',
+        body: JSON.stringify({
+          tipo,
+          nombre: productForm.nombre.trim(),
+          ingredientes,
+          categoria: productForm.categoria.trim(),
+          tono: suggestionTone
+        })
+      });
+      setSuggestion({ tipo, opciones: result.opciones, modo: result.modo });
+    } catch (error) {
+      if (error.status === 429) {
+        setSuggestionError(error.message || 'Se alcanzó el límite de sugerencias. Inténtalo más tarde.');
+      } else if (error.status === 503) {
+        setSuggestionError(error.message || 'Falta configurar Gemini en el backend.');
+      } else if (error.status === 400) {
+        setSuggestionError(error.message || error.data?.errores?.join(' ') || 'Revisa los datos del producto.');
+      } else {
+        setSuggestionError(error.message || 'No se pudo generar la sugerencia. Inténtalo de nuevo.');
+      }
+    } finally {
+      setSuggestionLoadingType('');
+    }
+  }
+
+  function elegirSugerencia(opcion) {
+    if (suggestion.tipo === 'nombres') {
+      setProductForm((current) => ({ ...current, nombre: opcion }));
+      document.getElementById('admin-product-name')?.focus();
+      setSuggestionMessage('Nombre seleccionado. Puedes editarlo antes de guardar.');
+    } else if (suggestion.tipo === 'descripcion') {
+      setProductForm((current) => ({ ...current, descripcion: opcion }));
+      document.getElementById('admin-product-description')?.focus();
+      setSuggestionMessage('Descripción seleccionada. Puedes editarla antes de guardar.');
+    } else {
+      setSelectedSlogan(opcion);
+      setSuggestionMessage('Eslogan seleccionado. Cópialo si quieres conservarlo; no se guarda en el producto.');
+    }
+  }
+
+  async function copiarEslogan() {
+    try {
+      await navigator.clipboard.writeText(selectedSlogan);
+      setSuggestionMessage('Eslogan copiado. No se guarda en el producto.');
+    } catch {
+      setSuggestionError('No se pudo copiar automáticamente. Selecciona el texto y cópialo manualmente.');
+    }
   }
 
   async function saveProduct(event) {
@@ -283,7 +382,16 @@ function AdminPage() {
                   error={productErrors.nombre}
                   maxLength={80}
                   onChange={changeProductField}
-                />
+                >
+                  <button
+                    className="button button-secondary admin-ai-button"
+                    type="button"
+                    disabled={busy || Boolean(suggestionLoadingType)}
+                    onClick={() => generarSugerencias('nombres')}
+                  >
+                    Sugerir con IA
+                  </button>
+                </ProductField>
                 <ProductField
                   name="categoria"
                   label="Categoría"
@@ -300,7 +408,16 @@ function AdminPage() {
                   maxLength={250}
                   wide
                   onChange={changeProductField}
-                />
+                >
+                  <button
+                    className="button button-secondary admin-ai-button"
+                    type="button"
+                    disabled={busy || Boolean(suggestionLoadingType)}
+                    onClick={() => generarSugerencias('descripcion')}
+                  >
+                    Sugerir con IA
+                  </button>
+                </ProductField>
                 <ProductField
                   name="ingredientes"
                   label="Ingredientes (separados por coma)"
@@ -325,7 +442,87 @@ function AdminPage() {
                   maxLength={200}
                   onChange={changeProductField}
                 />
+                <div className="form-field">
+                  <label htmlFor="admin-suggestion-tone">Tono de la sugerencia</label>
+                  <select
+                    id="admin-suggestion-tone"
+                    className="admin-suggestion-tone"
+                    value={suggestionTone}
+                    disabled={Boolean(suggestionLoadingType)}
+                    onChange={(event) => setSuggestionTone(event.target.value)}
+                  >
+                    <option value="juvenil">Juvenil</option>
+                    <option value="familiar">Familiar</option>
+                  </select>
+                </div>
               </div>
+              <div className="admin-ai-slogan">
+                <div>
+                  <h3>Eslogan (solo copiable)</h3>
+                  <p>El eslogan no se añade a los datos guardados del producto.</p>
+                </div>
+                <button
+                  className="button button-secondary admin-ai-button"
+                  type="button"
+                  disabled={busy || Boolean(suggestionLoadingType)}
+                  onClick={() => generarSugerencias('eslogan')}
+                >
+                  Sugerir con IA
+                </button>
+              </div>
+              <p className="admin-ai-privacy">
+                No escribas datos personales: solo se envían a Gemini los datos del producto. En el nivel gratuito,
+                Google puede usar el contenido enviado para mejorar sus productos.
+              </p>
+              {suggestionLoadingType && (
+                <p className="admin-ai-status" role="status" aria-live="polite">
+                  Pensando... si el servidor estaba dormido puede tardar hasta un minuto.
+                </p>
+              )}
+              {suggestionError && <p className="form-error" role="alert">{suggestionError}</p>}
+              {suggestion && (
+                <div
+                  className="admin-ai-results"
+                  aria-live="polite"
+                  aria-labelledby="admin-ai-results-title"
+                  ref={suggestionResultsRef}
+                  tabIndex="-1"
+                >
+                  <h3 id="admin-ai-results-title">
+                    {suggestion.modo === 'basico' ? 'Plantilla de respaldo' : 'Sugerencias generadas por IA'}
+                  </h3>
+                  {suggestion.modo === 'ia' && (
+                    <p>
+                      Sugerencia generada por IA. Revísala antes de guardar. No escribas datos personales: el texto
+                      se envía a un servicio externo (Google), que en el nivel gratuito puede usarlo para mejorar
+                      sus productos.
+                    </p>
+                  )}
+                  <ul>
+                    {suggestion.opciones.map((opcion, index) => (
+                      <li key={`${suggestion.tipo}-${index}`}>
+                        <button
+                          className="admin-ai-option"
+                          type="button"
+                          onClick={() => elegirSugerencia(opcion)}
+                        >
+                          {suggestion.tipo === 'eslogan' ? 'Seleccionar para copiar: ' : 'Usar opción: '}
+                          {opcion}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  {suggestion.tipo === 'eslogan' && selectedSlogan && (
+                    <div className="admin-ai-copy">
+                      <p>{selectedSlogan}</p>
+                      <button className="button button-secondary" type="button" onClick={copiarEslogan}>
+                        Copiar eslogan
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+              {suggestionMessage && <p className="admin-ai-status" role="status" aria-live="polite">{suggestionMessage}</p>}
               <div className="admin-form-actions">
                 <button className="button button-primary" type="submit" disabled={busy}>
                   {busy ? 'Guardando...' : editingId ? 'Guardar cambios' : 'Crear producto'}
@@ -458,14 +655,18 @@ function ProductField({
   maxLength,
   type = 'text',
   wide = false,
-  onChange
+  onChange,
+  children
 }) {
   const fieldId = id || `admin-product-${name}`;
   const errorId = `${fieldId}-error`;
 
   return (
     <div className={`form-field${wide ? ' form-field-wide' : ''}`}>
-      <label htmlFor={fieldId}>{label}</label>
+      <div className="admin-field-heading">
+        <label htmlFor={fieldId}>{label}</label>
+        {children}
+      </div>
       <input
         id={fieldId}
         name={name}

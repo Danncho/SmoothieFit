@@ -9,6 +9,7 @@ import SalesPointsPage from './pages/SalesPointsPage.jsx';
 import SmoothiesPage from './pages/SmoothiesPage.jsx';
 import SustainabilityPage from './pages/SustainabilityPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
+import AsistentePage from './pages/AsistentePage.jsx';
 import AdminLoginPage from './pages/AdminLoginPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -22,7 +23,8 @@ const pages = [
   { path: '/puntos-de-venta', element: <SalesPointsPage /> },
   { path: '/sostenibilidad', element: <SustainabilityPage /> },
   { path: '/nosotros', element: <AboutPage /> },
-  { path: '/contacto', element: <ContactPage /> }
+  { path: '/contacto', element: <ContactPage /> },
+  { path: '/asistente', element: <AsistentePage /> }
 ];
 
 function App() {
