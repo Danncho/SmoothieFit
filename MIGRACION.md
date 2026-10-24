@@ -6,6 +6,9 @@ Este árbol refleja los archivos encontrados en la carpeta del proyecto. Se omit
 
 ```text
 smoothiefit/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
 ├── .gitignore
 ├── CONTEXTO.md
 ├── MIGRACION.md
@@ -50,29 +53,9 @@ smoothiefit/
 ├── frontend/
 │   ├── package.json
 │   └── src/                          (React, Vite, HashRouter y AsistentePage)
-└── frontend-legacy/
-    ├── admin.html
-    ├── crea-tu-smoothie.html
-    ├── css/
-    │   ├── .gitkeep
-    │   └── styles.css
-    ├── img/
-    │   └── .gitkeep
-    ├── index.html
-    ├── js/
-    │   ├── .gitkeep
-    │   ├── admin.js
-    │   ├── constructor.js
-    │   ├── inicio.js
-    │   ├── layout.js
-    │   └── smoothies.js
-    ├── nosotros.html
-    ├── productores.html
-    ├── smoothies.html
-    └── sostenibilidad.html
 ```
 
-La carpeta `frontend-legacy/` contiene el frontend anterior, hecho con HTML, CSS y JavaScript puros. La aplicación React actual vive en `frontend/`.
+La aplicación React actual vive en `frontend/`. La carpeta local `frontend-legacy/` se eliminó tras la confirmación del usuario el 24-10-2026; según el usuario, la versión HTML/CSS/JavaScript anterior se conserva en el tag histórico `v1-js-puro`. La sección siguiente describe ese snapshot y no representa archivos presentes en el árbol actual.
 
 En el árbol local sí aparecen `.git/` y `backend/.env`. No se ejecutaron comandos de Git durante esta revisión ni se comprobó el contenido del historial. No se muestran valores de variables privadas.
 
@@ -141,13 +124,13 @@ Leídas de `backend/package.json`:
 
 No hay `devDependencies` declaradas. `backend/package.json` declara Node.js `>=22 <23`.
 
-## c. Frontend-legacy
+## c. Frontend previo (snapshot histórico)
 
-**Nombre real en disco:** `frontend-legacy/`. Contiene el frontend anterior de HTML, CSS y JavaScript y servirá como referencia.
+**Ubicación actual:** no hay una carpeta de frontend legacy en el árbol de trabajo. Las rutas `frontend-legacy/...` de esta sección describen los archivos del snapshot histórico `v1-js-puro`, según la confirmación del usuario.
 
 ### Páginas y funcionalidades
 
-| Archivo | Funcionalidad actual |
+| Archivo del snapshot | Funcionalidad en esa versión histórica |
 |---|---|
 | `frontend-legacy/index.html` | Landing con mensaje de marca, botones al catálogo y al constructor, beneficios, tres destacados cargados desde la API y llamadas a otras páginas. |
 | `frontend-legacy/smoothies.html` | Catálogo con carga desde `GET /api/productos`, estado de carga/error y filtro de categoría. |
@@ -157,7 +140,7 @@ No hay `devDependencies` declaradas. `backend/package.json` declara Node.js `>=2
 | `frontend-legacy/sostenibilidad.html` | Propuesta cautelosa sobre empaques, materiales, residuos y proveedores locales. |
 | `frontend-legacy/nosotros.html` | Historia del proyecto, misión, visión, valores y cuatro espacios para nombres y fotos del equipo. |
 
-En `frontend-legacy/` no se encontraron `contacto.html`, `colegios.html`, `puntos-de-venta.html` ni `pedidos.html`. La app React actual sí tiene página de Contacto y páginas informativas para Colegios y Puntos de venta.
+En ese snapshot histórico no se encontraron `contacto.html`, `colegios.html`, `puntos-de-venta.html` ni `pedidos.html`. La app React actual sí tiene página de Contacto y páginas informativas para Colegios y Puntos de venta.
 
 ### Scripts
 
@@ -167,19 +150,19 @@ En `frontend-legacy/` no se encontraron `contacto.html`, `colegios.html`, `punto
 | `frontend-legacy/js/inicio.js` | Pide productos a la API y presenta los tres primeros como destacados. |
 | `frontend-legacy/js/smoothies.js` | Pide productos, crea las tarjetas y filtra por categoría. |
 | `frontend-legacy/js/constructor.js` | Carga ingredientes y reglas, valida la selección en el navegador, calcula precio, dibuja capas SVG, muestra alérgenos, genera una combinación aleatoria y guarda en el carrito local. |
-| `frontend-legacy/js/admin.js` | Referencia antigua de gestión de productos; permanece intacta y no se usa en el panel React actual. |
+| `frontend-legacy/js/admin.js` | Referencia histórica de gestión de productos; no se usa en el panel React actual. |
 
-El constructor valida las reglas en el navegador, pero el backend no recibe ni vuelve a validar una orden de smoothie. El carrito permanece en el navegador y no se registra como pedido en el servidor.
+En el snapshot histórico, el constructor validaba las reglas en el navegador, pero el backend no recibía ni volvía a validar una orden de smoothie. El carrito permanecía en el navegador y no se registraba como pedido en el servidor.
 
 ### Constructor de smoothies y reglas actuales
 
-`frontend-legacy/crea-tu-smoothie.html` presenta cinco pasos: tamaño, base, frutas/verduras, semillas/extras y nombre. `frontend-legacy/js/constructor.js` obtiene ingredientes y reglas de la API, valida la selección en el cliente, calcula el precio a partir del tamaño y los extras, dibuja el vaso SVG, muestra ingredientes y alérgenos declarados y permite generar una combinación aleatoria. Si la selección es válida, agrega la mezcla a `localStorage` bajo `smoothiefitCart`; esto no crea ni registra un pedido en el backend.
+El constructor del snapshot `v1-js-puro` presentaba cinco pasos: tamaño, base, frutas/verduras, semillas/extras y nombre. Su implementación validaba la selección en el navegador, calculaba el precio, dibujaba un vaso SVG y guardaba en `localStorage`; no creaba ni registraba pedidos en el backend. El constructor React actual sigue pendiente.
 
 Las reglas se comparten desde `GET /api/reglas-constructor` y `backend/config/constructorRules.js`. La validación actual solo está en el navegador: si el constructor se conserva, el backend deberá volver a validar ingredientes, cantidades y precio antes de aceptar un pedido.
 
 ### Estilos, colores y textos reutilizables
 
-`frontend-legacy/css/styles.css` define variables en `:root`:
+El archivo histórico `frontend-legacy/css/styles.css` definía variables en `:root`:
 
 | Variable | Valor |
 |---|---|
@@ -194,44 +177,43 @@ Las reglas se comparten desde `GET /api/reglas-constructor` y `backend/config/co
 
 También contiene variables de tipografía, espacios, bordes redondeados y ancho de contenido. Las páginas cargan Nunito desde Google Fonts con fuentes de respaldo; esto requiere conexión a ese servicio para obtener la tipografía.
 
-Textos que pueden servir de base para componentes React: nombre `SmoothieFit`; navegación “Inicio”, “Smoothies”, “Crea tu smoothie”, “Productores”, “Colegios”, “Puntos de venta”, “Pedidos”, “Sostenibilidad”, “Nosotros” y “Contacto”; pie “Proyecto académico” y “Administración”; títulos y mensajes de la landing; mensajes de carga/error del catálogo; y los avisos del constructor sobre alérgenos y selección. Revisar los enlaces de la navegación porque varios destinos todavía no existen.
+El snapshot histórico incluía navegación, títulos, mensajes de landing, catálogo y constructor. La navegación actual de React se define en `frontend/src/App.jsx`; la ruta antigua `/crea-tu-smoothie` redirige a Inicio y el constructor React queda como mejora futura. Los textos heredados deben revisarse antes de volver a utilizarlos.
 
 ## d. Se reutiliza / Se reemplaza / Se descarta
 
 | Pieza actual | Decisión para la nueva arquitectura | Motivo |
 |---|---|---|
-| Textos de marca, títulos, descripciones y navegación de `frontend-legacy/*.html` | **Se reutiliza**, revisando afirmaciones y enlaces | Mantiene la identidad y evita volver a redactar todo desde cero. |
-| `frontend-legacy/css/styles.css` y sus variables de color | **Se reutiliza como referencia y se adapta** a CSS de componentes React | Conserva la paleta, los contrastes, el espaciado y los estilos que ya se entienden. |
-| Encabezado y pie de `frontend-legacy/js/layout.js` | **Se reemplaza** por componentes compartidos de React y rutas de HashRouter | React debe renderizar el layout dentro de la aplicación y las rutas deben funcionar en GitHub Pages. |
-| Páginas HTML actuales | **Se reemplazan gradualmente** por páginas/componentes React | El requisito del curso exige React; conviene migrar por partes para comparar resultados. |
-| `frontend-legacy/js/inicio.js` y `frontend-legacy/js/smoothies.js` | **Se reemplazan** por componentes y servicios React para la API | Conservan el contrato del catálogo, pero no el mecanismo de manipulación manual del DOM. |
+| Textos, estilos, navegación y layout del snapshot histórico `v1-js-puro` | **Se reutilizaron selectivamente como referencia** | Se adaptó la identidad visual a React; las afirmaciones no verificadas no deben reutilizarse. |
+| Encabezado y pie del snapshot `v1-js-puro` | **Se reemplazaron** por componentes compartidos de React y rutas de HashRouter | React renderiza el layout actual y las rutas funcionan en GitHub Pages. |
+| Páginas HTML del snapshot histórico | **Reemplazadas en el sitio actual** por páginas/componentes React | El requisito del curso exige React; las páginas antiguas ya no están en el árbol de trabajo. |
+| Lógica de inicio y catálogo del snapshot `v1-js-puro` | **Se reemplazó** por componentes y servicios React para la API | Se conserva el contrato de catálogo, no la manipulación manual del DOM. |
 | Endpoints REST de productos | **Se reutilizan inicialmente y se adaptan** para consultar la base de datos | La interfaz React puede seguir usando las rutas y campos del catálogo mientras cambia el almacenamiento. |
 | `productos.json` | **Se conserva como fuente de seed**, mientras MongoDB queda como almacenamiento operativo | El seed idempotente carga productos faltantes y mantiene intacto el JSON como respaldo/datos iniciales. |
 | `ingredientes.json` | **Se conserva como lectura local** por ahora | Es una lista pequeña, estática y de solo lectura; una base de datos no aporta valor mientras no necesite edición o consulta dinámica. |
 | `backend/config/constructorRules.js` y su endpoint | **Se reutilizan** como contrato/reglas del constructor, con validación también en servidor si se aceptan pedidos | Evita duplicar límites y permite que el frontend lea reglas comunes. |
-| `frontend-legacy/js/constructor.js` y el carrito en `localStorage` | **Se reemplaza** si se mantiene el constructor; también puede posponerse porque es extra en el plan | El nuevo frontend será React y el pedido debe integrarse con una API real si se necesita persistencia. |
-| Middleware de clave compartida y pantalla de acceso antigua | **Se reemplazan en el flujo activo** por usuarios, hashes seguros de contraseñas y JWT | Una clave compartida no distingue personas ni permite administrar sesiones de usuarios. El middleware legado queda sin usar hasta confirmar su eliminación. |
-| `admin.js` y CRUD manual del DOM | **Se reemplaza en el sitio actual** por un panel React con login JWT | Separa el acceso y la gestión del estado visual del navegador; `frontend-legacy/` se conserva sin cambios. |
+| Constructor y carrito `localStorage` del snapshot `v1-js-puro` | **Pendiente de reemplazo** en React | Es una mejora futura; si se conecta a pedidos, debe integrarse con una API real. |
+| Middleware de clave compartida y pantalla de acceso del snapshot | **Reemplazados** en el flujo actual por usuarios, hashes seguros de contraseñas y JWT | Una clave compartida no distingue personas ni permite administrar sesiones de usuarios. |
+| CRUD manual del DOM del snapshot `v1-js-puro` | **Reemplazado** en el sitio actual por un panel React con login JWT | Separa el acceso y la gestión del estado visual del navegador. |
 | Perfiles ficticios de productores y datos marcados `esEjemplo` | **Se reutilizan solo como ejemplos identificados** o se reemplazan con datos reales confirmados | No deben presentarse como proveedores reales. |
 | Espacios “Nombre del integrante” y “Foto del equipo” | **Se reemplazan** por información real cuando el equipo la entregue | Son marcadores, no datos finales. |
 | Aparición con `IntersectionObserver` | **Se puede reemplazar o reutilizar** durante la fase extra de animación | La nueva implementación debe respetar movimiento reducido y no agregar complejidad sin necesidad. |
-| `.gitkeep` | **Se descarta al dejar de ser necesario** | Solo mantiene vacías carpetas en Git; no es una función del sitio. |
+| `.gitkeep` | **Sin efecto funcional** | Algunos `.gitkeep` están en directorios que ya contienen archivos; se pueden retirar en una limpieza posterior si se desea. |
 
-No se debe borrar ni sobrescribir `frontend-legacy/`; se conservará como referencia mientras React se desarrolla en `frontend/`.
+La carpeta local `frontend-legacy/` fue eliminada tras la confirmación del usuario. El contenido descrito en esta sección se considera referencia histórica del tag `v1-js-puro`, no parte del código ejecutable actual.
 
 ## e. Riesgos y cambios del backend para producción
 
 ### Orden recomendado
 
-1. **Publicar frontend y API por separado.** `backend/server.js` funciona como API Express y no sirve archivos estáticos del frontend. `frontend/vite.config.js` configura `/SmoothieFit/` para producción y el workflow `.github/workflows/deploy.yml` compila y publica el build en GitHub Pages. Falta activar Pages y ejecutar la publicación.
-2. **Configurar la URL de la API y CORS.** El frontend usa `VITE_API_URL`; el backend permite una lista de orígenes separados por comas mediante `CORS_ORIGINS` y rechaza `*`. Falta configurar el dominio final de Render y comprobar las solicitudes entre ambos servicios.
-3. **Productos en MongoDB (implementado; falta verificar con Atlas).** `Producto`, la conexión Mongoose y el seed idempotente ya están preparados. Configurar la URI y ejecutar el seed; mantener ingredientes y reglas en JSON mientras sigan siendo datos estáticos de solo lectura.
-4. **Contacto con solicitudes (implementado; falta verificar con Atlas).** La app React envía el formulario a `POST /api/solicitudes`; la ruta valida y guarda con el modelo `Solicitud`, y aplica honeypot y límite por IP. Configurar Atlas y verificar la escritura real.
-5. **Autenticación y panel admin (implementados).** El login crea JWT de dos horas, las rutas privadas verifican el rol admin y el panel React gestiona productos y solicitudes. Configurar `JWT_SECRET` y crear el administrador inicial. El middleware antiguo permanece sin uso hasta recibir autorización para borrarlo.
-6. **Asistente público Sorbi y generador admin (implementados localmente).** Sorbi solo usa modo básico. `POST /api/ia/admin/generar` exige JWT admin y es la única ruta que consulta Gemini. Los términos de Gemini prohíben apps que se dirijan a menores o probablemente sean accedidas por menores; por eso no se conecta a Sorbi. Antes de configurar Gemini, revisa los términos y la privacidad del nivel gratuito.
-7. **Preparar el proceso de hosting.** El backend lee `process.env.PORT`, confía en un proxy para obtener la IP del cliente en el límite anti-spam y declara Node.js 22. Falta crear el servicio Render, configurar sus variables privadas y probar la API publicada con HTTPS.
+1. **Frontend y API publicados por separado.** `backend/server.js` sirve la API Express, no los archivos estáticos. `frontend/vite.config.js` configura `/SmoothieFit/` y `.github/workflows/deploy.yml` publica en GitHub Pages. La página `https://danncho.github.io/SmoothieFit/` respondió durante esta revisión.
+2. **URL de API y CORS.** El frontend usa `VITE_API_URL`; el backend limita CORS a orígenes concretos mediante `CORS_ORIGINS` y rechaza `*`. El bundle publicado apunta a `https://smoothiefit-api.onrender.com`; la comprobación `/api/health` devolvió HTTP 503 el 24-10-2026.
+3. **Productos en MongoDB.** `Producto`, la conexión Mongoose y el seed idempotente están implementados. La API desplegada no está saludable en esta revisión, así que no se confirmó la conexión real ni la consulta pública.
+4. **Contacto con solicitudes.** La app React envía a `POST /api/solicitudes`; la ruta valida, usa honeypot y límite por IP, y persiste con el modelo `Solicitud`. La persistencia local requiere MongoDB y no se pudo verificar en producción por el estado 503.
+5. **Autenticación y panel admin.** El login crea JWT de dos horas, las rutas privadas verifican el rol admin y el panel React gestiona productos y solicitudes. Se requieren `JWT_SECRET` y el usuario inicial; el estado actual de MongoDB impide confirmar el login desplegado.
+6. **Sorbi público y Gemini admin.** Sorbi usa reglas y palabras clave, sin llamadas a servicios externos. `POST /api/ia/admin/generar` exige JWT admin y es la única ruta que consulta Gemini. La integración está en el código, pero no se ha probado con una clave real ni en producción.
+7. **Hosting.** El servicio Render existe y responde en `/api/health`, pero devuelve HTTP 503; investigar y recuperar la conexión con MongoDB, después verificar CORS, catálogo, contacto, login y Gemini en producción. El backend lee `PORT`, confía en proxy y declara Node.js 22.
 
-El modo básico de Sorbi y las rutas de sugerencias admin están implementados localmente, pero el modo Gemini no se ha probado con una clave ni desplegado. La conexión real de contacto depende de verificar Atlas.
+El frontend está publicado. No se confirma el funcionamiento end-to-end del catálogo, contacto, administración o Gemini mientras la API responda 503.
 
 ### Riesgos observados
 
@@ -240,11 +222,11 @@ El modo básico de Sorbi y las rutas de sugerencias admin están implementados l
 3. **Despliegue separado y CORS:** GitHub Pages no ejecuta Express. La API acepta los orígenes enumerados en `CORS_ORIGINS`; el valor de producción debe incluir `https://danncho.github.io`, sin una ruta de repositorio.
 4. **Falta de validación de orden en el backend:** las reglas del constructor se validan en JavaScript del navegador. El servidor no recibe la creación ni confirma allí ingredientes y precio; el cliente podría alterar datos locales.
 5. **IA y menores:** los términos de Gemini API prohíben su uso en aplicaciones dirigidas a menores o que probablemente serán accedidas por ellos. El asistente público no llama a Gemini ni a otro proveedor; el generador Gemini requiere autenticación y se limita al panel de administración. No trasladar la llamada a una ruta pública.
-6. **Publicación y persistencia pendientes de verificación:** la configuración de despliegue está añadida, pero su publicación y la persistencia de productos y solicitudes requieren configurar/verificar los servicios.
-7. **Revisión de secretos histórica pendiente:** el escaneo local no encontró patrones de alta confianza para credenciales en los archivos examinados. `backend/.env` está excluido del escaneo y `.gitignore` lo excluye. Sin comandos de Git no se puede confirmar si alguna clave fue subida anteriormente.
+6. **Publicación parcial y persistencia no confirmada:** GitHub Pages sirve el frontend; el endpoint de salud de Render devolvió HTTP 503, por lo que no se confirma la API operativa ni la persistencia de productos y solicitudes.
+7. **Revisión de secretos histórica pendiente:** el escaneo de archivos presentes (excluyendo `backend/.env`, `.git`, dependencias y artefactos) no encontró patrones de credenciales de alta confianza. No se inspeccionó `backend/.env` ni el historial de commits; por tanto, no se puede confirmar si una clave se publicó anteriormente.
 8. **Muestras frente a información real:** productos e ingredientes actuales están marcados como ejemplo, y los productores se identifican como ficticios. Mantener esas etiquetas hasta reemplazarlos por información confirmada.
-9. **Contenido de salud y sostenibilidad:** en el contenido promocional revisado no aparecen las afirmaciones prohibidas “cura”, “adelgaza”, “desintoxica”, “100% ecológico”, “cero impacto” o “único en el mercado”. Esas expresiones aparecen en `CONTEXTO.md` como ejemplos de frases que se deben evitar. Revisar el contenido al migrarlo.
-10. **Dependencia de Google Fonts:** la tipografía se obtiene desde un servicio externo y puede no cargarse sin conexión o si ese servicio se bloquea; se dispone de fuentes de respaldo.
+9. **Contenido de salud y sostenibilidad:** en las páginas de React revisadas no aparecen las afirmaciones médicas ni las frases “100% ecológico” o “único”. El snapshot histórico `v1-js-puro` incluye textos como “ingredientes 100% naturales” y “garantizar frescura y naturalidad”; no forman parte del build actual y no se deben reutilizar como afirmaciones verificadas.
+10. **Redes sociales:** el pie de página actual no muestra enlaces sociales, porque no se confirmaron perfiles oficiales.
 
 ## f. Revisión de secretos
 
@@ -254,7 +236,7 @@ La revisión fue sobre archivos presentes, no sobre el historial:
 - `.gitignore` incluye `backend/data/pedidos.json`, `backend/data/contactos.json` y `backend/data/alianzas.json`. Esos tres archivos no existen en el árbol actual.
 - `backend/data/productos.json` y `backend/data/ingredientes.json` no están excluidos; contienen los ejemplos del proyecto y deben seguir siendo datos no sensibles.
 - `backend/.env.example` contiene marcadores para configurar variables, no valores privados.
-- En el escaneo de archivos actual no se encontraron cadenas de conexión a bases de datos ni encabezados de claves privadas. Esta búsqueda no garantiza detectar todos los secretos posibles.
+- En el escaneo de archivos presentes no se encontraron patrones de claves conocidas, JWT literales, asignaciones de credenciales o URI de bases de datos con credenciales. La revisión no garantiza encontrar todo secreto posible y excluyó `backend/.env`, `.git`, dependencias y artefactos generados.
 - **No verificado:** si `backend/.env` o algún dato sensible apareció en un commit anterior o sigue presente en ramas remotas. No se revisó el historial porque la instrucción de esta tarea prohíbe ejecutar comandos de Git.
 
 Comandos de solo lectura que puedes ejecutar desde la raíz para revisar historial. No modifican el repositorio. El segundo solo muestra commits y nombres de archivos con diferencias que coinciden con patrones sensibles; no imprime las líneas encontradas:
@@ -271,13 +253,13 @@ Si un commit aparece, revísalo en privado y no pegues claves en chats, capturas
 
 | Fase | Qué se hace | Qué se reutiliza | Riesgo principal |
 |---|---|---|---|
-| 1. React base con Vite, Router y layout | Crear la aplicación React dentro de `frontend/`, configurar Vite y HashRouter, y construir el layout compartido. Conservar `frontend-legacy/` como referencia. | Paleta, textos, navegación, estructura del header/footer y convenciones responsive de `frontend-legacy/`. | Sobrescribir la copia del frontend anterior o romper rutas de GitHub Pages. |
-| 2. Catálogo e informativas en React | Migrar landing, catálogo, productores, sostenibilidad y nosotros; agregar las páginas que faltan o ajustar navegación. | Datos y API de productos, contenido aprobado y estilo visual existente. | Enlaces incompletos o datos de ejemplo presentados como reales. |
-| 3. Base de datos real (MongoDB Atlas + Mongoose) | Implementada para productos; configurar Atlas y verificar el seed. Ingredientes y reglas siguen como JSON estático de solo lectura. | `Producto`, conexión Mongoose y `productos.json` como fuente de seed. | Credenciales de conexión filtradas, modelo incorrecto o datos de muestra tomados como reales. |
-| 4. Contacto real con solicitudes | Implementado: formulario React y `POST /api/solicitudes` validado, con honeypot, límite por IP y persistencia Mongoose. Falta probarlo con Atlas configurado. | Modelo `Solicitud`, servicio API, estilo de marca. | Recopilar datos personales sin reglas de acceso, retención y protección. |
-| 5. Primera publicación (GitHub Pages + hosting del backend) | Publicar frontend estático en GitHub Pages y desplegar backend en un servicio compatible; configurar URL de API y CORS por ambiente. | Vite y API después de separar frontend/backend. | GitHub Pages no ejecuta Node; dominios distintos requieren CORS, HTTPS y variables de entorno configuradas. |
-| 6. Login real con JWT y panel admin | Implementado: usuarios, hashes con bcrypt, tokens de dos horas, rutas protegidas y panel React. Falta configurar `JWT_SECRET` y crear el primer usuario administrador. | Campos de producto, formularios y operaciones CRUD existentes. | El token se guarda en `sessionStorage`; el limitador es solo de memoria y no hay renovación de tokens. |
-| 7. Asistente público y creatividad IA admin | Sorbi usa respuestas preparadas; Gemini solo se llama desde `POST /api/ia/admin/generar`, con JWT admin, datos de producto, cuotas, filtro de salida y respaldo de descripción. | Catálogo y reglas de marca aprobadas. | Gemini API restringe sitios dirigidos a menores o probablemente accedidos por ellos; mantenerlo exclusivamente en administración adulta. El nivel gratuito puede procesar entradas para mejorar productos. |
+| 1. React base con Vite, Router y layout | Implementado; `frontend/` usa React, Vite y HashRouter. | Elementos visuales adaptados desde el snapshot histórico `v1-js-puro`. | Mantener las rutas del build estático. |
+| 2. Landing, catálogo e informativas en React | Implementado en código; el catálogo depende de que la API esté saludable. El constructor sigue como placeholder. | Datos y API de productos y estilo visual revisado. | Enlaces incompletos o datos de ejemplo presentados como reales. |
+| 3. Base de datos real (MongoDB Atlas + Mongoose) | Modelos, conexión y seed implementados; salud de producción devolvió 503 y la conexión no quedó verificada. Ingredientes y reglas siguen como JSON. | `Producto`, conexión Mongoose y `productos.json` como fuente de seed. | Credenciales filtradas, modelo incorrecto o datos de muestra tomados como reales. |
+| 4. Contacto real con solicitudes | Formulario y persistencia Mongoose implementados; guardado publicado no verificado por el 503 de salud. | Modelo `Solicitud`, servicio API, estilo de marca. | Recopilar datos personales sin reglas de acceso, retención y protección. |
+| 5. Publicación (GitHub Pages + Render) | Frontend publicado y alcanzable; backend Render responde 503 en salud. | Vite, API separada, URL y CORS configurables. | GitHub Pages no ejecuta Node; se requiere conexión entre los servicios y base disponible. |
+| 6. Login real con JWT y panel admin | Implementado en código; login publicado sin verificar. | Usuarios, hashes bcrypt, token de dos horas y endpoints protegidos. | El token se guarda en `sessionStorage`; el limitador es solo de memoria y no hay renovación. |
+| 7. Sorbi público y creatividad Gemini admin | Implementado en código; Sorbi usa reglas y palabras clave. Gemini solo se llama desde `POST /api/ia/admin/generar`, con JWT, datos de producto, cuotas, filtro y respaldo de descripción. | Catálogo y reglas de marca aprobadas. | Mantener Gemini exclusivamente en administración adulta; el nivel gratuito puede usar entradas para mejorar productos. |
 | 8. Constructor de smoothies en React (extra) | Migrar el constructor y conectar selecciones válidas al backend y, si corresponde, al carrito/pedidos. | Ingredientes, `constructorRules.js`, alérgenos y SVG actual como referencia. | Validar precio solo en el navegador o prometer información de alérgenos no confirmada. |
 | 9. Animaciones y responsive (extra) | Probar en tamaños de pantalla y agregar animaciones pequeñas solo si aportan claridad y se respetan preferencias de movimiento reducido. | Variables CSS y diseño actual. | Dependencias adicionales, carga lenta o movimiento que dificulte la accesibilidad. |
 | 10. Revisión final y guía de defensa | Probar rutas y formularios, revisar seguridad, datos, contenido, publicación, documentación y preparar explicaciones en palabras del estudiante. | `README.md`, este diagnóstico y las reglas de contenido. | Declarar cumplido algo que no se haya probado o desplegado realmente. |
@@ -305,16 +287,16 @@ Las dependencias indicadas reflejan el estado actual del proyecto.
 
 | Requisito | Estado | Evidencia local |
 |---|---|---|
-| Landing / inicio con marca, mensaje, secciones y navegación | Parcial | `frontend/src/pages/HomePage.jsx` ya está en React; algunas funciones siguen en construcción. |
-| Catálogo con productos y detalles claros | Parcial | `frontend/src/pages/SmoothiesPage.jsx` obtiene productos por API; la consulta real requiere configurar y cargar MongoDB Atlas. |
-| Contacto real que envíe o registre solicitudes | Implementado; persistencia por verificar | `frontend/src/pages/ContactPage.jsx` y `POST /api/solicitudes`; guardar en MongoDB requiere conexión Atlas configurada. |
-| Panel admin con login y zona de gestión | Implementado; requiere configuración | `frontend/src/pages/AdminLoginPage.jsx`, `frontend/src/pages/AdminPage.jsx`, JWT y endpoints protegidos. Falta configurar `JWT_SECRET` y crear el primer usuario administrador. |
-| IA aplicada al negocio | Implementada localmente; Gemini admin pendiente de configurar/probar | Sorbi público usa respuestas básicas sin proveedor externo. El endpoint Gemini está protegido por JWT en `backend/routes/ia-admin.js`; falta configurar Google AI Studio y probarlo. |
-| Publicación disponible en internet | Configuración añadida; publicación pendiente | El workflow de GitHub Pages existe; falta configurar Pages, Render y probar las URL públicas. |
-| Frontend con React | Parcial | Vite, React, HashRouter, layout, landing, catálogo y páginas informativas ya existen en `frontend/`. |
+| Landing / inicio con marca, mensaje, secciones y navegación | Cumple en código y publicada | `frontend/src/pages/HomePage.jsx`; GitHub Pages respondió durante esta revisión. |
+| Catálogo con productos y detalles claros | Implementado en código; disponible en producción no verificado | `frontend/src/pages/SmoothiesPage.jsx` y `GET /api/productos`; `/api/health` de Render devolvió 503. |
+| Contacto real que envíe o registre solicitudes | Implementado en código; persistencia publicada no verificada | `frontend/src/pages/ContactPage.jsx`, `POST /api/solicitudes` y modelo Mongoose `Solicitud`; la API respondió 503. |
+| Panel admin con login y zona de gestión | Implementado en código; login publicado no verificado | `AdminLoginPage.jsx`, `AdminPage.jsx`, bcrypt, JWT y endpoints protegidos; depende de MongoDB disponible y `JWT_SECRET`. |
+| IA aplicada al negocio | Implementada en código; Gemini real pendiente de configurar/probar | Gemini solo en `backend/routes/ia-admin.js`, protegido con JWT; Sorbi usa reglas y palabras clave, sin IA externa. |
+| Publicación disponible en internet | Parcial | El workflow publica el frontend y la página se alcanzó; el backend Render devuelve HTTP 503 en `/api/health`. |
+| Frontend con React | Cumple | Vite, React, HashRouter, layout, landing, catálogo y páginas informativas en `frontend/`. |
 | Mínimo 15 commits | No verificado | No se ejecutaron comandos de Git, según la instrucción. Debe comprobarse con el historial local. |
-| Repositorio en GitHub | Remoto configurado; visibilidad no verificada | `.git/config` indica `Danncho/SmoothieFit`; no se comprobó si el repositorio es público. |
-| Despliegue del frontend en GitHub Pages | Configuración añadida; no verificado | `.github/workflows/deploy.yml` construye y publica; todavía debe ejecutarse y revisarse el sitio publicado. |
+| Repositorio en GitHub | Público y alcanzable | `https://github.com/Danncho/SmoothieFit` respondió durante esta revisión. |
+| Despliegue del frontend en GitHub Pages | Publicado y alcanzable | `.github/workflows/deploy.yml`; la URL pública respondió durante esta revisión. |
 | Diseño responsive | Parcial | `frontend/src/styles/base.css` incluye estilos responsive; hace falta confirmar la experiencia en navegadores/tamaños reales. |
 | Dependencias justificadas y explicables | Parcial | La integración usa `fetch` nativo de Node.js 22 y no agregó dependencias. Revisar términos y privacidad de Google antes de configurar una clave. |
 | Reglas de contenido y muestras | Parcial | Productos e ingredientes tienen `esEjemplo`; productores indican que son ficticios. Revisar todo texto nuevo al migrar. |
