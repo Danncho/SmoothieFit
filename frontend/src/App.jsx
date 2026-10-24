@@ -9,6 +9,10 @@ import SalesPointsPage from './pages/SalesPointsPage.jsx';
 import SmoothiesPage from './pages/SmoothiesPage.jsx';
 import SustainabilityPage from './pages/SustainabilityPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
+import AdminLoginPage from './pages/AdminLoginPage.jsx';
+import AdminPage from './pages/AdminPage.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
 
 const pages = [
   { path: '/smoothies', element: <SmoothiesPage /> },
@@ -18,25 +22,31 @@ const pages = [
   { path: '/puntos-de-venta', element: <SalesPointsPage /> },
   { path: '/sostenibilidad', element: <SustainabilityPage /> },
   { path: '/nosotros', element: <AboutPage /> },
-  { path: '/contacto', element: <ContactPage /> },
-  { path: '/admin', title: 'Administración' }
+  { path: '/contacto', element: <ContactPage /> }
 ];
 
 function App() {
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<HomePage />} />
-        {pages.map((page) => (
+    <AuthProvider>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          {pages.map((page) => (
+            <Route
+              key={page.path}
+              path={page.path}
+              element={page.element || <PlaceholderPage title={page.title} />}
+            />
+          ))}
+          <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route
-            key={page.path}
-            path={page.path}
-            element={page.element || <PlaceholderPage title={page.title} />}
+            path="/admin"
+            element={<ProtectedRoute><AdminPage /></ProtectedRoute>}
           />
-        ))}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
-    </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </AuthProvider>
   );
 }
 
