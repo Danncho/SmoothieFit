@@ -1,7 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
 import HomePage from './pages/HomePage.jsx';
-import PlaceholderPage from './pages/PlaceholderPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import CollegesPage from './pages/CollegesPage.jsx';
 import ProducersPage from './pages/ProducersPage.jsx';
@@ -17,7 +16,6 @@ import { AuthProvider } from './context/AuthContext.jsx';
 
 const pages = [
   { path: '/smoothies', element: <SmoothiesPage /> },
-  { path: '/crea-tu-smoothie', title: 'Crea tu smoothie' },
   { path: '/productores', element: <ProducersPage /> },
   { path: '/colegios', element: <CollegesPage /> },
   { path: '/puntos-de-venta', element: <SalesPointsPage /> },
@@ -33,11 +31,12 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="/crea-tu-smoothie" element={<Navigate to="/" replace />} />
           {pages.map((page) => (
             <Route
               key={page.path}
               path={page.path}
-              element={page.element || <PlaceholderPage title={page.title} />}
+              element={page.element}
             />
           ))}
           <Route path="/admin/login" element={<AdminLoginPage />} />

@@ -25,11 +25,10 @@ function HomePage() {
             <h1>Fruta, color y buen sabor en cada sorbo</h1>
             <p>
               Smoothies hechos con frutas, verduras y semillas de productores locales.
-              Elige uno de nuestros favoritos o crea tu propia mezcla.
+              Explora el catálogo y encuentra una mezcla para disfrutar.
             </p>
             <div className="hero-actions">
               <Link className="button button-primary" to="/smoothies">Ver smoothies</Link>
-              <Link className="button button-secondary" to="/crea-tu-smoothie">Crea tu smoothie</Link>
               <Link className="button button-secondary" to="/asistente">Pregúntale a Sorbi</Link>
             </div>
           </div>
@@ -94,11 +93,11 @@ function HomePage() {
       <section className="home-section container">
         <div className="custom-banner">
           <div>
-            <p className="eyebrow">Tu mezcla, tus reglas</p>
-            <h2>Hazlo a tu manera</h2>
-            <p>Combina tus ingredientes favoritos y arma un smoothie con tu propio estilo.</p>
+            <p className="eyebrow">Una idea para más adelante</p>
+            <h2>Constructor de smoothies</h2>
+            <p>Estamos considerando una herramienta para combinar ingredientes. Por ahora, puedes explorar las opciones del catálogo.</p>
           </div>
-          <Link className="button button-primary" to="/crea-tu-smoothie">Crear mi smoothie</Link>
+          <Link className="button button-primary" to="/smoothies">Explorar el catálogo</Link>
         </div>
       </section>
 
