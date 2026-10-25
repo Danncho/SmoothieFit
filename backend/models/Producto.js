@@ -52,6 +52,11 @@ const productoSchema = new mongoose.Schema({
     required: true,
     trim: true,
     maxlength: 50
+  },
+  votos: {
+    type: Number,
+    default: 0,
+    min: 0
   }
 }, {
   bufferCommands: false,

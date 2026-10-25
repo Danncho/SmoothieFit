@@ -4,6 +4,12 @@ const verificarToken = require('../middleware/verificarToken');
 const Producto = require('../models/Producto');
 
 const router = express.Router();
+const ventanaVotosHoraMs = 60 * 60 * 1000;
+const ventanaVotoProductoMs = 24 * 60 * 60 * 1000;
+const maximoVotosPorHora = 20;
+// Es un freno básico, no infalible: vive en memoria, se reinicia y no coordina instancias.
+// Las IP solo son claves temporales en memoria y nunca se guardan en la base de datos.
+const votosPorIp = new Map();
 
 function verificarConexion(req, res, next) {
   if (mongoose.connection.readyState !== 1) {
@@ -80,7 +86,8 @@ function serializarProducto(documento) {
     ingredientes: producto.ingredientes,
     precio: producto.precio,
     imagen: producto.imagen,
-    categoria: producto.categoria
+    categoria: producto.categoria,
+    votos: producto.votos ?? 0
   };
 }
 
@@ -113,6 +120,58 @@ function obtenerIdValido(id) {
   return Number.isSafeInteger(parsedId) && parsedId > 0 ? parsedId : null;
 }
 
+function limpiarRegistrosVoto(ahora) {
+  for (const [ip, registro] of votosPorIp) {
+    registro.votosHora = registro.votosHora
+      .filter((voto) => ahora - voto.fecha < ventanaVotosHoraMs);
+
+    for (const [idProducto, voto] of registro.productos) {
+      if (ahora - voto.fecha >= ventanaVotoProductoMs) {
+        registro.productos.delete(idProducto);
+      }
+    }
+
+    if (registro.votosHora.length === 0 && registro.productos.size === 0) {
+      votosPorIp.delete(ip);
+    }
+  }
+}
+
+function reservarVoto(ip, idProducto, ahora) {
+  limpiarRegistrosVoto(ahora);
+  let registro = votosPorIp.get(ip);
+
+  if (!registro) {
+    registro = { votosHora: [], productos: new Map() };
+    votosPorIp.set(ip, registro);
+  }
+
+  if (registro.votosHora.length >= maximoVotosPorHora) {
+    return { permitido: false, motivo: 'limite_hora' };
+  }
+  if (registro.productos.has(idProducto)) {
+    return { permitido: false, motivo: 'voto_repetido' };
+  }
+
+  const reserva = { fecha: ahora };
+  registro.votosHora.push(reserva);
+  registro.productos.set(idProducto, reserva);
+  return { permitido: true, reserva };
+}
+
+function liberarVoto(ip, idProducto, reserva) {
+  const registro = votosPorIp.get(ip);
+  if (!registro) return;
+
+  registro.votosHora = registro.votosHora.filter((voto) => voto !== reserva);
+  if (registro.productos.get(idProducto) === reserva) {
+    registro.productos.delete(idProducto);
+  }
+  if (registro.votosHora.length === 0 && registro.productos.size === 0) {
+    votosPorIp.delete(ip);
+  }
+}
+
 router.get('/', verificarConexion, async (req, res) => {
   try {
     const productos = await Producto.find().sort({ id: 1 }).lean();
@@ -138,6 +197,48 @@ router.get('/:id', verificarConexion, async (req, res) => {
     return res.json(serializarProducto(producto));
   } catch (error) {
     return responderError(res, error, 'No se pudo consultar el producto.');
+  }
+});
+
+router.post('/:id/voto', verificarConexion, async (req, res) => {
+  const id = obtenerIdValido(req.params.id);
+  if (id === null) {
+    return res.status(400).json({ mensaje: 'El id del producto debe ser un número entero positivo.' });
+  }
+
+  const ip = req.ip || req.socket.remoteAddress || 'desconocida';
+  let reserva;
+
+  try {
+    const existe = await Producto.exists({ id });
+    if (!existe) {
+      return res.status(404).json({ mensaje: 'No se encontró el producto solicitado.' });
+    }
+
+    const resultadoReserva = reservarVoto(ip, id, Date.now());
+    if (!resultadoReserva.permitido) {
+      const mensaje = resultadoReserva.motivo === 'voto_repetido'
+        ? 'Ya votaste por este smoothie. Puedes volver a votar después de 24 horas.'
+        : 'Llegaste al límite de 20 votos por hora desde esta conexión. Inténtalo más tarde.';
+      return res.status(429).json({ mensaje });
+    }
+    reserva = resultadoReserva.reserva;
+
+    const producto = await Producto.findOneAndUpdate(
+      { id },
+      { $inc: { votos: 1 } },
+      { new: true, runValidators: true }
+    ).select('id votos').lean();
+
+    if (!producto) {
+      liberarVoto(ip, id, reserva);
+      return res.status(404).json({ mensaje: 'No se encontró el producto solicitado.' });
+    }
+
+    return res.json({ votos: producto.votos });
+  } catch (error) {
+    if (reserva) liberarVoto(ip, id, reserva);
+    return responderError(res, error, 'No se pudo registrar el voto.');
   }
 });
 
