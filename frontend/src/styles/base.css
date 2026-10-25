@@ -423,6 +423,57 @@ button {
   padding: 0.25rem var(--space-medium) var(--space-medium);
 }
 
+.favorite-label {
+  display: inline-block;
+  margin-top: 0.65rem;
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  background: var(--color-pink);
+  color: var(--color-purple);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.smoothie-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: var(--space-small);
+}
+
+.smoothie-card-actions .button {
+  min-height: 2.75rem;
+}
+
+.smoothie-card-actions button:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.vote-empty-message,
+.vote-storage-warning,
+.vote-error {
+  margin: 0 0 var(--space-medium);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-small);
+}
+
+.vote-empty-message {
+  background: var(--color-pink);
+  color: var(--color-purple);
+  font-weight: 700;
+}
+
+.vote-storage-warning {
+  background: #fff4d8;
+  color: #654b00;
+}
+
+.vote-error {
+  background: #fff0f2;
+  color: #a9203b;
+}
+
 .smoothie-price {
   margin-top: 0.6rem !important;
   color: var(--color-red) !important;

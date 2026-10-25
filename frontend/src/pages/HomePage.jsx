@@ -3,6 +3,7 @@ import ProductCard from '../components/ProductCard.jsx';
 import ProductsStatus from '../components/ProductsStatus.jsx';
 import SectionTitle from '../components/SectionTitle.jsx';
 import useProducts from '../hooks/useProducts.js';
+import { ordenarPorVotos, votosDelProducto } from '../utils/productRanking.js';
 
 const benefits = [
   { icon: '♥', title: 'Sabor', description: 'Mezclas coloridas para disfrutar cada sorbo.' },
@@ -13,8 +14,10 @@ const benefits = [
 
 function HomePage() {
   const { products, loading, error, retry } = useProducts();
-  const featuredProducts = products.filter((product) => product.destacado).slice(0, 3);
-  const featuredSmoothies = (featuredProducts.length ? featuredProducts : products).slice(0, 3);
+  const hayVotos = products.some((product) => votosDelProducto(product) > 0);
+  const favoritos = hayVotos
+    ? ordenarPorVotos(products).slice(0, 3)
+    : products.slice(0, 3);
 
   return (
     <>
@@ -66,21 +69,25 @@ function HomePage() {
       <section className="home-section featured-section" aria-labelledby="featured-title">
         <div className="container">
           <SectionTitle
-            eyebrow="Para empezar a elegir"
-            title="Tres mezclas del catálogo"
-            description="Productos de ejemplo para explorar el catálogo."
+            eyebrow="Elegidos por la gente"
+            title="Favoritos"
+            description={hayVotos ? 'Los smoothies con más votos del público.' : 'Mezclas para empezar'}
             id="featured-title"
           />
           <ProductsStatus
             loading={loading}
             error={error}
-            empty={!loading && !error && featuredSmoothies.length === 0}
+            empty={!loading && !error && favoritos.length === 0}
             onRetry={retry}
           />
-          {!loading && !error && featuredSmoothies.length > 0 && (
+          {!loading && !error && favoritos.length > 0 && (
             <div className="grid smoothie-grid">
-              {featuredSmoothies.map((product) => (
-                <ProductCard product={product} key={product.id ?? product.nombre} />
+              {favoritos.map((product) => (
+                <ProductCard
+                  product={product}
+                  key={product.id ?? product.nombre}
+                  favorito={hayVotos && votosDelProducto(product) > 0}
+                />
               ))}
             </div>
           )}

@@ -553,6 +553,7 @@ function AdminPage() {
                       <th scope="col">Nombre</th>
                       <th scope="col">Categoría</th>
                       <th scope="col">Precio</th>
+                      <th scope="col">Votos</th>
                       <th scope="col">Ingredientes</th>
                       <th scope="col">Origen</th>
                       <th scope="col">Acciones</th>
@@ -564,6 +565,7 @@ function AdminPage() {
                         <th scope="row">{product.nombre}</th>
                         <td>{product.categoria}</td>
                         <td>${Number(product.precio).toFixed(2)}</td>
+                        <td>{Number.isFinite(Number(product.votos)) ? Number(product.votos) : 0}</td>
                         <td>{product.ingredientes.join(', ')}</td>
                         <td>{product.esEjemplo ? 'Ejemplo' : 'Registrado'}</td>
                         <td className="admin-row-actions">
