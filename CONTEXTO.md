@@ -53,6 +53,7 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 ## Estado del proyecto
 
 - **Fecha de revisión:** 24 de octubre de 2026.
+- **Local piloto:** se planifica un único local en Mall del Sol, Guayaquil; todavía no está abierto. El crecimiento dependerá de sus resultados y no hay otro local planificado.
 - **Fase actual:** Fase 18, verificación de entregables y documentación.
 - **Estado técnico:** React tiene landing, catálogo, contacto, login, panel administrativo y Sorbi basado en reglas. El backend contiene rutas para persistencia MongoDB, JWT y generación Gemini protegida; su endpoint publicado de salud respondió 503. Gemini requiere configuración privada y no se ha confirmado una llamada de producción. El constructor de smoothies React sigue pendiente.
 - **Precaución:** el constructor React aún no está implementado; la app actual se desarrolla en `frontend/`.

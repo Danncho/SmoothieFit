@@ -140,7 +140,7 @@ No hay `devDependencies` declaradas. `backend/package.json` declara Node.js `>=2
 | `frontend-legacy/sostenibilidad.html` | Propuesta cautelosa sobre empaques, materiales, residuos y proveedores locales. |
 | `frontend-legacy/nosotros.html` | Historia del proyecto, misión, visión, valores y cuatro espacios para nombres y fotos del equipo. |
 
-En ese snapshot histórico no se encontraron `contacto.html`, `colegios.html`, `puntos-de-venta.html` ni `pedidos.html`. La app React actual sí tiene página de Contacto y páginas informativas para Colegios y Puntos de venta.
+En ese snapshot histórico no se encontraron `contacto.html`, `colegios.html`, `puntos-de-venta.html` ni `pedidos.html`. La app React actual sí tiene página de Contacto, página informativa para Colegios y página para consultar el local piloto.
 
 ### Scripts
 

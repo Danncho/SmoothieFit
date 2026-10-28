@@ -41,7 +41,8 @@ Gemini se utiliza únicamente para sugerencias de nombres, descripciones y esló
 .
 ├── backend/
 │   ├── config/              # Conexión de base de datos y reglas estáticas
-│   ├── data/                # JSON de seed y de lectura (datos de ejemplo)
+│   ├── data/                # JSON de seed y datos de lectura
+│   │   └── sucursales.json  # Ficha del local piloto planificado en Mall del Sol
 │   ├── middleware/          # Verificación de JWT
 │   ├── models/              # Modelos Mongoose
 │   ├── prompts/             # Instrucciones para las sugerencias Gemini de administración
@@ -134,6 +135,7 @@ Las rutas se montan bajo `/api`. El token de administrador se envía en el encab
 | `DELETE` | `/api/productos/:id` | JWT admin; elimina un producto. |
 | `GET` | `/api/ingredientes` | Público; lista ingredientes estáticos de ejemplo. |
 | `GET` | `/api/reglas-constructor` | Público; expone reglas estáticas del constructor. |
+| `GET` | `/api/sucursales` | Público; devuelve la lista de locales desde `backend/data/sucursales.json`. |
 | `POST` | `/api/solicitudes` | Público; valida y guarda una solicitud de contacto en MongoDB. |
 | `GET` | `/api/solicitudes` | JWT admin; consulta solicitudes. |
 | `PATCH` | `/api/solicitudes/:id` | JWT admin; actualiza el estado permitido de una solicitud. |
@@ -147,6 +149,7 @@ Las rutas se montan bajo `/api`. El token de administrador se envía en el encab
 - Los límites de intentos y sugerencias se guardan en memoria: al reiniciar o escalar a varias instancias no son un control compartido.
 - El JWT se guarda en `sessionStorage`; no hay renovación automática.
 - La ruta antigua `/crea-tu-smoothie` redirige a Inicio. El constructor React no está implementado y queda como mejora futura.
+- `backend/data/sucursales.json` contiene un único local piloto planificado en Mall del Sol, Guayaquil; todavía no está abierto. El crecimiento dependerá de los resultados del piloto y no hay otro local planificado.
 - El pie de página no muestra enlaces sociales; se añadirán cuando existan perfiles oficiales.
 - La versión anterior archivada en el tag histórico `v1-js-puro` incluye textos como “ingredientes 100% naturales” y “garantizar frescura y naturalidad”. No forma parte del build de React y esas frases no deben reutilizarse como afirmaciones verificadas.
 - Hay animaciones pequeñas de aparición en la interfaz; queda como mejora futura probar y pulir el movimiento en dispositivos reales y verificar las preferencias de movimiento reducido.
@@ -160,6 +163,12 @@ Las rutas se montan bajo `/api`. El token de administrador se envía en el encab
 5. Mejorar la escalabilidad de los límites de uso, el manejo de sesión y las pruebas automatizadas.
 6. Probar diseño responsive, accesibilidad y animaciones en dispositivos y navegadores reales.
 7. Consultar el tag histórico `v1-js-puro` solo si hace falta revisar la versión anterior; no volver a integrar sus textos no verificados.
+
+### Actualizar la ficha del local
+
+Edita `backend/data/sucursales.json` manteniendo cada objeto válido. `destinoMapa` acepta un texto o `null`; `lat` y `lng` deben ser ambos coordenadas numéricas válidas o ambos `null`. Cuando haya coordenadas, la web usa un mapa de OpenStreetMap y un enlace de direcciones por coordenadas. Sin coordenadas, `destinoMapa` permite abrir indicaciones de Google Maps; sin coordenadas ni destino, se muestra “Ubicación por confirmar”.
+
+Para completar la ficha del local, reemplaza `lat` y `lng` por las coordenadas del punto confirmado, `horario` por el horario confirmado y `telefono` por el teléfono confirmado. Hasta confirmar esa información, conserva los valores `null`. Cambia `estado` solo cuando el plan avance: `planificada`, `proxima` o `abierta`; no marques el local como abierto antes de abrirlo. La validación acepta una o más fichas y rechaza tipos incorrectos, coordenadas fuera de rango y estados desconocidos.
 
 ## Guía breve de defensa
 
