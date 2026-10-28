@@ -28,6 +28,7 @@ const iaRoutes = require('./routes/ia');
 const iaAdminRoutes = require('./routes/ia-admin');
 const ingredientesRoutes = require('./routes/ingredientes');
 const reglasConstructorRoutes = require('./routes/reglas-constructor');
+const sucursalesRoutes = require('./routes/sucursales');
 
 app.use(express.json({ limit: '100kb' }));
 app.use(cors({
@@ -43,6 +44,7 @@ app.use('/api/solicitudes', solicitudesRoutes);
 app.use('/api/solicitudes', solicitudesAdminRoutes);
 app.use('/api/ingredientes', ingredientesRoutes);
 app.use('/api/reglas-constructor', reglasConstructorRoutes);
+app.use('/api/sucursales', sucursalesRoutes);
 
 app.get('/api/health', (req, res) => {
   const connected = mongoose.connection.readyState === 1;

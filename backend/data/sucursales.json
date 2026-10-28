@@ -1,0 +1,18 @@
+[
+  {
+    "id": "mall-del-sol",
+    "nombre": "SmoothieFit Mall del Sol",
+    "ciudad": "Guayaquil",
+    "zona": "Norte de Guayaquil",
+    "referencia": "Centro Comercial Mall del Sol. El punto exacto dentro del centro comercial está por definir, de preferencia cerca de un gimnasio (por confirmar).",
+    "direccion": "Centro Comercial Mall del Sol, Av. Joaquín Orrantia González y Av. Juan Tanca Marengo, Guayaquil",
+    "destinoMapa": "Mall del Sol, Guayaquil",
+    "lat": null,
+    "lng": null,
+    "horario": null,
+    "telefono": null,
+    "formato": "por definir",
+    "estado": "planificada",
+    "esEjemplo": false
+  }
+]
