@@ -4,7 +4,8 @@ const reglasConstructor = require('../config/constructorRules');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  res.json(reglasConstructor);
+  const { categorias, seleccion, tamanos } = reglasConstructor;
+  return res.json({ categorias, seleccion, tamanos });
 });
 
 module.exports = router;

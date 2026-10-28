@@ -1,14 +1,21 @@
 const express = require('express');
+const crypto = require('crypto');
+const fs = require('fs/promises');
 const mongoose = require('mongoose');
+const path = require('path');
 const Solicitud = require('../models/Solicitud');
+const ingredientesDisponibles = require('../data/ingredientes.json');
+const reglasConstructor = require('../config/constructorRules');
 
 const router = express.Router();
+const sucursalesFile = path.join(__dirname, '..', 'data', 'sucursales.json');
 const rateLimitWindow = 60 * 60 * 1000;
 const maxRequestsPerWindow = 5;
 const requestsByIp = new Map();
 const allowedTypes = ['consulta', 'colegio', 'tienda', 'pedido'];
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^(?=.*\d)[0-9 +\-]+$/;
+const alfabetoCodigo = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
 
 function validarSolicitud(body) {
   const errores = {};
@@ -97,6 +104,38 @@ function esFalloDeConexion(error) {
     || error.name === 'MongoNetworkError';
 }
 
+function generarCodigoRetiro() {
+  const codigo = Array.from({ length: 8 }, () => (
+    alfabetoCodigo[crypto.randomInt(alfabetoCodigo.length)]
+  )).join('');
+  return `SF-${codigo}`;
+}
+
+async function guardarSolicitudConCodigo(solicitud) {
+  for (let intento = 0; intento < 3; intento += 1) {
+    solicitud.codigo = generarCodigoRetiro();
+    try {
+      return await Solicitud.create(solicitud);
+    } catch (error) {
+      const codigoDuplicado = error.code === 11000
+        && (error.keyPattern?.codigo === 1 || typeof error.keyValue?.codigo === 'string');
+      if (!codigoDuplicado || intento === 2) throw error;
+    }
+  }
+  throw new Error('No se pudo generar un código de retiro disponible.');
+}
+
+async function leerLocalUnico() {
+  const contenido = await fs.readFile(sucursalesFile, 'utf8');
+  const locales = JSON.parse(contenido);
+  const local = Array.isArray(locales) && locales.length === 1 ? locales[0] : null;
+  if (!local || local.id !== 'mall-del-sol'
+    || !['planificada', 'proxima', 'abierta'].includes(local.estado)) {
+    throw new Error('No se encontró la ficha válida del local de retiro.');
+  }
+  return local;
+}
+
 router.post('/', async (req, res) => {
   const body = req.body;
 
@@ -112,8 +151,36 @@ router.post('/', async (req, res) => {
   }
 
   const { errores, solicitud } = validarSolicitud(body);
+  const contieneCreacion = Object.prototype.hasOwnProperty.call(body, 'creacion');
+  let creacionValidada = null;
+  if (contieneCreacion && body.tipo !== 'pedido') {
+    errores.tipo = 'La creación personalizada debe enviarse como pedido.';
+  }
+  if (contieneCreacion) {
+    creacionValidada = reglasConstructor.validarCreacion(
+      body.creacion,
+      ingredientesDisponibles
+    );
+    if (creacionValidada.errores.length > 0) {
+      errores.creacion = creacionValidada.errores.join(' ');
+    }
+  }
   if (Object.keys(errores).length > 0) {
     return res.status(400).json({ mensaje: 'Revisa los campos del formulario.', errores });
+  }
+
+  if (contieneCreacion) {
+    solicitud.creacion = {
+      ...(body.creacion.nombre?.trim() ? { nombre: body.creacion.nombre.trim() } : {}),
+      tamano: creacionValidada.tamano.nombre,
+      base: creacionValidada.base.nombre,
+      ingredientes: creacionValidada.ingredientes.map((ingrediente) => ingrediente.nombre)
+    };
+    solicitud.precioCalculado = reglasConstructor.calcularPrecio(
+      creacionValidada.tamano,
+      creacionValidada.base,
+      creacionValidada.ingredientes
+    );
   }
 
   if (mongoose.connection.readyState !== 1) {
@@ -130,6 +197,22 @@ router.post('/', async (req, res) => {
   }
 
   try {
+    if (contieneCreacion) {
+      const local = await leerLocalUnico();
+      solicitud.sucursalId = local.id;
+      await guardarSolicitudConCodigo(solicitud);
+      return res.status(201).json({
+        mensaje: 'Tu creación quedó registrada como interés.',
+        codigo: solicitud.codigo,
+        precioCalculado: solicitud.precioCalculado,
+        sucursal: {
+          id: local.id,
+          nombre: local.nombre,
+          estado: local.estado
+        }
+      });
+    }
+
     await Solicitud.create(solicitud);
     return res.status(201).json({ mensaje: 'Tu solicitud se envió correctamente.' });
   } catch (error) {

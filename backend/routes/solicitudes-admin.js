@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
   try {
     const consulta = estado ? { estado } : {};
     const solicitudes = await Solicitud.find(consulta)
-      .select('nombre correo telefono tipo organizacion mensaje estado fechaCreacion')
+      .select('nombre correo telefono tipo organizacion mensaje creacion precioCalculado sucursalId codigo estado fechaCreacion')
       .sort({ fechaCreacion: -1 })
       .limit(Math.min(limiteSolicitado, maximoResultados))
       .lean();
@@ -41,6 +41,10 @@ router.get('/', async (req, res) => {
       tipo: solicitud.tipo,
       organizacion: solicitud.organizacion || '',
       mensaje: solicitud.mensaje,
+      creacion: solicitud.creacion || null,
+      precioCalculado: solicitud.precioCalculado ?? null,
+      sucursalId: solicitud.sucursalId || '',
+      codigo: solicitud.codigo || '',
       estado: solicitud.estado,
       fechaCreacion: solicitud.fechaCreacion
     })));
@@ -68,7 +72,7 @@ router.patch('/:id', async (req, res) => {
       req.params.id,
       { $set: { estado } },
       { new: true, runValidators: true }
-    ).select('nombre correo telefono tipo organizacion mensaje estado fechaCreacion').lean();
+    ).select('nombre correo telefono tipo organizacion mensaje creacion precioCalculado sucursalId codigo estado fechaCreacion').lean();
 
     if (!solicitud) {
       return res.status(404).json({ mensaje: 'No se encontró la solicitud.' });
@@ -83,6 +87,10 @@ router.patch('/:id', async (req, res) => {
         tipo: solicitud.tipo,
         organizacion: solicitud.organizacion || '',
         mensaje: solicitud.mensaje,
+        creacion: solicitud.creacion || null,
+        precioCalculado: solicitud.precioCalculado ?? null,
+        sucursalId: solicitud.sucursalId || '',
+        codigo: solicitud.codigo || '',
         estado: solicitud.estado,
         fechaCreacion: solicitud.fechaCreacion
       }
