@@ -14,6 +14,14 @@ const initialProduct = {
 
 const statuses = ['nueva', 'atendida', 'descartada'];
 
+function formatPrice(price) {
+  if (!Number.isFinite(price)) return 'No disponible';
+  return new Intl.NumberFormat('es-EC', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(price);
+}
+
 function validateProduct(form) {
   const errors = {};
   const limits = { nombre: 80, descripcion: 250, imagen: 200, categoria: 50 };
@@ -627,6 +635,18 @@ function AdminPage() {
                   <p><strong>Tipo:</strong> {request.tipo}</p>
                   {request.organizacion && <p><strong>Organización:</strong> {request.organizacion}</p>}
                   <p className="admin-request-message"><strong>Mensaje:</strong> {request.mensaje}</p>
+                  {request.tipo === 'pedido' && request.creacion && (
+                    <section className="admin-request-creation" aria-label="Creación para retirar">
+                      <h3>Creación personalizada</h3>
+                      {request.creacion.nombre && <p><strong>Nombre:</strong> {request.creacion.nombre}</p>}
+                      <p><strong>Tamaño:</strong> {request.creacion.tamano}</p>
+                      <p><strong>Base:</strong> {request.creacion.base}</p>
+                      <p><strong>Ingredientes:</strong> {request.creacion.ingredientes.join(', ')}</p>
+                      <p><strong>Precio calculado:</strong> {formatPrice(request.precioCalculado)}</p>
+                      <p><strong>Local de retiro:</strong> {request.sucursalId === 'mall-del-sol' ? 'Mall del Sol' : 'Por confirmar'}</p>
+                      <p><strong>Código de retiro:</strong> {request.codigo}</p>
+                    </section>
+                  )}
                   <div className="admin-request-state">
                     <label htmlFor={`request-state-${request.id}`}>Estado</label>
                     <select

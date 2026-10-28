@@ -1,1 +1,1 @@
-export const CONSTRUCTOR_DISPONIBLE = false;
+export const CONSTRUCTOR_DISPONIBLE = true;

@@ -13,6 +13,7 @@ import AdminLoginPage from './pages/AdminLoginPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
+import ConstructorPage from './pages/ConstructorPage.jsx';
 
 const pages = [
   { path: '/smoothies', element: <SmoothiesPage /> },
@@ -31,7 +32,7 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/crea-tu-smoothie" element={<Navigate to="/" replace />} />
+          <Route path="/crea-tu-smoothie" element={<ConstructorPage />} />
           <Route path="/puntos-de-venta" element={<Navigate to="/sucursales" replace />} />
           {pages.map((page) => (
             <Route

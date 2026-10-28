@@ -108,11 +108,11 @@ function HomePage() {
       <section className="home-section container">
         <div className="custom-banner">
           <div>
-            <p className="eyebrow">Una idea para más adelante</p>
+            <p className="eyebrow">A tu manera</p>
             <h2>Constructor de smoothies</h2>
-            <p>Estamos considerando una herramienta para combinar ingredientes. Por ahora, puedes explorar las opciones del catálogo.</p>
+            <p>Elige una base, combina ingredientes y revisa el resumen de tu creación.</p>
           </div>
-          <Link className="button button-primary" to="/smoothies">Explorar el catálogo</Link>
+          <Link className="button button-primary" to="/crea-tu-smoothie">Crea tu smoothie</Link>
         </div>
       </section>
 
