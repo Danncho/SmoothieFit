@@ -7,7 +7,7 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 ## Contexto de la marca
 
 - **Producto:** proyecto de smoothies de frutas, verduras y semillas; se busca priorizar productores locales y evaluar opciones de empaque con cuidado, sin atribuir certificaciones ni impactos no comprobados.
-- **Diferenciador propuesto:** además del catálogo, se plantea que los clientes puedan crear su propio smoothie eligiendo ingredientes. El constructor React todavía no está implementado y se considera una mejora futura; la ruta antigua redirige a Inicio.
+- **Diferenciador:** además del catálogo, el constructor React permite combinar ingredientes de ejemplo y registrar interés en una creación para retirar en el Mall del Sol.
 - **Público:** niños, adolescentes y jóvenes; padres, colegios y tiendas de salud como compradores o aliados.
 - **Personalidad:** energía, salud, diversión, frescura, confianza y juventud.
 - **Tono:** sencillo, positivo y cercano; nada técnico ni médico.
@@ -21,7 +21,7 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 - **Datos:** la API de productos y solicitudes está implementada con MongoDB Atlas y Mongoose. La respuesta 503 de salud impide confirmar la conexión y persistencia actuales. Ingredientes y reglas del constructor continúan en JSON de solo lectura.
 - **Acceso actual:** el panel React usa cuentas administradoras, hashes de contraseñas con bcrypt y tokens JWT de dos horas.
 - **IA aplicada:** Sorbi, el asistente público, responde mediante reglas y palabras clave, sin llamar a servicios externos. Gemini se reserva para sugerencias creativas de nombres, descripciones y eslóganes dentro del panel administrativo protegido.
-- **Backend actual:** productos y solicitudes se administran en MongoDB usando Mongoose; `backend/data/productos.json` se conserva como archivo de seed. Ingredientes y reglas siguen en JSON. El acceso de administración usa usuarios y JWT; configura `JWT_SECRET` en el entorno privado.
+- **Backend actual:** productos y solicitudes se administran en MongoDB usando Mongoose; `backend/data/productos.json` se conserva como archivo de seed. Ingredientes y reglas de ejemplo siguen en JSON. El servidor valida las creaciones y recalcula sus precios antes de guardar una solicitud tipo pedido. El acceso de administración usa usuarios y JWT; configura `JWT_SECRET` en el entorno privado.
 - **Proveedor de IA:** la llamada Gemini usa `fetch` nativo en el backend y requiere `GEMINI_API_KEY` y `MODELO_IA` configurados como variables privadas; no hay modelo predeterminado ni SDK. Solo envía campos del producto escritos por el administrador. El endpoint es exclusivo de sesión administrativa.
 - **Privacidad y edad:** los términos de Gemini API prohíben usar el servicio dentro de sitios o aplicaciones dirigidos a menores o que probablemente serán accedidos por menores ([términos oficiales](https://ai.google.dev/gemini-api/terms)). Por ello, Gemini no se usa en la experiencia pública destinada también a menores. La API de nivel gratuito puede usar entradas y respuestas para mejorar productos y puede permitir revisión humana; no incluir datos personales, confidenciales ni de clientes. Revisar términos y prácticas de privacidad antes de configurarlo.
 
@@ -55,6 +55,5 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 - **Fecha de revisión:** 24 de octubre de 2026.
 - **Local piloto:** se planifica un único local en Mall del Sol, Guayaquil; todavía no está abierto. El crecimiento dependerá de sus resultados y no hay otro local planificado.
 - **Fase actual:** Fase 18, verificación de entregables y documentación.
-- **Estado técnico:** React tiene landing, catálogo, contacto, login, panel administrativo y Sorbi basado en reglas. El backend contiene rutas para persistencia MongoDB, JWT y generación Gemini protegida; su endpoint publicado de salud respondió 503. Gemini requiere configuración privada y no se ha confirmado una llamada de producción. El constructor de smoothies React sigue pendiente.
-- **Precaución:** el constructor React aún no está implementado; la app actual se desarrolla en `frontend/`.
+- **Estado técnico:** React tiene landing, catálogo, constructor, contacto, login, panel administrativo y Sorbi basado en reglas. El backend contiene rutas para persistencia MongoDB, JWT, pedidos de prueba y generación Gemini protegida; su endpoint publicado de salud respondió 503. Gemini requiere configuración privada y no se ha confirmado una llamada de producción.
 - **Redes sociales:** no se muestran enlaces en el pie de página hasta contar con perfiles oficiales.

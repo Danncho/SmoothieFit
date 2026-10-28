@@ -134,9 +134,9 @@ Las rutas se montan bajo `/api`. El token de administrador se envía en el encab
 | `PUT` | `/api/productos/:id` | JWT admin; actualiza un producto. |
 | `DELETE` | `/api/productos/:id` | JWT admin; elimina un producto. |
 | `GET` | `/api/ingredientes` | Público; lista ingredientes estáticos de ejemplo. |
-| `GET` | `/api/reglas-constructor` | Público; expone reglas estáticas del constructor. |
+| `GET` | `/api/reglas-constructor` | Público; expone tamaños, precios y límites de selección de ejemplo para el constructor. |
 | `GET` | `/api/sucursales` | Público; devuelve la lista de locales desde `backend/data/sucursales.json`. |
-| `POST` | `/api/solicitudes` | Público; valida y guarda una solicitud de contacto en MongoDB. |
+| `POST` | `/api/solicitudes` | Público; valida y guarda una solicitud en MongoDB. Para `tipo: "pedido"` acepta opcionalmente una creación, la valida y calcula su precio en el servidor. |
 | `GET` | `/api/solicitudes` | JWT admin; consulta solicitudes. |
 | `PATCH` | `/api/solicitudes/:id` | JWT admin; actualiza el estado permitido de una solicitud. |
 | `POST` | `/api/ia/asistente` | Público; Sorbi usa palabras clave y datos del catálogo, sin IA externa. |
@@ -148,7 +148,7 @@ Las rutas se montan bajo `/api`. El token de administrador se envía en el encab
 - El backend publicado responde actualmente HTTP 503 en `/api/health`, que según `server.js` indica que MongoDB no está conectado. Por eso el catálogo, el envío de contacto, el login y la generación Gemini no están confirmados de extremo a extremo en producción.
 - Los límites de intentos y sugerencias se guardan en memoria: al reiniciar o escalar a varias instancias no son un control compartido.
 - El JWT se guarda en `sessionStorage`; no hay renovación automática.
-- La ruta antigua `/crea-tu-smoothie` redirige a Inicio. El constructor React no está implementado y queda como mejora futura.
+- `/crea-tu-smoothie` ofrece un constructor con ingredientes y precios de ejemplo. El servidor vuelve a validar cada pedido, calcula el precio y asigna el local y un código de retiro. Es una simulación académica: el local del Mall del Sol sigue planificado y la solicitud expresa interés, no confirma una compra ni una entrega.
 - `backend/data/sucursales.json` contiene un único local piloto planificado en Mall del Sol, Guayaquil; todavía no está abierto. El crecimiento dependerá de los resultados del piloto y no hay otro local planificado.
 - El pie de página no muestra enlaces sociales; se añadirán cuando existan perfiles oficiales.
 - La versión anterior archivada en el tag histórico `v1-js-puro` incluye textos como “ingredientes 100% naturales” y “garantizar frescura y naturalidad”. No forma parte del build de React y esas frases no deben reutilizarse como afirmaciones verificadas.
@@ -158,7 +158,7 @@ Las rutas se montan bajo `/api`. El token de administrador se envía en el encab
 
 1. Recuperar la disponibilidad de MongoDB y comprobar en producción el catálogo, el formulario, el login y las rutas administrativas.
 2. Configurar y probar Gemini solo después de revisar los términos y la privacidad; nunca trasladar su llamada a la experiencia pública de Sorbi.
-3. Implementar el constructor de smoothies React y validar sus reglas y precios también en el servidor antes de conectarlo a pedidos.
+3. Mantener el constructor con precios de ejemplo hasta disponer de costos confirmados; verificar el guardado y la consulta de solicitudes en producción cuando MongoDB esté disponible.
 4. Añadir enlaces sociales cuando existan perfiles oficiales.
 5. Mejorar la escalabilidad de los límites de uso, el manejo de sesión y las pruebas automatizadas.
 6. Probar diseño responsive, accesibilidad y animaciones en dispositivos y navegadores reales.
@@ -169,6 +169,14 @@ Las rutas se montan bajo `/api`. El token de administrador se envía en el encab
 Edita `backend/data/sucursales.json` manteniendo cada objeto válido. `destinoMapa` acepta un texto o `null`; `lat` y `lng` deben ser ambos coordenadas numéricas válidas o ambos `null`. Cuando haya coordenadas, la web usa un mapa de OpenStreetMap y un enlace de direcciones por coordenadas. Sin coordenadas, `destinoMapa` permite abrir indicaciones de Google Maps; sin coordenadas ni destino, se muestra “Ubicación por confirmar”.
 
 Para completar la ficha del local, reemplaza `lat` y `lng` por las coordenadas del punto confirmado, `horario` por el horario confirmado y `telefono` por el teléfono confirmado. Hasta confirmar esa información, conserva los valores `null`. Cambia `estado` solo cuando el plan avance: `planificada`, `proxima` o `abierta`; no marques el local como abierto antes de abrirlo. La validación acepta una o más fichas y rechaza tipos incorrectos, coordenadas fuera de rango y estados desconocidos.
+
+### Constructor y precios de ejemplo
+
+`backend/data/ingredientes.json` contiene ingredientes de ejemplo y `backend/config/constructorRules.js` es la fuente única de tamaños, precios de tamaño y reglas de selección. El catálogo del constructor carga ambas listas desde `GET /api/ingredientes` y `GET /api/reglas-constructor`; no mantiene una copia de precios o límites.
+
+El servidor acepta una creación junto a los campos habituales de `POST /api/solicitudes` cuando `tipo` es `pedido`. Comprueba los IDs contra el catálogo, valida tamaño, base y cantidades, vuelve a calcular el precio e ignora valores de precio o local enviados por el navegador. Asigna el local planificado desde `backend/data/sucursales.json` y crea el código de retiro. El panel admin muestra estos datos. Nombre y correo son necesarios para registrar el interés; la nota es opcional y no debe contener datos personales.
+
+Los precios y los ingredientes son ejemplos académicos, no precios comerciales: tamaño pequeño USD 2,50, mediano USD 3,00 y grande USD 3,75; base de agua USD 0,00, leche USD 0,25 y bebida vegetal o yogur USD 0,40; frutas y verduras USD 0,20 cada una; extras USD 0,30 cada uno. Se requiere una base, al menos una fruta, máximo cuatro frutas y verduras en conjunto, y máximo dos extras. El valor real del producto requeriría calcular costos confirmados.
 
 ## Guía breve de defensa
 

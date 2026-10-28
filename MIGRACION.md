@@ -86,7 +86,7 @@ Las rutas se conectan en `backend/server.js`. El servidor acepta cuerpos JSON y 
 ### Datos, reglas y configuración
 
 - `backend/data/productos.json`: catálogo de seis productos con precios e ingredientes de ejemplo. Los registros tienen `esEjemplo: true`; ahora se conserva como fuente del seed, no como almacenamiento operativo de la API.
-- `backend/data/ingredientes.json`: lista de 17 ingredientes con categoría, precio extra, color y alérgenos; los registros tienen `esEjemplo: true`.
+- `backend/data/ingredientes.json`: lista de 20 ingredientes de ejemplo con categoría, precio extra, color y alérgenos; los registros tienen `esEjemplo: true`.
 - `backend/services/asistente.js`: contiene únicamente la respuesta determinista de Sorbi por palabras clave; no llama a proveedores externos.
 - `backend/prompts/creativo.md` y `backend/services/gemini.js`: instrucciones para el asistente creativo del administrador y llamada REST a Gemini con `fetch` nativo, timeout de 15 segundos, clasificación de errores, validación de JSON y filtrado de frases prohibidas.
 - `backend/routes/ia.js`: valida consultas públicas, conserva el filtro de correo/teléfono y el límite de 10 solicitudes por IP/minuto; usa solo recomendaciones preparadas por palabras clave y no contacta a proveedores externos.
@@ -94,16 +94,16 @@ Las rutas se conectan en `backend/server.js`. El servidor acepta cuerpos JSON y 
 - No existen actualmente `pedidos.json`, `contactos.json` ni `alianzas.json`; esos nombres sí aparecen excluidos en `.gitignore`.
 - `backend/config/constructorRules.js`: fuente única de las categorías, límites de selección y precios base de los tamaños pequeño, mediano y grande. Sus precios están comentados como ejemplos.
 - `backend/models/Producto.js`: esquema de MongoDB para los campos del producto, con un `id` numérico único que se conserva en las respuestas de la API.
-- `backend/models/Solicitud.js`: modelo de solicitudes con tipo, estado inicial `nueva` y fecha de creación asignados por el servidor.
+- `backend/models/Solicitud.js`: modelo de solicitudes con tipo, estado inicial `nueva` y fecha de creación asignados por el servidor; incluye campos opcionales para la creación, precio calculado, local y código de retiro.
 - `backend/models/Usuario.js`: usuarios administradores con correo único y normalizado, hash de contraseña no seleccionado por defecto, rol y fecha de creación.
 - `backend/routes/auth.js`: login con comparación bcrypt, hash falso para correos inexistentes, limitador en memoria y JWT de dos horas; `/me` devuelve solo correo y rol.
 - `backend/middleware/verificarToken.js`: verifica el token Bearer y requiere el rol `admin`.
 - `backend/routes/solicitudes-admin.js`: consulta las solicitudes más recientes con filtro y límite, y permite cambiar solo a estados autorizados.
 - `backend/scripts/crear-admin.js`: crea la primera cuenta de forma interactiva con contraseña oculta o mediante variables de entorno, sin sobrescribir usuarios existentes.
-- `backend/routes/solicitudes.js`: acepta envíos públicos validados, descarta campos adicionales, incluye honeypot y limita a cinco solicitudes por IP y hora en memoria. La consulta y el cambio de estado se hacen en la ruta protegida `solicitudes-admin.js`.
+- `backend/routes/solicitudes.js`: acepta envíos públicos validados, descarta campos adicionales, incluye honeypot y limita a cinco solicitudes por IP y hora en memoria. Para una creación de tipo `pedido`, valida ingredientes y reglas, calcula el precio en el servidor y asigna el local planificado y el código de retiro. La consulta y el cambio de estado se hacen en la ruta protegida `solicitudes-admin.js`.
 - `backend/config/db.js`: conecta con `process.env.MONGODB_URI` y da un error claro si la variable falta o MongoDB no está disponible.
 - `backend/scripts/seed.js`: inserta desde `productos.json` solo los IDs que todavía no existen; no sobrescribe productos existentes ni elimina el JSON.
-- Reglas actuales del constructor: exactamente una base, al menos una fruta, hasta cuatro frutas y verduras combinadas, y hasta dos semillas o extras; los tamaños pequeño, mediano y grande tienen precios base de ejemplo.
+- Reglas actuales del constructor: una base, al menos una fruta, hasta cuatro frutas y verduras combinadas, y hasta dos extras; tamaños, precios y costo extra de ingredientes son valores de ejemplo definidos en el backend.
 - `backend/.env.example` incluye un marcador para `JWT_SECRET`, no un secreto real. `backend/.env` es local e ignorado por Git; no se leyó ni se modificó durante esta tarea.
 - En producción el servidor exige que `JWT_SECRET` exista y tenga al menos 32 caracteres. El login requiere un secreto válido para firmar tokens.
 - El generador privado usa `GEMINI_API_KEY`, `MODELO_IA`, `LIMITE_IA_POR_MINUTO` y `LIMITE_IA_DIARIO` desde variables de entorno. No hay modelo predeterminado. Los topes son 5 consultas por minuto y 100 por día por defecto, contadas en memoria por proceso; se reinician con el backend y no garantizan un máximo de facturación.
@@ -156,9 +156,9 @@ En el snapshot histórico, el constructor validaba las reglas en el navegador, p
 
 ### Constructor de smoothies y reglas actuales
 
-El constructor del snapshot `v1-js-puro` presentaba cinco pasos: tamaño, base, frutas/verduras, semillas/extras y nombre. Su implementación validaba la selección en el navegador, calculaba el precio, dibujaba un vaso SVG y guardaba en `localStorage`; no creaba ni registraba pedidos en el backend. El constructor React actual sigue pendiente.
+El constructor del snapshot `v1-js-puro` presentaba cinco pasos: tamaño, base, frutas/verduras, semillas/extras y nombre. Su implementación validaba la selección en el navegador, calculaba el precio, dibujaba un vaso SVG y guardaba en `localStorage`; no creaba ni registraba solicitudes en el backend. El constructor React actual ofrece esos pasos, un resumen, la precarga desde el catálogo y el registro de interés en MongoDB cuando está disponible.
 
-Las reglas se comparten desde `GET /api/reglas-constructor` y `backend/config/constructorRules.js`. La validación actual solo está en el navegador: si el constructor se conserva, el backend deberá volver a validar ingredientes, cantidades y precio antes de aceptar un pedido.
+Las reglas se comparten desde `GET /api/reglas-constructor` y `backend/config/constructorRules.js`. El backend también valida los IDs, cantidades y tamaño y recalcula el precio; no confía en un precio ni en un local enviados por el navegador. El formulario es una simulación académica y registra interés, no confirma una venta o retiro real.
 
 ### Estilos, colores y textos reutilizables
 
@@ -177,7 +177,7 @@ El archivo histórico `frontend-legacy/css/styles.css` definía variables en `:r
 
 También contiene variables de tipografía, espacios, bordes redondeados y ancho de contenido. Las páginas cargan Nunito desde Google Fonts con fuentes de respaldo; esto requiere conexión a ese servicio para obtener la tipografía.
 
-El snapshot histórico incluía navegación, títulos, mensajes de landing, catálogo y constructor. La navegación actual de React se define en `frontend/src/App.jsx`; la ruta antigua `/crea-tu-smoothie` redirige a Inicio y el constructor React queda como mejora futura. Los textos heredados deben revisarse antes de volver a utilizarlos.
+El snapshot histórico incluía navegación, títulos, mensajes de landing, catálogo y constructor. La navegación actual de React se define en `frontend/src/App.jsx`; `/crea-tu-smoothie` muestra el constructor React. Los textos heredados deben revisarse antes de volver a utilizarlos.
 
 ## d. Se reutiliza / Se reemplaza / Se descarta
 
@@ -190,8 +190,8 @@ El snapshot histórico incluía navegación, títulos, mensajes de landing, cat�
 | Endpoints REST de productos | **Se reutilizan inicialmente y se adaptan** para consultar la base de datos | La interfaz React puede seguir usando las rutas y campos del catálogo mientras cambia el almacenamiento. |
 | `productos.json` | **Se conserva como fuente de seed**, mientras MongoDB queda como almacenamiento operativo | El seed idempotente carga productos faltantes y mantiene intacto el JSON como respaldo/datos iniciales. |
 | `ingredientes.json` | **Se conserva como lectura local** por ahora | Es una lista pequeña, estática y de solo lectura; una base de datos no aporta valor mientras no necesite edición o consulta dinámica. |
-| `backend/config/constructorRules.js` y su endpoint | **Se reutilizan** como contrato/reglas del constructor, con validación también en servidor si se aceptan pedidos | Evita duplicar límites y permite que el frontend lea reglas comunes. |
-| Constructor y carrito `localStorage` del snapshot `v1-js-puro` | **Pendiente de reemplazo** en React | Es una mejora futura; si se conecta a pedidos, debe integrarse con una API real. |
+| `backend/config/constructorRules.js` y su endpoint | **Se reutilizan** como fuente única de reglas, con validación y cálculo de precio en servidor | Evita duplicar precios y límites; el navegador recibe las reglas para mostrar el resumen. |
+| Constructor y carrito `localStorage` del snapshot `v1-js-puro` | **Reemplazados parcialmente** por el constructor React y solicitudes de interés | La API registra una simulación de retiro; no confirma una compra ni una entrega. |
 | Middleware de clave compartida y pantalla de acceso del snapshot | **Reemplazados** en el flujo actual por usuarios, hashes seguros de contraseñas y JWT | Una clave compartida no distingue personas ni permite administrar sesiones de usuarios. |
 | CRUD manual del DOM del snapshot `v1-js-puro` | **Reemplazado** en el sitio actual por un panel React con login JWT | Separa el acceso y la gestión del estado visual del navegador. |
 | Perfiles ficticios de productores y datos marcados `esEjemplo` | **Se reutilizan solo como ejemplos identificados** o se reemplazan con datos reales confirmados | No deben presentarse como proveedores reales. |
@@ -220,7 +220,7 @@ El frontend está publicado. No se confirma el funcionamiento end-to-end del cat
 1. **Límites de autenticación:** el token se conserva en `sessionStorage`, el limitador se guarda en memoria y no existe renovación de tokens. Para producción con mayores requisitos se recomiendan cookies `httpOnly`, HTTPS y limitación distribuida.
 2. **Datos de productos:** la API ya no modifica `productos.json`; utiliza MongoDB. El JSON sigue siendo el origen de la carga inicial. Ingredientes y reglas se leen de JSON porque no requieren escrituras.
 3. **Despliegue separado y CORS:** GitHub Pages no ejecuta Express. La API acepta los orígenes enumerados en `CORS_ORIGINS`; el valor de producción debe incluir `https://danncho.github.io`, sin una ruta de repositorio.
-4. **Falta de validación de orden en el backend:** las reglas del constructor se validan en JavaScript del navegador. El servidor no recibe la creación ni confirma allí ingredientes y precio; el cliente podría alterar datos locales.
+4. **Validación de solicitudes de interés:** el backend vuelve a validar los IDs y límites de una creación y recalcula su precio; los valores que el cliente envíe para precio o local no se usan. El límite por IP continúa en memoria.
 5. **IA y menores:** los términos de Gemini API prohíben su uso en aplicaciones dirigidas a menores o que probablemente serán accedidas por ellos. El asistente público no llama a Gemini ni a otro proveedor; el generador Gemini requiere autenticación y se limita al panel de administración. No trasladar la llamada a una ruta pública.
 6. **Publicación parcial y persistencia no confirmada:** GitHub Pages sirve el frontend; el endpoint de salud de Render devolvió HTTP 503, por lo que no se confirma la API operativa ni la persistencia de productos y solicitudes.
 7. **Revisión de secretos histórica pendiente:** el escaneo de archivos presentes (excluyendo `backend/.env`, `.git`, dependencias y artefactos) no encontró patrones de credenciales de alta confianza. No se inspeccionó `backend/.env` ni el historial de commits; por tanto, no se puede confirmar si una clave se publicó anteriormente.
@@ -254,13 +254,13 @@ Si un commit aparece, revísalo en privado y no pegues claves en chats, capturas
 | Fase | Qué se hace | Qué se reutiliza | Riesgo principal |
 |---|---|---|---|
 | 1. React base con Vite, Router y layout | Implementado; `frontend/` usa React, Vite y HashRouter. | Elementos visuales adaptados desde el snapshot histórico `v1-js-puro`. | Mantener las rutas del build estático. |
-| 2. Landing, catálogo e informativas en React | Implementado en código; el catálogo depende de que la API esté saludable. El constructor sigue como placeholder. | Datos y API de productos y estilo visual revisado. | Enlaces incompletos o datos de ejemplo presentados como reales. |
+| 2. Landing, catálogo e informativas en React | Implementado en código; el catálogo y el constructor dependen de que la API esté saludable. | Datos y API de productos, ingredientes y reglas de ejemplo; estilo visual revisado. | Enlaces incompletos o datos de ejemplo presentados como reales. |
 | 3. Base de datos real (MongoDB Atlas + Mongoose) | Modelos, conexión y seed implementados; salud de producción devolvió 503 y la conexión no quedó verificada. Ingredientes y reglas siguen como JSON. | `Producto`, conexión Mongoose y `productos.json` como fuente de seed. | Credenciales filtradas, modelo incorrecto o datos de muestra tomados como reales. |
 | 4. Contacto real con solicitudes | Formulario y persistencia Mongoose implementados; guardado publicado no verificado por el 503 de salud. | Modelo `Solicitud`, servicio API, estilo de marca. | Recopilar datos personales sin reglas de acceso, retención y protección. |
 | 5. Publicación (GitHub Pages + Render) | Frontend publicado y alcanzable; backend Render responde 503 en salud. | Vite, API separada, URL y CORS configurables. | GitHub Pages no ejecuta Node; se requiere conexión entre los servicios y base disponible. |
 | 6. Login real con JWT y panel admin | Implementado en código; login publicado sin verificar. | Usuarios, hashes bcrypt, token de dos horas y endpoints protegidos. | El token se guarda en `sessionStorage`; el limitador es solo de memoria y no hay renovación. |
 | 7. Sorbi público y creatividad Gemini admin | Implementado en código; Sorbi usa reglas y palabras clave. Gemini solo se llama desde `POST /api/ia/admin/generar`, con JWT, datos de producto, cuotas, filtro y respaldo de descripción. | Catálogo y reglas de marca aprobadas. | Mantener Gemini exclusivamente en administración adulta; el nivel gratuito puede usar entradas para mejorar productos. |
-| 8. Constructor de smoothies en React (extra) | Migrar el constructor y conectar selecciones válidas al backend y, si corresponde, al carrito/pedidos. | Ingredientes, `constructorRules.js`, alérgenos y SVG actual como referencia. | Validar precio solo en el navegador o prometer información de alérgenos no confirmada. |
+| 8. Constructor de smoothies en React (extra) | Implementado en código; probar registro y panel cuando MongoDB esté disponible. | Ingredientes, `constructorRules.js`, alérgenos y SVG. | Tratar datos de ejemplo como precios comerciales o mostrar la simulación como una venta real. |
 | 9. Animaciones y responsive (extra) | Probar en tamaños de pantalla y agregar animaciones pequeñas solo si aportan claridad y se respetan preferencias de movimiento reducido. | Variables CSS y diseño actual. | Dependencias adicionales, carga lenta o movimiento que dificulte la accesibilidad. |
 | 10. Revisión final y guía de defensa | Probar rutas y formularios, revisar seguridad, datos, contenido, publicación, documentación y preparar explicaciones en palabras del estudiante. | `README.md`, este diagnóstico y las reglas de contenido. | Declarar cumplido algo que no se haya probado o desplegado realmente. |
 
