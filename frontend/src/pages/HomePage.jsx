@@ -4,6 +4,8 @@ import ProductsStatus from '../components/ProductsStatus.jsx';
 import SectionTitle from '../components/SectionTitle.jsx';
 import useProducts from '../hooks/useProducts.js';
 import { ordenarPorVotos, votosDelProducto } from '../utils/productRanking.js';
+import SucursalCard from '../components/SucursalCard.jsx';
+import useSucursales from '../hooks/useSucursales.js';
 
 const benefits = [
   { icon: '♥', title: 'Sabor', description: 'Mezclas coloridas para disfrutar cada sorbo.' },
@@ -14,6 +16,12 @@ const benefits = [
 
 function HomePage() {
   const { products, loading, error, retry } = useProducts();
+  const {
+    sucursales,
+    loading: sucursalesLoading,
+    error: sucursalesError,
+    retry: retrySucursales
+  } = useSucursales();
   const hayVotos = products.some((product) => votosDelProducto(product) > 0);
   const favoritos = hayVotos
     ? ordenarPorVotos(products).slice(0, 3)
@@ -106,6 +114,32 @@ function HomePage() {
           </div>
           <Link className="button button-primary" to="/smoothies">Explorar el catálogo</Link>
         </div>
+      </section>
+
+      <section className="home-section container" aria-labelledby="home-branches-title">
+        <SectionTitle
+          eyebrow="Ubicación en planificación"
+          title="Dónde estaremos"
+          description="Nuestro único local piloto está planificado en Mall del Sol; todavía no hemos abierto."
+          id="home-branches-title"
+        />
+        {sucursalesLoading && <p role="status">Cargando ubicaciones...</p>}
+        {sucursalesError && (
+          <div className="branch-error" role="alert">
+            <p>{sucursalesError}</p>
+            <button className="button button-secondary" type="button" onClick={retrySucursales}>Reintentar</button>
+          </div>
+        )}
+        {!sucursalesLoading && !sucursalesError && sucursales.length > 0 && (
+          <div className="grid branch-grid">
+            {sucursales
+              .filter((sucursal) => sucursal.id === 'mall-del-sol')
+              .map((sucursal) => <SucursalCard key={sucursal.id} sucursal={sucursal} />)}
+          </div>
+        )}
+        <p>
+          El crecimiento dependerá de los resultados del piloto; por ahora, no hay otro local planificado.
+        </p>
       </section>
 
       <section className="home-section container">

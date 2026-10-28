@@ -18,7 +18,7 @@ const pages = [
   { path: '/smoothies', element: <SmoothiesPage /> },
   { path: '/productores', element: <ProducersPage /> },
   { path: '/colegios', element: <CollegesPage /> },
-  { path: '/puntos-de-venta', element: <SalesPointsPage /> },
+  { path: '/sucursales', element: <SalesPointsPage /> },
   { path: '/sostenibilidad', element: <SustainabilityPage /> },
   { path: '/nosotros', element: <AboutPage /> },
   { path: '/contacto', element: <ContactPage /> },
@@ -32,6 +32,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/crea-tu-smoothie" element={<Navigate to="/" replace />} />
+          <Route path="/puntos-de-venta" element={<Navigate to="/sucursales" replace />} />
           {pages.map((page) => (
             <Route
               key={page.path}

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 const footerLinks = [
   { label: 'Smoothies', path: '/smoothies' },
   { label: 'Productores', path: '/productores' },
+  { label: 'Nuestro local', path: '/sucursales' },
   { label: 'Sostenibilidad', path: '/sostenibilidad' },
   { label: 'Nosotros', path: '/nosotros' },
   { label: 'Contacto', path: '/contacto' }

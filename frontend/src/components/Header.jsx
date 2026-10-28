@@ -7,7 +7,7 @@ const navigationItems = [
   { label: 'Sorbi', path: '/asistente' },
   { label: 'Productores', path: '/productores' },
   { label: 'Colegios', path: '/colegios' },
-  { label: 'Puntos de venta', path: '/puntos-de-venta' },
+  { label: 'Nuestro local', path: '/sucursales' },
   { label: 'Sostenibilidad', path: '/sostenibilidad' },
   { label: 'Nosotros', path: '/nosotros' },
   { label: 'Contacto', path: '/contacto' }
