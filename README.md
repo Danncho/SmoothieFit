@@ -10,7 +10,7 @@ SmoothieFit es un proyecto académico de un emprendimiento de smoothies de fruta
 | Catálogo | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `frontend/src/pages/SmoothiesPage.jsx` consulta `GET /api/productos`. |
 | Contacto real | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `frontend/src/pages/ContactPage.jsx` envía solicitudes a `POST /api/solicitudes`. |
 | Panel admin con login | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `AdminLoginPage.jsx`, `AdminPage.jsx` y autenticación JWT. |
-| Asistente público y sugerencias admin | Sorbi responde en el navegador; Gemini sigue separado para administración. | Sorbi usa datos públicos del sitio y reglas locales, sin enviar mensajes. La ruta pública antigua permanece en backend y no la llama el frontend. Gemini requiere configuración privada y verificación de producción. |
+| Asistente público y sugerencias admin | Sorbi responde en el navegador; Gemini sigue separado para administración. | Sorbi usa datos públicos del sitio y reglas locales, sin enviar mensajes. No hay un endpoint público de conversación. Gemini requiere configuración privada y verificación de producción. |
 | Publicación | Verificada manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; frontend en GitHub Pages y backend en Render. |
 
 ## Enlaces de publicación
@@ -149,7 +149,6 @@ Las rutas se montan bajo `/api`. El token de administrador se envía en el encab
 | `POST` | `/api/solicitudes` | Público; valida y guarda una solicitud en MongoDB. Para `tipo: "pedido"` acepta opcionalmente una creación, la valida y calcula su precio en el servidor. |
 | `GET` | `/api/solicitudes` | JWT admin; consulta solicitudes. |
 | `PATCH` | `/api/solicitudes/:id` | JWT admin; actualiza el estado permitido de una solicitud. |
-| `POST` | `/api/ia/asistente` | Ruta pública antigua; sigue instalada, pero Sorbi frontend ya no la llama. |
 | `POST` | `/api/ia/admin/generar` | JWT admin; genera hasta tres sugerencias de producto con Gemini. Si Gemini no está configurado o falla, una descripción puede usar una plantilla local; nombres y eslóganes requieren que el servicio responda. |
 
 ## Estado de datos y limitaciones
