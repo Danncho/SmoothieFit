@@ -1769,7 +1769,456 @@ button {
   .hero-inner {
     grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
   }
+}
 
+.sorbi-widget-trigger {
+    position: fixed;
+    z-index: 20;
+    right: max(1.25rem, env(safe-area-inset-right));
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+    display: inline-flex;
+    min-width: 4.5rem;
+    min-height: 4.5rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.7rem 1rem;
+    border: 3px solid var(--color-white);
+    border-radius: 999px;
+    background: var(--color-purple);
+    box-shadow: 0 0.5rem 1.5rem rgb(51 36 58 / 28%);
+    color: var(--color-white);
+    font-weight: 900;
+    cursor: pointer;
+    animation: sorbi-pulse 2.8s ease-in-out infinite;
+  }
+
+.sorbi-widget-trigger.is-open {
+    min-width: 3rem;
+    min-height: 3rem;
+    padding: 0.2rem;
+    font-size: 1.8rem;
+    line-height: 1;
+    animation: none;
+  }
+
+.sorbi-widget-face {
+    font-size: 1.45rem;
+  }
+
+.sorbi-discovery-hint {
+    position: fixed;
+    z-index: 21;
+    right: max(1.2rem, env(safe-area-inset-right));
+    bottom: calc(max(1.25rem, env(safe-area-inset-bottom)) + 5.2rem);
+    max-width: min(17rem, calc(100vw - 2rem));
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem 1rem 0.2rem 1rem;
+    background: var(--color-white);
+    box-shadow: 0 0.3rem 1.1rem rgb(51 36 58 / 16%);
+    color: var(--color-purple);
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+.sorbi-widget-panel {
+    position: fixed;
+    z-index: 30;
+    right: max(1.25rem, env(safe-area-inset-right));
+    bottom: calc(max(1.25rem, env(safe-area-inset-bottom)) + 5.3rem);
+    width: min(27rem, calc(100vw - 2rem));
+    height: min(43rem, calc(100dvh - 8rem));
+    min-height: min(28rem, calc(100dvh - 8rem));
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-large);
+    background: var(--color-white);
+    box-shadow: 0 1rem 3rem rgb(51 36 58 / 25%);
+  }
+
+.sorbi-chat {
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    background: var(--color-white);
+  }
+
+.sorbi-chat-widget {
+    height: 100%;
+  }
+
+.sorbi-chat-page {
+    width: 100%;
+    max-width: 58rem;
+    height: min(72vh, 52rem);
+    min-height: 34rem;
+    margin-inline: auto;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-large);
+    box-shadow: 0 0.5rem 1.5rem rgb(81 43 104 / 8%);
+  }
+
+.sorbi-chat-header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: #fff4f7;
+  }
+
+.sorbi-chat-header .sorbi-avatar {
+    width: 2.8rem;
+    height: 2.8rem;
+    font-size: 1.3rem;
+  }
+
+.sorbi-chat-header h2,
+.sorbi-chat-header p {
+    margin: 0;
+  }
+
+.sorbi-chat-header h2 {
+    color: var(--color-purple);
+    font-size: 1.1rem;
+    line-height: 1.25;
+  }
+
+.sorbi-chat-header p {
+    color: var(--color-muted);
+    font-size: 0.85rem;
+  }
+
+.sorbi-chat-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: auto;
+  }
+
+.sorbi-text-button,
+.sorbi-close-button {
+    border: 0;
+    border-radius: var(--radius-small);
+    background: transparent;
+    color: var(--color-purple);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+.sorbi-text-button {
+    padding: 0.45rem;
+    font-size: 0.82rem;
+  }
+
+.sorbi-close-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.7rem;
+    line-height: 1;
+  }
+
+.sorbi-privacy {
+    flex: 0 0 auto;
+    padding: 0.55rem 0.85rem;
+    border-bottom: 1px solid var(--color-border);
+    background: #fff9fb;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+.sorbi-context-suggestion {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0.85rem 0;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+  }
+
+.sorbi-context-suggestion .assistant-chip {
+    padding: 0.3rem 0.7rem;
+  }
+
+.sorbi-load-status,
+.sorbi-load-error,
+.sorbi-storage-warning {
+    flex: 0 0 auto;
+    margin: 0.65rem 0.85rem 0;
+    padding: 0.65rem;
+    border-radius: var(--radius-small);
+    background: #fff4d8;
+    color: #654b00;
+    font-size: 0.85rem;
+  }
+
+.sorbi-load-status p,
+.sorbi-load-error p {
+    margin: 0 0 0.3rem;
+  }
+
+.sorbi-load-error {
+    background: #fff0f2;
+    color: #a9203b;
+  }
+
+.sorbi-load-error .button {
+    margin-top: 0.4rem;
+  }
+
+.sorbi-storage-warning {
+    background: #fff4d8;
+  }
+
+.sorbi-messages {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.8rem;
+    overflow-y: auto;
+    padding: 1rem;
+    overscroll-behavior: contain;
+  }
+
+.sorbi-message {
+    display: flex;
+    max-width: 95%;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+.sorbi-message-user {
+    align-self: flex-end;
+  }
+
+.sorbi-message-assistant {
+    align-self: flex-start;
+  }
+
+.sorbi-message .sorbi-avatar {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+
+.sorbi-message-content {
+    min-width: 0;
+    padding: 0.7rem 0.85rem;
+    border-radius: 1rem;
+    background: #f7f1f8;
+  }
+
+.sorbi-message-assistant .sorbi-message-content {
+    border-top-left-radius: 0.2rem;
+  }
+
+.sorbi-message-user .sorbi-message-content {
+    border-top-right-radius: 0.2rem;
+    background: #fce7ed;
+  }
+
+.sorbi-message-text {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+.sorbi-quick-actions,
+.sorbi-choice-list,
+.sorbi-message-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.65rem;
+  }
+
+.sorbi-message-actions .button {
+    min-height: 2.65rem;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+.sorbi-local-details,
+.sorbi-ingredient-list {
+    margin-top: 0.5rem;
+  }
+
+.sorbi-local-details p,
+.sorbi-ingredient-list p {
+    margin: 0.35rem 0;
+    overflow-wrap: anywhere;
+  }
+
+.sorbi-recommendation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: 0.65rem;
+    margin-top: 0.7rem;
+  }
+
+.sorbi-product-card {
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-small);
+    background: var(--color-white);
+  }
+
+.sorbi-product-card h3,
+.sorbi-product-card p {
+    margin: 0;
+  }
+
+.sorbi-product-card h3 {
+    color: var(--color-purple);
+    font-size: 1rem;
+  }
+
+.sorbi-product-image {
+    font-size: 1.8rem;
+  }
+
+.sorbi-product-reason {
+    color: var(--color-purple);
+    font-size: 0.88rem;
+  }
+
+.sorbi-sample-label {
+    color: var(--color-muted);
+    font-size: 0.78rem;
+    font-style: italic;
+  }
+
+.sorbi-product-card .button {
+    justify-self: start;
+    margin-top: 0.35rem;
+    padding: 0.45rem 0.75rem;
+  }
+
+.sorbi-typing {
+    align-self: flex-start;
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+.sorbi-input-form {
+    position: relative;
+    display: grid;
+    flex: 0 0 auto;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-white);
+  }
+
+.sorbi-input-form textarea {
+    width: 100%;
+    min-height: 2.8rem;
+    max-height: 7rem;
+    resize: vertical;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-small);
+    background: var(--color-white);
+    color: var(--color-text);
+    font: inherit;
+  }
+
+.sorbi-input-form .button {
+    min-height: 2.8rem;
+    padding: 0.45rem 0.85rem;
+  }
+
+.sorbi-input-help {
+    grid-column: 1 / -1;
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    text-align: right;
+  }
+
+.sorbi-chat-page .sorbi-message {
+    max-width: 88%;
+  }
+
+.sorbi-chat-page .sorbi-message-content {
+    max-width: 100%;
+  }
+
+@keyframes sorbi-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0.5rem 1.5rem rgb(51 36 58 / 28%);
+      transform: scale(1);
+    }
+    50% {
+      box-shadow: 0 0.6rem 1.8rem rgb(51 36 58 / 38%);
+      transform: scale(1.035);
+    }
+  }
+
+@media (max-width: 640px) {
+  .sorbi-widget-panel {
+      inset: max(0.35rem, env(safe-area-inset-top))
+        max(0.35rem, env(safe-area-inset-right))
+        max(0.35rem, env(safe-area-inset-bottom))
+        max(0.35rem, env(safe-area-inset-left));
+      width: auto;
+      height: auto;
+      min-height: 0;
+      border-radius: var(--radius-large);
+    }
+
+  .sorbi-chat-page {
+      height: min(72vh, 48rem);
+      min-height: 32rem;
+    }
+
+  .sorbi-chat-header {
+      padding: 0.65rem;
+    }
+
+  .sorbi-chat-header-actions {
+      gap: 0.1rem;
+    }
+
+  .sorbi-text-button {
+      max-width: 6rem;
+      font-size: 0.72rem;
+    }
+
+  .sorbi-messages {
+      padding: 0.75rem;
+    }
+
+  .sorbi-message {
+      max-width: 100%;
+    }
+
+  .sorbi-recommendation-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+@media (prefers-reduced-motion: reduce) {
+  .sorbi-widget-trigger {
+    animation: none;
+  }
+}
+
+@media (min-width: 48rem) {
   .custom-banner,
   .school-banner {
     flex-direction: row;
