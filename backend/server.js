@@ -24,7 +24,6 @@ const productosRoutes = require('./routes/productos');
 const solicitudesRoutes = require('./routes/solicitudes');
 const solicitudesAdminRoutes = require('./routes/solicitudes-admin');
 const authRoutes = require('./routes/auth');
-const iaRoutes = require('./routes/ia');
 const iaAdminRoutes = require('./routes/ia-admin');
 const ingredientesRoutes = require('./routes/ingredientes');
 const reglasConstructorRoutes = require('./routes/reglas-constructor');
@@ -37,7 +36,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use('/api/auth', authRoutes);
-app.use('/api/ia', iaRoutes);
 app.use('/api/ia', iaAdminRoutes);
 app.use('/api/productos', productosRoutes);
 app.use('/api/solicitudes', solicitudesRoutes);
