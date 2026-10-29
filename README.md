@@ -10,7 +10,7 @@ SmoothieFit es un proyecto académico de un emprendimiento de smoothies de fruta
 | Catálogo | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `frontend/src/pages/SmoothiesPage.jsx` consulta `GET /api/productos`. |
 | Contacto real | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `frontend/src/pages/ContactPage.jsx` envía solicitudes a `POST /api/solicitudes`. |
 | Panel admin con login | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `AdminLoginPage.jsx`, `AdminPage.jsx` y autenticación JWT. |
-| Asistente público y sugerencias admin | Sorbi responde en el navegador; Gemini sigue separado para administración. | Sorbi usa datos públicos del sitio y reglas locales, sin enviar mensajes. No hay un endpoint público de conversación. Gemini requiere configuración privada y verificación de producción. |
+| Asistente público y sugerencias admin | Sorbi responde en el navegador; Gemini sigue separado para administración. | Sorbi usa datos públicos del sitio y reglas locales, sin enviar mensajes. La API solo conserva la ruta de Gemini protegida para administración. Gemini requiere configuración privada y verificación de producción. |
 | Publicación | Verificada manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; frontend en GitHub Pages y backend en Render. |
 
 ## Enlaces de publicación

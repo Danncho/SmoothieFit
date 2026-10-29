@@ -34,7 +34,6 @@ smoothiefit/
 │   ├── routes/
 │   │   ├── .gitkeep
 │   │   ├── auth.js
-│   │   ├── ia.js (vacío; pendiente de confirmación para borrarlo)
 │   │   ├── ia-admin.js
 │   │   ├── ingredientes.js
 │   │   ├── productos.js
@@ -47,7 +46,6 @@ smoothiefit/
 │   ├── prompts/
 │   │   └── creativo.md
 │   ├── services/
-│   │   ├── asistente.js (vacío; pendiente de confirmación para borrarlo)
 │   │   └── gemini.js
 │   └── server.js
 ├── frontend/
@@ -87,7 +85,6 @@ Las rutas se conectan en `backend/server.js`. El servidor acepta cuerpos JSON y 
 - `backend/data/productos.json`: catálogo de seis productos con precios e ingredientes de ejemplo. Los registros tienen `esEjemplo: true`; ahora se conserva como fuente del seed, no como almacenamiento operativo de la API.
 - `backend/data/ingredientes.json`: lista de 20 ingredientes de ejemplo con categoría, precio extra, color y alérgenos; los registros tienen `esEjemplo: true`.
 - `backend/prompts/creativo.md` y `backend/services/gemini.js`: instrucciones para el asistente creativo del administrador y llamada REST a Gemini con `fetch` nativo, timeout de 15 segundos, clasificación de errores, validación de JSON y filtrado de frases prohibidas.
-- `backend/routes/ia.js` y `backend/services/asistente.js` quedaron vacíos al retirar el asistente público. Se conservan a la espera de confirmación antes de borrarlos.
 - `backend/routes/ia-admin.js`: protege `POST /api/ia/admin/generar` con `verificarToken`, valida exclusivamente campos de producto, aplica límites globales en memoria y ofrece plantilla sin IA para descripciones.
 - No existen actualmente `pedidos.json`, `contactos.json` ni `alianzas.json`; esos nombres sí aparecen excluidos en `.gitignore`.
 - `backend/config/constructorRules.js`: fuente única de las categorías, límites de selección y precios base de los tamaños pequeño, mediano y grande. Sus precios están comentados como ejemplos.
