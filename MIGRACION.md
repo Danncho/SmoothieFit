@@ -77,7 +77,7 @@ En el árbol local sí aparecen `.git/` y `backend/.env`. No se ejecutaron coman
 | GET | `/api/auth/me` | Sí, JWT Bearer con rol admin | `backend/routes/auth.js` |
 | GET | `/api/ingredientes` | No | `backend/routes/ingredientes.js` |
 | GET | `/api/reglas-constructor` | No | `backend/routes/reglas-constructor.js` |
-| POST | `/api/ia/asistente` | No; respuestas básicas, validación y 10 por IP/minuto; no usa IA externa | `backend/routes/ia.js` |
+| POST | `/api/ia/asistente` | Ruta pública antigua; sigue instalada con validación y límite, pero Sorbi frontend ya no la usa. No se eliminó. | `backend/routes/ia.js` |
 | POST | `/api/ia/admin/generar` | Sí, JWT y rol admin; cuotas globales de Gemini | `backend/routes/ia-admin.js` |
 | GET | `/api/health` | No | `backend/server.js`; informa si MongoDB está disponible |
 
@@ -87,9 +87,9 @@ Las rutas se conectan en `backend/server.js`. El servidor acepta cuerpos JSON y 
 
 - `backend/data/productos.json`: catálogo de seis productos con precios e ingredientes de ejemplo. Los registros tienen `esEjemplo: true`; ahora se conserva como fuente del seed, no como almacenamiento operativo de la API.
 - `backend/data/ingredientes.json`: lista de 20 ingredientes de ejemplo con categoría, precio extra, color y alérgenos; los registros tienen `esEjemplo: true`.
-- `backend/services/asistente.js`: contiene únicamente la respuesta determinista de Sorbi por palabras clave; no llama a proveedores externos.
+- `backend/services/asistente.js`: conserva la respuesta antigua de Sorbi por palabras clave. El frontend conversacional actual ya no la llama; su posible retirada queda pendiente de confirmación.
 - `backend/prompts/creativo.md` y `backend/services/gemini.js`: instrucciones para el asistente creativo del administrador y llamada REST a Gemini con `fetch` nativo, timeout de 15 segundos, clasificación de errores, validación de JSON y filtrado de frases prohibidas.
-- `backend/routes/ia.js`: valida consultas públicas, conserva el filtro de correo/teléfono y el límite de 10 solicitudes por IP/minuto; usa solo recomendaciones preparadas por palabras clave y no contacta a proveedores externos.
+- `backend/routes/ia.js`: ruta pública antigua; conserva validación, filtro de correo/teléfono y límite de 10 solicitudes por IP/minuto, pero el frontend ya no la invoca. No se modificó ni eliminó.
 - `backend/routes/ia-admin.js`: protege `POST /api/ia/admin/generar` con `verificarToken`, valida exclusivamente campos de producto, aplica límites globales en memoria y ofrece plantilla sin IA para descripciones.
 - No existen actualmente `pedidos.json`, `contactos.json` ni `alianzas.json`; esos nombres sí aparecen excluidos en `.gitignore`.
 - `backend/config/constructorRules.js`: fuente única de las categorías, límites de selección y precios base de los tamaños pequeño, mediano y grande. Sus precios están comentados como ejemplos.
@@ -210,7 +210,7 @@ La carpeta local `frontend-legacy/` fue eliminada tras la confirmación del usua
 3. **Productos en MongoDB.** `Producto`, la conexión Mongoose y el seed idempotente están implementados. La API desplegada no está saludable en esta revisión, así que no se confirmó la conexión real ni la consulta pública.
 4. **Contacto con solicitudes.** La app React envía a `POST /api/solicitudes`; la ruta valida, usa honeypot y límite por IP, y persiste con el modelo `Solicitud`. La persistencia local requiere MongoDB y no se pudo verificar en producción por el estado 503.
 5. **Autenticación y panel admin.** El login crea JWT de dos horas, las rutas privadas verifican el rol admin y el panel React gestiona productos y solicitudes. Se requieren `JWT_SECRET` y el usuario inicial; el estado actual de MongoDB impide confirmar el login desplegado.
-6. **Sorbi público y Gemini admin.** Sorbi usa reglas y palabras clave, sin llamadas a servicios externos. `POST /api/ia/admin/generar` exige JWT admin y es la única ruta que consulta Gemini. La integración está en el código, pero no se ha probado con una clave real ni en producción.
+6. **Sorbi público y Gemini admin.** El nuevo Sorbi carga datos públicos al abrir el chat y ejecuta sus reglas en el navegador; no envía mensajes. La ruta pública antigua `POST /api/ia/asistente` y `backend/services/asistente.js` permanecen en el backend, sin uso desde el frontend, pendientes de confirmación antes de cualquier retirada. `POST /api/ia/admin/generar` exige JWT admin y es la única ruta que consulta Gemini. La integración está en el código, pero no se ha probado con una clave real ni en producción.
 7. **Hosting.** El servicio Render existe y responde en `/api/health`, pero devuelve HTTP 503; investigar y recuperar la conexión con MongoDB, después verificar CORS, catálogo, contacto, login y Gemini en producción. El backend lee `PORT`, confía en proxy y declara Node.js 22.
 
 El frontend está publicado. No se confirma el funcionamiento end-to-end del catálogo, contacto, administración o Gemini mientras la API responda 503.
@@ -259,7 +259,7 @@ Si un commit aparece, revísalo en privado y no pegues claves en chats, capturas
 | 4. Contacto real con solicitudes | Formulario y persistencia Mongoose implementados; guardado publicado no verificado por el 503 de salud. | Modelo `Solicitud`, servicio API, estilo de marca. | Recopilar datos personales sin reglas de acceso, retención y protección. |
 | 5. Publicación (GitHub Pages + Render) | Frontend publicado y alcanzable; backend Render responde 503 en salud. | Vite, API separada, URL y CORS configurables. | GitHub Pages no ejecuta Node; se requiere conexión entre los servicios y base disponible. |
 | 6. Login real con JWT y panel admin | Implementado en código; login publicado sin verificar. | Usuarios, hashes bcrypt, token de dos horas y endpoints protegidos. | El token se guarda en `sessionStorage`; el limitador es solo de memoria y no hay renovación. |
-| 7. Sorbi público y creatividad Gemini admin | Implementado en código; Sorbi usa reglas y palabras clave. Gemini solo se llama desde `POST /api/ia/admin/generar`, con JWT, datos de producto, cuotas, filtro y respaldo de descripción. | Catálogo y reglas de marca aprobadas. | Mantener Gemini exclusivamente en administración adulta; el nivel gratuito puede usar entradas para mejorar productos. |
+| 7. Sorbi público y creatividad Gemini admin | Sorbi guiado corre en el navegador con datos públicos y reglas locales; el frontend no llama a la ruta pública antigua. Gemini solo se llama desde `POST /api/ia/admin/generar`, con JWT, datos de producto, cuotas, filtro y respaldo de descripción. | Catálogo y reglas de marca aprobadas. | Mantener Gemini exclusivamente en administración adulta; el nivel gratuito puede usar entradas para mejorar productos. |
 | 8. Constructor de smoothies en React (extra) | Implementado en código; probar registro y panel cuando MongoDB esté disponible. | Ingredientes, `constructorRules.js`, alérgenos y SVG. | Tratar datos de ejemplo como precios comerciales o mostrar la simulación como una venta real. |
 | 9. Animaciones y responsive (extra) | Probar en tamaños de pantalla y agregar animaciones pequeñas solo si aportan claridad y se respetan preferencias de movimiento reducido. | Variables CSS y diseño actual. | Dependencias adicionales, carga lenta o movimiento que dificulte la accesibilidad. |
 | 10. Revisión final y guía de defensa | Probar rutas y formularios, revisar seguridad, datos, contenido, publicación, documentación y preparar explicaciones en palabras del estudiante. | `README.md`, este diagnóstico y las reglas de contenido. | Declarar cumplido algo que no se haya probado o desplegado realmente. |
@@ -291,7 +291,7 @@ Las dependencias indicadas reflejan el estado actual del proyecto.
 | Catálogo con productos y detalles claros | Implementado en código; disponible en producción no verificado | `frontend/src/pages/SmoothiesPage.jsx` y `GET /api/productos`; `/api/health` de Render devolvió 503. |
 | Contacto real que envíe o registre solicitudes | Implementado en código; persistencia publicada no verificada | `frontend/src/pages/ContactPage.jsx`, `POST /api/solicitudes` y modelo Mongoose `Solicitud`; la API respondió 503. |
 | Panel admin con login y zona de gestión | Implementado en código; login publicado no verificado | `AdminLoginPage.jsx`, `AdminPage.jsx`, bcrypt, JWT y endpoints protegidos; depende de MongoDB disponible y `JWT_SECRET`. |
-| IA aplicada al negocio | Implementada en código; Gemini real pendiente de configurar/probar | Gemini solo en `backend/routes/ia-admin.js`, protegido con JWT; Sorbi usa reglas y palabras clave, sin IA externa. |
+| IA aplicada al negocio | Sorbi usa reglas locales en el navegador; Gemini real pendiente de configurar/probar | Gemini solo en `backend/routes/ia-admin.js`, protegido con JWT. El frontend de Sorbi no envía mensajes y no llama a `POST /api/ia/asistente`. |
 | Publicación disponible en internet | Parcial | El workflow publica el frontend y la página se alcanzó; el backend Render devuelve HTTP 503 en `/api/health`. |
 | Frontend con React | Cumple | Vite, React, HashRouter, layout, landing, catálogo y páginas informativas en `frontend/`. |
 | Mínimo 15 commits | No verificado | No se ejecutaron comandos de Git, según la instrucción. Debe comprobarse con el historial local. |

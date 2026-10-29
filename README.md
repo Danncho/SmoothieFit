@@ -10,7 +10,7 @@ SmoothieFit es un proyecto académico de un emprendimiento de smoothies de fruta
 | Catálogo | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `frontend/src/pages/SmoothiesPage.jsx` consulta `GET /api/productos`. |
 | Contacto real | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `frontend/src/pages/ContactPage.jsx` envía solicitudes a `POST /api/solicitudes`. |
 | Panel admin con login | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `AdminLoginPage.jsx`, `AdminPage.jsx` y autenticación JWT. |
-| IA aplicada | Verificada manualmente en producción hoy; funciona en el panel admin. | Comprobación manual del usuario el 24-10-2026; Gemini se usa solo en `POST /api/ia/admin/generar`, protegida por JWT. Sorbi público usa reglas y palabras clave, sin proveedor externo. |
+| Asistente público y sugerencias admin | Sorbi responde en el navegador; Gemini sigue separado para administración. | Sorbi usa datos públicos del sitio y reglas locales, sin enviar mensajes. La ruta pública antigua permanece en backend y no la llama el frontend. Gemini requiere configuración privada y verificación de producción. |
 | Publicación | Verificada manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; frontend en GitHub Pages y backend en Render. |
 
 ## Enlaces de publicación
@@ -33,7 +33,7 @@ SmoothieFit es un proyecto académico de un emprendimiento de smoothies de fruta
 | CSS | Define el diseño responsive, la paleta y los estados de la interfaz sin una biblioteca visual adicional. |
 | GitHub Pages y Render | Publican por separado la aplicación estática y la API Node.js. |
 
-Gemini se utiliza únicamente para sugerencias de nombres, descripciones y eslóganes en el panel administrativo. El acceso de Sorbi en la web pública se resuelve con respuestas preparadas y coincidencias por palabras clave; no llama a Gemini ni a otro servicio de IA. El proyecto se dirige también a menores y los términos de Gemini API no permiten el uso en aplicaciones destinadas a menores o que probablemente accedan a ellas. Las sugerencias administrativas envían a Google solo datos del producto, nunca datos de clientes. En el nivel gratuito, Google puede usar entradas y respuestas para mejorar sus productos; no ingreses información personal o confidencial.
+Gemini se utiliza únicamente para sugerencias de nombres, descripciones y eslóganes en el panel administrativo. Sorbi es un asistente guiado con reglas deterministas que se ejecutan en el navegador: al abrirse consulta los datos públicos de productos, el local y los ingredientes, y después no envía los mensajes a la API ni a servicios externos. El proyecto se dirige también a menores y los términos de Gemini API no permiten el uso en aplicaciones destinadas a menores o que probablemente accedan a ellas. Las sugerencias administrativas envían a Google solo datos del producto, nunca datos de clientes. En el nivel gratuito, Google puede usar entradas y respuestas para mejorar sus productos; no ingreses información personal o confidencial.
 
 ## Estructura principal
 
@@ -48,16 +48,18 @@ Gemini se utiliza únicamente para sugerencias de nombres, descripciones y esló
 │   ├── prompts/             # Instrucciones para las sugerencias Gemini de administración
 │   ├── routes/              # Endpoints REST
 │   ├── scripts/             # Seed y creación interactiva del administrador
-│   ├── services/            # Respuesta local de Sorbi e integración Gemini
+│   ├── services/            # Integración Gemini y respuesta pública antigua sin uso
 │   ├── .env.example
 │   └── server.js
 ├── frontend/
 │   ├── src/
 │   │   ├── components/      # Header, footer, tarjetas y componentes compartidos
+│   │   │   └── sorbi/       # Widget flotante y chat reutilizable
 │   │   ├── context/         # Estado de autenticación
 │   │   ├── hooks/           # Carga de datos de la interfaz
 │   │   ├── pages/           # Landing, catálogo, contacto, login y administración
 │   │   ├── services/        # Cliente HTTP de la API
+│   │   ├── sorbi/           # Motor puro, conocimiento editable, datos y pruebas
 │   │   └── styles/          # Estilos responsive
 │   └── vite.config.js
 ├── .github/workflows/       # Construcción y publicación en GitHub Pages
@@ -101,6 +103,14 @@ npm run dev
 
 Abre la dirección local que indique Vite (normalmente `http://localhost:5173`). En desarrollo Vite reenvía `/api` al backend local en el puerto 3000. El login local está en `/#/admin/login`.
 
+El motor de Sorbi tiene pruebas integradas de Node.js, sin dependencias nuevas:
+
+```powershell
+npm run test:sorbi
+```
+
+Al abrir Sorbi, el frontend carga una vez los productos, el local y los ingredientes mediante los endpoints públicos existentes. Sus reglas se ejecutan en el navegador; después de esa carga, los mensajes no se envían a la API ni a servicios externos.
+
 ### Variables de entorno
 
 Configura cada variable en el entorno privado del backend (Render para producción). En GitHub Actions, `VITE_API_URL` se configura como una variable del repositorio, no como secreto, porque forma parte del bundle público.
@@ -139,7 +149,7 @@ Las rutas se montan bajo `/api`. El token de administrador se envía en el encab
 | `POST` | `/api/solicitudes` | Público; valida y guarda una solicitud en MongoDB. Para `tipo: "pedido"` acepta opcionalmente una creación, la valida y calcula su precio en el servidor. |
 | `GET` | `/api/solicitudes` | JWT admin; consulta solicitudes. |
 | `PATCH` | `/api/solicitudes/:id` | JWT admin; actualiza el estado permitido de una solicitud. |
-| `POST` | `/api/ia/asistente` | Público; Sorbi usa palabras clave y datos del catálogo, sin IA externa. |
+| `POST` | `/api/ia/asistente` | Ruta pública antigua; sigue instalada, pero Sorbi frontend ya no la llama. |
 | `POST` | `/api/ia/admin/generar` | JWT admin; genera hasta tres sugerencias de producto con Gemini. Si Gemini no está configurado o falla, una descripción puede usar una plantilla local; nombres y eslóganes requieren que el servicio responda. |
 
 ## Estado de datos y limitaciones
@@ -182,7 +192,7 @@ Los precios y los ingredientes son ejemplos académicos, no precios comerciales:
 
 ### Resumen de un minuto
 
-SmoothieFit separa la interfaz y los servicios. El frontend está hecho con React y Vite, usa `HashRouter` y se publica como archivos estáticos en GitHub Pages. Hace solicitudes HTTP a una API REST de Express desplegada por separado en Render. La API usa Mongoose para guardar productos, solicitudes y usuarios en MongoDB. Para el panel, las contraseñas se guardan como hashes con bcrypt y el servidor entrega JWT que protegen las operaciones administrativas. La IA Gemini solo se usa desde ese panel para sugerir nombres, descripciones y eslóganes; Sorbi en la parte pública es una respuesta por reglas y palabras clave, sin proveedor externo. La publicación del frontend está disponible, pero el backend actualmente responde 503 en su chequeo de salud, así que falta recuperar y probar el funcionamiento completo.
+SmoothieFit separa la interfaz y los servicios. El frontend está hecho con React y Vite, usa `HashRouter` y se publica como archivos estáticos en GitHub Pages. Hace solicitudes HTTP a una API REST de Express desplegada por separado en Render. La API usa Mongoose para guardar productos, solicitudes y usuarios en MongoDB. Para el panel, las contraseñas se guardan como hashes con bcrypt y el servidor entrega JWT que protegen las operaciones administrativas. Gemini solo se usa desde ese panel para sugerir nombres, descripciones y eslóganes. Sorbi usa un motor determinista en el navegador y datos públicos del sitio; los mensajes no se transmiten. La publicación del frontend está disponible, pero el backend actualmente responde 503 en su chequeo de salud, así que falta recuperar y probar el funcionamiento completo.
 
 ### 15 preguntas probables
 
