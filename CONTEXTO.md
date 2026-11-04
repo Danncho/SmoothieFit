@@ -1,59 +1,42 @@
 # SmoothieFit — contexto del proyecto
 
-## Objetivo
+## Propósito y modelo de negocio en planificación
 
-Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo ante jueces. La arquitectura objetivo usa React con JavaScript en el frontend y Node.js con Express en el backend, con una base de datos real. El código y las decisiones deben ser claros para que cada integrante pueda explicar su parte.
+SmoothieFit es un proyecto académico que presenta una propuesta de smoothies y herramientas para explorar combinaciones. No se debe presentar como una operación comercial abierta ni como evidencia de ventas.
 
-## Contexto de la marca
+- **Punto piloto:** se planifica un solo local pequeño en el Mall del Sol, Guayaquil. El punto exacto sería de preferencia cerca de un gimnasio, por confirmar. El formato sigue por definir: isla o kiosco, local pequeño o rincón dentro de un gimnasio. **Hoy no hay local abierto.**
+- **Público prioritario:** jóvenes y adultos activos. **Público secundario:** familias y colegios; la propuesta para colegios está en desarrollo.
+- **Canales en propuesta:** atención en el local, si se concreta; un pedido para retirar que hoy es una simulación académica; conversaciones con colegios y posibles alianzas con gimnasios y tiendas de salud. No hay acuerdos confirmados.
+- **Validación antes de abrir:** observar afluencia, gimnasios cercanos, arriendo, condiciones y reglas del centro comercial (horarios, agua, electricidad e ingreso de proveedores) y competencia visible. Medir ventas por hora en una prueba piloto y realizar una encuesta de intención de compra. No hay resultados de esas mediciones documentados.
+- **Crecimiento:** cualquier decisión posterior dependerá de los resultados del piloto.
 
-- **Producto:** proyecto de smoothies de frutas, verduras y semillas; se busca priorizar productores locales y evaluar opciones de empaque con cuidado, sin atribuir certificaciones ni impactos no comprobados.
-- **Diferenciador:** además del catálogo, el constructor React permite combinar ingredientes de ejemplo y registrar interés en una creación para retirar en el Mall del Sol.
-- **Público:** niños, adolescentes y jóvenes; padres, colegios y tiendas de salud como compradores o aliados.
-- **Personalidad:** energía, salud, diversión, frescura, confianza y juventud.
-- **Tono:** sencillo, positivo y cercano; nada técnico ni médico.
-- **Colores:** rojo, morado, rosado y blanco. Estilo moderno, alegre y simple.
-- **Logo:** placeholder de un smoothie con carita feliz, ojos cerrados, sonrisa y sorbete.
+Los precios e ingredientes del catálogo y del constructor son ejemplos. Los votos visibles se consideran pruebas académicas, no una encuesta representativa ni prueba de demanda. No hay información confirmada de ventas, clientes, proveedores, arriendo, costos operativos, horarios o personal.
 
-## Arquitectura
+## Arquitectura y estado comprobado
 
-- **Estado real observado:** `backend/` contiene una API Express y `frontend/` la app React con Vite y HashRouter. La versión anterior en HTML, CSS y JavaScript puros se conserva en el historial/tag `v1-js-puro`, no como carpeta activa.
-- **Arquitectura y publicación:** `frontend/` se construye como sitio estático y está disponible en GitHub Pages. `backend/` es una API Express separada, alojada en Render, con CORS por orígenes explícitos. El endpoint público `/api/health` respondió HTTP 503 el 24 de octubre de 2026; por ello el despliegue full stack no está verificado como operativo.
-- **Datos:** la API de productos y solicitudes está implementada con MongoDB Atlas y Mongoose. La respuesta 503 de salud impide confirmar la conexión y persistencia actuales. Ingredientes y reglas del constructor continúan en JSON de solo lectura.
-- **Acceso actual:** el panel React usa cuentas administradoras, hashes de contraseñas con bcrypt y tokens JWT de dos horas.
-- **Asistente y sugerencias:** Sorbi es un asistente guiado con reglas deterministas en el navegador. Carga una vez los datos públicos del sitio al abrirse y no envía los mensajes a ningún servidor o servicio externo. La API conserva solo la ruta protegida de Gemini para sugerencias creativas dentro del panel administrativo.
-- **Backend actual:** productos y solicitudes se administran en MongoDB usando Mongoose; `backend/data/productos.json` se conserva como archivo de seed. Ingredientes y reglas de ejemplo siguen en JSON. El servidor valida las creaciones y recalcula sus precios antes de guardar una solicitud tipo pedido. El acceso de administración usa usuarios y JWT; configura `JWT_SECRET` en el entorno privado.
-- **Proveedor de IA:** la llamada Gemini usa `fetch` nativo en el backend y requiere `GEMINI_API_KEY` y `MODELO_IA` configurados como variables privadas; no hay modelo predeterminado ni SDK. Solo envía campos del producto escritos por el administrador. El endpoint es exclusivo de sesión administrativa.
-- **Privacidad y edad:** los términos de Gemini API prohíben usar el servicio dentro de sitios o aplicaciones dirigidos a menores o que probablemente serán accedidos por menores ([términos oficiales](https://ai.google.dev/gemini-api/terms)). Por ello, Gemini no se usa en la experiencia pública destinada también a menores. La API de nivel gratuito puede usar entradas y respuestas para mejorar productos y puede permitir revisión humana; no incluir datos personales, confidenciales ni de clientes. Revisar términos y prácticas de privacidad antes de configurarlo.
+- **Frontend:** React, Vite y `HashRouter`; la página está publicada como sitio estático en GitHub Pages.
+- **Backend:** API Node.js y Express separada; el código usa Mongoose para conectarse a MongoDB Atlas. El backend está alojado en Render.
+- **Datos:** productos, solicitudes y cuentas administrativas usan modelos Mongoose. El archivo de productos sirve como seed; ingredientes, reglas de construcción y la ficha del único punto planificado son archivos JSON.
+- **Comprobación pública:** el 3 de noviembre de 2026, GitHub Pages devolvió el HTML de la aplicación y `/api/health` respondió `{"estado":"disponible"}`. El endpoint indica que el backend veía MongoDB conectado en ese momento; no se probaron en esa comprobación todos los flujos de compra, contacto ni administración.
+- **Constructor:** valida las opciones en el navegador para orientar a la persona y el backend vuelve a validar los IDs y reglas y recalcula el precio antes de guardar la solicitud. El retiro es simulado mientras no abra el local.
+- **Autenticación:** el backend compara contraseñas con bcrypt y entrega JWT con vencimiento; el panel envía el token a las rutas protegidas. La clave de firma se configura fuera del código.
+- **Sorbi:** asistente guiado por reglas deterministas en el navegador. Tras cargar los datos públicos desde la API, procesa las preguntas localmente y no las envía a servicios externos.
+- **Gemini:** solo se llama desde la ruta protegida del panel administrativo para sugerir nombres, descripciones o eslóganes. El público del sitio incluye menores; por prudencia, Gemini no se usa en la experiencia pública y la integración debe seguir sujeta a revisión de los términos vigentes y de privacidad.
 
-## Reglas de código
+Consulta la [guía técnica y de estado](./docs/MIGRACION.md) para rutas, variables de entorno, comandos locales y evidencia de los entregables.
 
-- Mantener carpetas claras, nombres descriptivos consistentes y comentarios breves que expliquen el porqué.
-- Escribir código simple y explicable para que cada integrante pueda defender su parte. Justificar cada dependencia nueva, evitar dependencias innecesarias y confirmar con el mentor si se permiten dependencias del backend.
-- Diseñar primero para celular y mantener accesibilidad: etiquetas adecuadas, texto alternativo y buen contraste.
-- No eliminar, mover ni sobrescribir archivos o carpetas existentes sin preguntar antes. La carpeta local `frontend-legacy/` se eliminó con confirmación; el usuario indica que la versión histórica está preservada en el tag `v1-js-puro`.
-- No ejecutar comandos de Git; el usuario los ejecuta manualmente. El proyecto requiere al menos 15 commits y un repositorio en GitHub.
-- Después de cada tarea, entregar un resumen corto y sencillo de lo realizado y por qué.
-- El frontend se publica como sitio estático en GitHub Pages; el backend Express se despliega por separado en Render. Verificar que el endpoint de salud y las operaciones con MongoDB respondan antes de declarar completa la publicación.
-- La autenticación usa usuarios, contraseñas con hash seguro y JWT. Gemini se llama desde el backend únicamente para el panel admin; las descripciones tienen un respaldo con plantilla local.
-- Evitar afirmaciones médicas o nutricionales no respaldadas y marcar los datos de muestra como ejemplos.
+## Datos y límites de las afirmaciones
 
-## Reglas de contenido
+- No hay local abierto ni punto exacto dentro del centro comercial confirmado. Horario, teléfono y coordenadas están por definir.
+- Los ingredientes y precios de muestra no son cotizaciones comerciales. El precio real requiere costos confirmados por ingrediente y revisar mermas, cobros e impuestos.
+- El alérgeno mostrado corresponde a lo declarado en los datos del ejemplo; no garantiza ausencia de contaminación cruzada ni que un producto sea apto para una persona.
+- Sorbi no da consejos médicos ni nutricionales y no usa inteligencia artificial externa.
+- No afirmar acuerdos con proveedores, colegios, gimnasios o tiendas mientras no existan y se puedan confirmar.
 
-- No hacer afirmaciones médicas ni nutricionales sin respaldo. Evitar expresiones como «cura», «adelgaza» o «desintoxica».
-- No usar frases como «100% ecológico», «cero impacto» ni «único en el mercado».
-- Marcar en el código como ejemplos todos los datos de muestra, incluidos precios, sabores, ingredientes y productores.
+## Reglas de contenido y defensa
 
-## Requisitos del curso
-
-- Entregar una landing, un catálogo, contacto real, un panel admin con login, una función de IA con respaldo y una publicación disponible en internet.
-- Usar React en el frontend, Git con mínimo 15 commits, un repositorio GitHub y GitHub Pages para el frontend.
-- Mantener diseño responsive y elegir dependencias que el estudiante pueda justificar y explicar.
-- El estado real revisado y la evidencia disponible están en `docs/MIGRACION.md`. El archivo `.git/config` identifica el remoto `Danncho/SmoothieFit`; no se verificaron el historial de commits, la visibilidad pública ni una URL de despliegue.
-
-## Estado del proyecto
-
-- **Fecha de revisión:** 24 de octubre de 2026.
-- **Local piloto:** se planifica un único local en Mall del Sol, Guayaquil; todavía no está abierto. El crecimiento dependerá de sus resultados y no hay otro local planificado.
-- **Fase actual:** Fase 18, verificación de entregables y documentación.
-- **Estado técnico:** React tiene landing, catálogo, constructor, contacto, login, panel administrativo y Sorbi conversacional en el navegador. El backend contiene rutas para persistencia MongoDB, JWT, pedidos de prueba y generación Gemini protegida; su endpoint publicado de salud respondió 503. Sorbi no tiene un endpoint público de conversación. Gemini requiere configuración privada y no se ha confirmado una llamada de producción.
-- **Redes sociales:** no se muestran enlaces en el pie de página hasta contar con perfiles oficiales.
+- Usar lenguaje sencillo, cercano y explicable por el estudiante.
+- No hacer afirmaciones médicas o nutricionales ni afirmar propiedades no comprobadas.
+- Marcar los productos, precios e ingredientes de muestra como ejemplos.
+- Presentar las proyecciones financieras como supuestos del ejercicio, nunca como resultados reales.
+- Distinguir lo implementado en código, lo probado manualmente y lo no verificado.

@@ -1,302 +1,209 @@
-# Diagnóstico y plan de migración de SmoothieFit
+# Guía técnica y estado de SmoothieFit
 
-## a. Estado actual
+Este documento describe el código actual y separa implementación de comprobación en producción. No contiene valores privados. La comprobación pública registrada aquí se hizo el 03-11-2026; el estado puede cambiar.
 
-Este árbol refleja los archivos encontrados en la carpeta del proyecto. Se omiten `node_modules/` y el contenido interno de `.git/`.
+## Arquitectura
 
 ```text
-smoothiefit/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml
-├── .gitignore
+Navegador
+  ├─ React + Vite + HashRouter ── GitHub Pages
+  │    ├─ Sorbi: reglas locales del navegador
+  │    └─ cliente HTTP ───────────────┐
+  └───────────────────────────────────┼── HTTPS / CORS
+                                      ▼
+                              Express en Render
+                               ├─ MongoDB Atlas vía Mongoose
+                               └─ Gemini solo para el panel admin
+```
+
+- El frontend es una SPA estática. `frontend/src/main.jsx` monta React, `HashRouter` y `App`; `frontend/index.html` carga ese punto de entrada. `frontend/vite.config.js` configura la base de GitHub Pages y un proxy local de `/api`.
+- El backend entra por `backend/server.js`, monta las rutas REST, limita el cuerpo JSON y configura CORS con orígenes concretos. Al arrancar, conecta con MongoDB antes de escuchar.
+- Productos, solicitudes y administradores usan modelos Mongoose. Los productos iniciales vienen de `backend/data/productos.json`; ingredientes, reglas y la ficha del único punto planificado son JSON de lectura.
+- Sorbi carga productos, ingredientes y la ficha del punto mediante rutas públicas; a partir de ahí el procesamiento conversacional es local.
+- Gemini se invoca desde una ruta administrativa que requiere JWT. La clave no se incluye en el frontend.
+
+La app de GitHub Pages devolvió el HTML y `/api/health` de Render respondió `{"estado":"disponible"}` el 03-11-2026. El chequeo indica que Mongoose veía una conexión activa en ese momento; no se ejecutó una prueba de extremo a extremo para el formulario, el login, los cambios de administración o Gemini.
+
+## Estructura actual relevante
+
+```text
+.
+├── .github/workflows/deploy.yml
 ├── CONTEXTO.md
 ├── README.md
-├── docs/
-│   └── MIGRACION.md
+├── docs/MIGRACION.md
 ├── backend/
-│   ├── .env                         (local, ignorado por Git)
-│   ├── .env.example
-│   ├── config/
-│   │   ├── db.js
-│   │   └── constructorRules.js
-│   ├── data/
-│   │   ├── .gitkeep
-│   │   ├── ingredientes.json
-│   │   ├── productos.json
-│   │   └── sucursales.json
-│   ├── middleware/
-│   │   └── verificarToken.js
-│   ├── models/
-│   │   ├── Producto.js
-│   │   ├── Solicitud.js
-│   │   └── Usuario.js
+│   ├── config/                 # db.js y constructorRules.js
+│   ├── data/                   # .gitkeep, ingredientes, productos y ficha del punto
+│   ├── middleware/verificarToken.js
+│   ├── models/                 # Producto, Solicitud y Usuario
+│   ├── prompts/creativo.md
+│   ├── routes/                 # .gitkeep y rutas API, incluida sucursales.js
+│   ├── scripts/                # crear-admin.js y seed.js
+│   ├── services/gemini.js
 │   ├── package.json
-│   ├── package-lock.json
-│   ├── routes/
-│   │   ├── .gitkeep
-│   │   ├── auth.js
-│   │   ├── ia-admin.js
-│   │   ├── ingredientes.js
-│   │   ├── productos.js
-│   │   ├── reglas-constructor.js
-│   │   ├── solicitudes-admin.js
-│   │   ├── solicitudes.js
-│   │   └── sucursales.js
-│   ├── scripts/
-│   │   ├── crear-admin.js
-│   │   └── seed.js
-│   ├── prompts/
-│   │   └── creativo.md
-│   ├── services/
-│   │   └── gemini.js
 │   └── server.js
-├── frontend/
-│   ├── package.json
-│   └── src/                          (React, Vite, HashRouter y AsistentePage)
+└── frontend/
+    ├── index.html
+    ├── vite.config.js
+    ├── package.json
+    └── src/
+        ├── App.jsx
+        ├── main.jsx
+        ├── components/          # Layout, Header, Footer, tarjetas y Sorbi
+        ├── context/             # sesión del panel
+        ├── config/              # configuración de interfaz
+        ├── hooks/               # datos de productos y del punto
+        ├── pages/               # landing, catálogo, constructor, contacto, panel e informativas
+        ├── services/api.js
+        ├── sorbi/               # engine, knowledge, carga de datos y pruebas
+        ├── styles/base.css
+        └── utils/
 ```
 
-La aplicación React actual vive en `frontend/`. La carpeta local `frontend-legacy/` se eliminó tras la confirmación del usuario el 24-10-2026; según el usuario, la versión HTML/CSS/JavaScript anterior se conserva en el tag histórico `v1-js-puro`. La sección siguiente describe ese snapshot y no representa archivos presentes en el árbol actual.
+Se omiten archivos generados, dependencias instaladas y detalles internos de configuración para mantener el árbol legible. La carpeta de datos incluye el archivo `.gitkeep` que está actualmente presente; no tiene lógica de ejecución.
 
-En el árbol local sí aparecen `.git/` y `backend/.env`. No se ejecutaron comandos de Git durante esta revisión ni se comprobó el contenido del historial. No se muestran valores de variables privadas.
+## Rutas de la aplicación
 
-## b. Backend
+`frontend/src/App.jsx` define las páginas y `Header.jsx` muestra la navegación:
 
-### Endpoints existentes
+| Ruta frontend | Contenido |
+|---|---|
+| `/` | Landing |
+| `/smoothies` | Favoritos del público, productos y votos |
+| `/crea-tu-smoothie` | Constructor y solicitud de interés |
+| `/asistente` | Chat con Sorbi |
+| `/sucursales` | Página “Nuestro local”; existe una sola ficha planificada |
+| `/contacto` | Formulario de solicitudes |
+| `/colegios` | Propuesta en desarrollo para familias y colegios |
+| `/productores`, `/sostenibilidad`, `/nosotros` | Páginas informativas |
+| `/admin/login`, `/admin` | Acceso y panel protegido |
 
-| Método | Ruta | ¿Protegida? | Archivo donde vive |
+El formulario de contacto admite los tipos `consulta`, `colegio`, `tienda` y `pedido`; un parámetro `tipo` puede preseleccionar el tipo cuando el enlace lo incluye.
+
+## API: acceso público y protegido
+
+Todas estas rutas se montan desde `backend/server.js`. Las operaciones protegidas requieren un JWT de administrador en el encabezado `Authorization`, usando el esquema Bearer; el middleware verifica firma, vencimiento y rol.
+
+| Método | Endpoint | Acceso | Comportamiento |
 |---|---|---|---|
-| GET | `/api/productos` | No | `backend/routes/productos.js` |
-| GET | `/api/productos/:id` | No | `backend/routes/productos.js` |
-| POST | `/api/productos` | Sí, JWT Bearer con rol admin | `backend/routes/productos.js`, middleware `backend/middleware/verificarToken.js` |
-| PUT | `/api/productos/:id` | Sí, JWT Bearer con rol admin | `backend/routes/productos.js`, middleware `backend/middleware/verificarToken.js` |
-| DELETE | `/api/productos/:id` | Sí, JWT Bearer con rol admin | `backend/routes/productos.js`, middleware `backend/middleware/verificarToken.js` |
-| POST | `/api/solicitudes` | No; formulario público con validación y límite anti-spam | `backend/routes/solicitudes.js` |
-| GET | `/api/solicitudes` | Sí, JWT Bearer con rol admin | `backend/routes/solicitudes-admin.js` |
-| PATCH | `/api/solicitudes/:id` | Sí, JWT Bearer con rol admin | `backend/routes/solicitudes-admin.js` |
-| POST | `/api/auth/login` | No; límite de cinco fallos por IP cada 15 minutos | `backend/routes/auth.js` |
-| GET | `/api/auth/me` | Sí, JWT Bearer con rol admin | `backend/routes/auth.js` |
-| GET | `/api/ingredientes` | No | `backend/routes/ingredientes.js` |
-| GET | `/api/reglas-constructor` | No | `backend/routes/reglas-constructor.js` |
-| POST | `/api/ia/admin/generar` | Sí, JWT y rol admin; cuotas globales de Gemini | `backend/routes/ia-admin.js` |
-| GET | `/api/health` | No | `backend/server.js`; informa si MongoDB está disponible |
+| `GET` | `/api/health` | Público | Informa si la conexión Mongoose está activa. |
+| `POST` | `/api/auth/login` | Público | Comprueba correo y contraseña; responde con JWT cuando las credenciales son válidas. |
+| `GET` | `/api/auth/me` | JWT admin | Valida el usuario de la sesión. |
+| `GET` | `/api/productos` | Público | Lista productos desde MongoDB. |
+| `GET` | `/api/productos/:id` | Público | Consulta un producto. |
+| `POST` | `/api/productos/:id/voto` | Público | Suma voto si el límite temporal por IP lo permite. |
+| `POST` | `/api/productos` | JWT admin | Crea producto validado. |
+| `PUT` | `/api/productos/:id` | JWT admin | Actualiza producto validado. |
+| `DELETE` | `/api/productos/:id` | JWT admin | Elimina producto. |
+| `GET` | `/api/ingredientes` | Público | Lee ingredientes de ejemplo desde JSON. |
+| `GET` | `/api/reglas-constructor` | Público | Devuelve reglas y precios de ejemplo. |
+| `GET` | `/api/sucursales` | Público | Devuelve el arreglo de datos que contiene la ficha del único punto planificado. |
+| `POST` | `/api/solicitudes` | Público | Valida y guarda contacto o interés. Para `tipo: pedido` vuelve a validar la creación y calcula el precio en el servidor. |
+| `GET` | `/api/solicitudes` | JWT admin | Lista solicitudes; permite filtro y limita resultados. |
+| `PATCH` | `/api/solicitudes/:id` | JWT admin | Cambia a un estado autorizado. |
+| `POST` | `/api/ia/admin/generar` | JWT admin | Solicita sugerencias Gemini para datos de producto. |
 
-Las rutas se conectan en `backend/server.js`. El servidor acepta cuerpos JSON y devuelve un mensaje JSON para JSON malformado o errores no controlados. Ya no sirve archivos estáticos: espera una conexión MongoDB exitosa antes de abrir el puerto y publica la API para el frontend Vite, que se ejecuta aparte.
+Los límites de login, solicitudes, votos y Gemini se mantienen en memoria; no se comparten entre instancias y se reinician al reiniciar el proceso. Los votos aplican un límite por producto y dirección IP en una ventana temporal, además de un tope por hora. La marca del navegador en `localStorage` ayuda a la interfaz, pero no identifica a una persona ni prueba demanda de mercado.
 
-### Datos, reglas y configuración
+## Constructor y datos del punto
 
-- `backend/data/productos.json`: catálogo de seis productos con precios e ingredientes de ejemplo. Los registros tienen `esEjemplo: true`; ahora se conserva como fuente del seed, no como almacenamiento operativo de la API.
-- `backend/data/ingredientes.json`: lista de 20 ingredientes de ejemplo con categoría, precio extra, color y alérgenos; los registros tienen `esEjemplo: true`.
-- `backend/prompts/creativo.md` y `backend/services/gemini.js`: instrucciones para el asistente creativo del administrador y llamada REST a Gemini con `fetch` nativo, timeout de 15 segundos, clasificación de errores, validación de JSON y filtrado de frases prohibidas.
-- `backend/routes/ia-admin.js`: protege `POST /api/ia/admin/generar` con `verificarToken`, valida exclusivamente campos de producto, aplica límites globales en memoria y ofrece plantilla sin IA para descripciones.
-- No existen actualmente `pedidos.json`, `contactos.json` ni `alianzas.json`; esos nombres sí aparecen excluidos en `.gitignore`.
-- `backend/config/constructorRules.js`: fuente única de las categorías, límites de selección y precios base de los tamaños pequeño, mediano y grande. Sus precios están comentados como ejemplos.
-- `backend/models/Producto.js`: esquema de MongoDB para los campos del producto, con un `id` numérico único que se conserva en las respuestas de la API.
-- `backend/models/Solicitud.js`: modelo de solicitudes con tipo, estado inicial `nueva` y fecha de creación asignados por el servidor; incluye campos opcionales para la creación, precio calculado, local y código de retiro.
-- `backend/models/Usuario.js`: usuarios administradores con correo único y normalizado, hash de contraseña no seleccionado por defecto, rol y fecha de creación.
-- `backend/routes/auth.js`: login con comparación bcrypt, hash falso para correos inexistentes, limitador en memoria y JWT de dos horas; `/me` devuelve solo correo y rol.
-- `backend/middleware/verificarToken.js`: verifica el token Bearer y requiere el rol `admin`.
-- `backend/routes/solicitudes-admin.js`: consulta las solicitudes más recientes con filtro y límite, y permite cambiar solo a estados autorizados.
-- `backend/scripts/crear-admin.js`: crea la primera cuenta de forma interactiva con contraseña oculta o mediante variables de entorno, sin sobrescribir usuarios existentes.
-- `backend/routes/solicitudes.js`: acepta envíos públicos validados, descarta campos adicionales, incluye honeypot y limita a cinco solicitudes por IP y hora en memoria. Para una creación de tipo `pedido`, valida ingredientes y reglas, calcula el precio en el servidor y asigna el local planificado y el código de retiro. La consulta y el cambio de estado se hacen en la ruta protegida `solicitudes-admin.js`.
-- `backend/config/db.js`: conecta con `process.env.MONGODB_URI` y da un error claro si la variable falta o MongoDB no está disponible.
-- `backend/scripts/seed.js`: inserta desde `productos.json` solo los IDs que todavía no existen; no sobrescribe productos existentes ni elimina el JSON.
-- Reglas actuales del constructor: una base, al menos una fruta, hasta cuatro frutas y verduras combinadas, y hasta dos extras; tamaños, precios y costo extra de ingredientes son valores de ejemplo definidos en el backend.
-- `backend/.env.example` incluye un marcador para `JWT_SECRET`, no un secreto real. `backend/.env` es local e ignorado por Git; no se leyó ni se modificó durante esta tarea.
-- En producción el servidor exige que `JWT_SECRET` exista y tenga al menos 32 caracteres. El login requiere un secreto válido para firmar tokens.
-- El generador privado usa `GEMINI_API_KEY`, `MODELO_IA`, `LIMITE_IA_POR_MINUTO` y `LIMITE_IA_DIARIO` desde variables de entorno. No hay modelo predeterminado. Los topes son 5 consultas por minuto y 100 por día por defecto, contadas en memoria por proceso; se reinician con el backend y no garantizan un máximo de facturación.
-- Gemini solo está habilitado en el panel admin; no enviar consultas públicas ni datos de clientes a la API. La API no tiene modelos por defecto, y sus modelos, cuotas y precios pueden cambiar.
-- Para revisar antes de configurar/publicar: [REST `generateContent`](https://ai.google.dev/api/generate-content), [guía de pensamiento](https://ai.google.dev/gemini-api/docs/thinking), [JSON estructurado](https://ai.google.dev/gemini-api/docs/structured-output), [términos de Gemini API](https://ai.google.dev/gemini-api/terms), [precios y cuotas](https://ai.google.dev/gemini-api/docs/pricing) y [políticas de datos](https://ai.google.dev/gemini-api/docs/feedback-policies).
+- `backend/config/constructorRules.js` define las categorías, tamaños y restricciones. `backend/data/ingredientes.json` contiene ingredientes de ejemplo con sus campos declarados, incluidos precios y alérgenos.
+- El navegador valida la selección y muestra un estimado. El backend vuelve a validar IDs, tamaño, categorías y cantidades con sus propios datos y suma tamaño, base e ingredientes para calcular el precio final que guarda.
+- El formulario envía una solicitud de interés con `tipo: pedido`; el servidor genera un código de referencia y asocia la ficha del punto. No procesa cobro, no reserva inventario y no confirma entrega ni retiro. El único local está planificado en el Mall del Sol, Guayaquil; la ubicación exacta, el formato, el horario, el teléfono y las coordenadas están por definir.
+- Los ingredientes y precios son ejemplos académicos. El costo real por unidad no se conoce y debe calcularse por ingrediente antes de ofrecer precios comerciales.
+- El alérgeno que muestra la interfaz procede de las etiquetas declaradas en el JSON. No es una garantía contra contaminación cruzada ni un dictamen de aptitud para una persona.
 
-### Dependencias instaladas
+## Sorbi, Gemini y manejo de datos
 
-Leídas de `backend/package.json`:
+`frontend/src/sorbi/engine.js` normaliza tildes, mayúsculas y signos; busca intenciones, sinónimos y palabras clave. Para algunos errores de escritura compara palabras con distancia de edición (distancia tipo Levenshtein) con un umbral corto según la longitud de las palabras. Las recomendaciones puntúan etiquetas de ingredientes y preferencias; en empates usa votos y nombre. No es un modelo de IA ni comprensión humana.
 
-| Paquete | Versión declarada | Uso actual |
-|---|---:|---|
-| `express` | `^5.2.1` | Servidor HTTP y API REST. |
-| `dotenv` | `^18.0.7` | Cargar variables locales desde `backend/.env`. |
-| `mongoose` | `^9.11.3` | Esquemas/modelos y conexión a MongoDB Atlas. |
-| `bcryptjs` | `^3.0.3` | Compara contraseñas y almacena hashes de una sola vía. |
-| `jsonwebtoken` | `^9.0.3` | Firma y verifica tokens de sesión con expiración. |
+Al iniciar el chat, `useSorbiData.js` carga una vez los productos, el JSON de ingredientes y la ficha del punto desde la API. Luego los mensajes se interpretan en el navegador; `SorbiChat.jsx` no envía el texto a la API. El chat bloquea entradas que parecen contener correo o teléfono y limita longitud. Su conversación de sesión se puede guardar en `sessionStorage`.
 
-No hay `devDependencies` declaradas. `backend/package.json` declara Node.js `>=22 <23`.
+La opción de cercanía solicita permiso de geolocalización del navegador y calcula distancia en el dispositivo. No guarda ni envía las coordenadas del usuario. La ficha de SmoothieFit aún tiene coordenadas nulas; hasta definirlas, Sorbi no puede calcular la distancia.
 
-## c. Frontend previo (snapshot histórico)
+Gemini se usa solo desde el panel para sugerir nombres, descripciones y eslóganes. El backend acepta campos acotados del producto, busca indicios de instrucciones, datos personales y afirmaciones prohibidas, llama a Gemini desde Node y espera JSON. Valida formato y tipos, limita cantidad y longitud de opciones y filtra expresiones prohibidas. Una descripción puede usar una plantilla local cuando el servicio falla; los nombres y eslóganes no tienen ese respaldo. El filtrado no garantiza que todo contenido sea correcto, por lo que el administrador debe revisar las sugerencias.
 
-**Ubicación actual:** no hay una carpeta de frontend legacy en el árbol de trabajo. Las rutas `frontend-legacy/...` de esta sección describen los archivos del snapshot histórico `v1-js-puro`, según la confirmación del usuario.
+Como el público del sitio incluye menores, el proyecto mantiene Gemini fuera de Sorbi y de la experiencia pública. La integración administrativa debe mantenerse dentro de las restricciones de los términos vigentes de la API. Solo se envían campos de producto, no información de clientes. No introducir datos personales, de clientes ni confidenciales.
 
-### Páginas y funcionalidades
+## Variables de entorno
 
-| Archivo del snapshot | Funcionalidad en esa versión histórica |
+Se indican los nombres, nunca valores. Los secretos deben configurarse en el entorno privado de Render o localmente y no enviarse al navegador ni al repositorio.
+
+| Nombre | Uso |
 |---|---|
-| `frontend-legacy/index.html` | Landing con mensaje de marca, botones al catálogo y al constructor, beneficios, tres destacados cargados desde la API y llamadas a otras páginas. |
-| `frontend-legacy/smoothies.html` | Catálogo con carga desde `GET /api/productos`, estado de carga/error y filtro de categoría. |
-| `frontend-legacy/crea-tu-smoothie.html` | Constructor paso a paso con tamaño, base, frutas, verduras, semillas/extras, nombre, vaso SVG, precio, avisos de selección y alérgenos, y botón “Sorpréndeme”. Guarda creaciones en `localStorage` (`smoothiefitCart`). |
-| `frontend-legacy/admin.html` | Pantalla para pedir una clave y panel de productos. La página es estática; el backend protege las operaciones de escritura. |
-| `frontend-legacy/productores.html` | Historia propuesta, criterios para proveedores y tres productores de ejemplo marcados como ficticios. |
-| `frontend-legacy/sostenibilidad.html` | Propuesta cautelosa sobre empaques, materiales, residuos y proveedores locales. |
-| `frontend-legacy/nosotros.html` | Historia del proyecto, misión, visión, valores y cuatro espacios para nombres y fotos del equipo. |
+| `PORT` | Puerto HTTP del backend. |
+| `CORS_ORIGINS` | Orígenes web permitidos, separados por comas; el servidor rechaza `*`. |
+| `MONGODB_URI` | URI privada de MongoDB Atlas o de una instancia local. |
+| `JWT_SECRET` | Firma de JWT; en producción debe tener al menos 32 caracteres. |
+| `GEMINI_API_KEY`, `MODELO_IA` | Credencial y modelo Gemini; solo administración. |
+| `LIMITE_IA_POR_MINUTO`, `LIMITE_IA_DIARIO` | Límites opcionales de uso Gemini. |
+| `VITE_API_URL` | URL base pública de la API usada durante el build del frontend. |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Credenciales opcionales para crear el primer admin sin interacción; se usan juntas y solo por `crear-admin`. |
+| `NODE_ENV` | El backend aplica la comprobación reforzada de `JWT_SECRET` al estar en producción. |
 
-En ese snapshot histórico no se encontraron `contacto.html`, `colegios.html`, `puntos-de-venta.html` ni `pedidos.html`. La app React actual sí tiene página de Contacto, página informativa para Colegios y página para consultar el local piloto.
+`backend/.env.example` sirve de plantilla con marcadores. No se deben tratar sus marcadores como credenciales reales. El archivo local `.env`, si existe, nunca se debe leer en una revisión pública ni subir al repositorio.
 
-### Scripts
+## Scripts disponibles y ejecución local
 
-| Archivo | Responsabilidad |
-|---|---|
-| `frontend-legacy/js/layout.js` | Inserta encabezado y pie de página, controla el menú hamburguesa y revela elementos al desplazarse con `IntersectionObserver`, respetando movimiento reducido. |
-| `frontend-legacy/js/inicio.js` | Pide productos a la API y presenta los tres primeros como destacados. |
-| `frontend-legacy/js/smoothies.js` | Pide productos, crea las tarjetas y filtra por categoría. |
-| `frontend-legacy/js/constructor.js` | Carga ingredientes y reglas, valida la selección en el navegador, calcula precio, dibuja capas SVG, muestra alérgenos, genera una combinación aleatoria y guarda en el carrito local. |
-| `frontend-legacy/js/admin.js` | Referencia histórica de gestión de productos; no se usa en el panel React actual. |
+Los nombres se cotejaron con ambos `package.json`.
 
-En el snapshot histórico, el constructor validaba las reglas en el navegador, pero el backend no recibía ni volvía a validar una orden de smoothie. El carrito permanecía en el navegador y no se registraba como pedido en el servidor.
-
-### Constructor de smoothies y reglas actuales
-
-El constructor del snapshot `v1-js-puro` presentaba cinco pasos: tamaño, base, frutas/verduras, semillas/extras y nombre. Su implementación validaba la selección en el navegador, calculaba el precio, dibujaba un vaso SVG y guardaba en `localStorage`; no creaba ni registraba solicitudes en el backend. El constructor React actual ofrece esos pasos, un resumen, la precarga desde el catálogo y el registro de interés en MongoDB cuando está disponible.
-
-Las reglas se comparten desde `GET /api/reglas-constructor` y `backend/config/constructorRules.js`. El backend también valida los IDs, cantidades y tamaño y recalcula el precio; no confía en un precio ni en un local enviados por el navegador. El formulario es una simulación académica y registra interés, no confirma una venta o retiro real.
-
-### Estilos, colores y textos reutilizables
-
-El archivo histórico `frontend-legacy/css/styles.css` definía variables en `:root`:
-
-| Variable | Valor |
-|---|---|
-| `--color-red` | `#c93652` |
-| `--color-purple` | `#512b68` |
-| `--color-pink` | `#f7dce7` |
-| `--color-white` | `#ffffff` |
-| `--color-text` | `#33243a` |
-| `--color-muted` | `#665c69` |
-| `--color-background` | `#fff9fb` |
-| `--color-border` | `#eadde6` |
-
-También contiene variables de tipografía, espacios, bordes redondeados y ancho de contenido. Las páginas cargan Nunito desde Google Fonts con fuentes de respaldo; esto requiere conexión a ese servicio para obtener la tipografía.
-
-El snapshot histórico incluía navegación, títulos, mensajes de landing, catálogo y constructor. La navegación actual de React se define en `frontend/src/App.jsx`; `/crea-tu-smoothie` muestra el constructor React. Los textos heredados deben revisarse antes de volver a utilizarlos.
-
-## d. Se reutiliza / Se reemplaza / Se descarta
-
-| Pieza actual | Decisión para la nueva arquitectura | Motivo |
+| Paquete | Script | Uso |
 |---|---|---|
-| Textos, estilos, navegación y layout del snapshot histórico `v1-js-puro` | **Se reutilizaron selectivamente como referencia** | Se adaptó la identidad visual a React; las afirmaciones no verificadas no deben reutilizarse. |
-| Encabezado y pie del snapshot `v1-js-puro` | **Se reemplazaron** por componentes compartidos de React y rutas de HashRouter | React renderiza el layout actual y las rutas funcionan en GitHub Pages. |
-| Páginas HTML del snapshot histórico | **Reemplazadas en el sitio actual** por páginas/componentes React | El requisito del curso exige React; las páginas antiguas ya no están en el árbol de trabajo. |
-| Lógica de inicio y catálogo del snapshot `v1-js-puro` | **Se reemplazó** por componentes y servicios React para la API | Se conserva el contrato de catálogo, no la manipulación manual del DOM. |
-| Endpoints REST de productos | **Se reutilizan inicialmente y se adaptan** para consultar la base de datos | La interfaz React puede seguir usando las rutas y campos del catálogo mientras cambia el almacenamiento. |
-| `productos.json` | **Se conserva como fuente de seed**, mientras MongoDB queda como almacenamiento operativo | El seed idempotente carga productos faltantes y mantiene intacto el JSON como respaldo/datos iniciales. |
-| `ingredientes.json` | **Se conserva como lectura local** por ahora | Es una lista pequeña, estática y de solo lectura; una base de datos no aporta valor mientras no necesite edición o consulta dinámica. |
-| `backend/config/constructorRules.js` y su endpoint | **Se reutilizan** como fuente única de reglas, con validación y cálculo de precio en servidor | Evita duplicar precios y límites; el navegador recibe las reglas para mostrar el resumen. |
-| Constructor y carrito `localStorage` del snapshot `v1-js-puro` | **Reemplazados parcialmente** por el constructor React y solicitudes de interés | La API registra una simulación de retiro; no confirma una compra ni una entrega. |
-| Middleware de clave compartida y pantalla de acceso del snapshot | **Reemplazados** en el flujo actual por usuarios, hashes seguros de contraseñas y JWT | Una clave compartida no distingue personas ni permite administrar sesiones de usuarios. |
-| CRUD manual del DOM del snapshot `v1-js-puro` | **Reemplazado** en el sitio actual por un panel React con login JWT | Separa el acceso y la gestión del estado visual del navegador. |
-| Perfiles ficticios de productores y datos marcados `esEjemplo` | **Se reutilizan solo como ejemplos identificados** o se reemplazan con datos reales confirmados | No deben presentarse como proveedores reales. |
-| Espacios “Nombre del integrante” y “Foto del equipo” | **Se reemplazan** por información real cuando el equipo la entregue | Son marcadores, no datos finales. |
-| Aparición con `IntersectionObserver` | **Se puede reemplazar o reutilizar** durante la fase extra de animación | La nueva implementación debe respetar movimiento reducido y no agregar complejidad sin necesidad. |
-| `.gitkeep` | **Sin efecto funcional** | Algunos `.gitkeep` están en directorios que ya contienen archivos; se pueden retirar en una limpieza posterior si se desea. |
+| Backend | `npm start` | Inicia `server.js`. |
+| Backend | `npm run seed` | Inserta productos iniciales faltantes sin sobrescribir los existentes. |
+| Backend | `npm run crear-admin` | Crea el primer administrador; contraseña interactiva oculta o credenciales de entorno. |
+| Frontend | `npm run dev` | Inicia Vite con proxy local de `/api` al backend. |
+| Frontend | `npm run build` | Genera el sitio estático de producción. |
+| Frontend | `npm run preview` | Previsualiza el build de Vite. |
+| Frontend | `npm run test:sorbi` | Ejecuta pruebas con `node:test` para el motor de Sorbi. |
 
-La carpeta local `frontend-legacy/` fue eliminada tras la confirmación del usuario. El contenido descrito en esta sección se considera referencia histórica del tag `v1-js-puro`, no parte del código ejecutable actual.
-
-## e. Riesgos y cambios del backend para producción
-
-### Orden recomendado
-
-1. **Frontend y API publicados por separado.** `backend/server.js` sirve la API Express, no los archivos estáticos. `frontend/vite.config.js` configura `/SmoothieFit/` y `.github/workflows/deploy.yml` publica en GitHub Pages. La página `https://danncho.github.io/SmoothieFit/` respondió durante esta revisión.
-2. **URL de API y CORS.** El frontend usa `VITE_API_URL`; el backend limita CORS a orígenes concretos mediante `CORS_ORIGINS` y rechaza `*`. El bundle publicado apunta a `https://smoothiefit-api.onrender.com`; la comprobación `/api/health` devolvió HTTP 503 el 24-10-2026.
-3. **Productos en MongoDB.** `Producto`, la conexión Mongoose y el seed idempotente están implementados. La API desplegada no está saludable en esta revisión, así que no se confirmó la conexión real ni la consulta pública.
-4. **Contacto con solicitudes.** La app React envía a `POST /api/solicitudes`; la ruta valida, usa honeypot y límite por IP, y persiste con el modelo `Solicitud`. La persistencia local requiere MongoDB y no se pudo verificar en producción por el estado 503.
-5. **Autenticación y panel admin.** El login crea JWT de dos horas, las rutas privadas verifican el rol admin y el panel React gestiona productos y solicitudes. Se requieren `JWT_SECRET` y el usuario inicial; el estado actual de MongoDB impide confirmar el login desplegado.
-6. **Sorbi público y Gemini admin.** Sorbi carga datos públicos al abrir el chat y ejecuta sus reglas en el navegador; no envía mensajes y no tiene endpoint público de conversación. `POST /api/ia/admin/generar` exige JWT admin y es la única ruta que consulta Gemini. La integración está en el código, pero no se ha probado con una clave real ni en producción.
-7. **Hosting.** El servicio Render existe y responde en `/api/health`, pero devuelve HTTP 503; investigar y recuperar la conexión con MongoDB, después verificar CORS, catálogo, contacto, login y Gemini en producción. El backend lee `PORT`, confía en proxy y declara Node.js 22.
-
-El frontend está publicado. No se confirma el funcionamiento end-to-end del catálogo, contacto, administración o Gemini mientras la API responda 503.
-
-### Riesgos observados
-
-1. **Límites de autenticación:** el token se conserva en `sessionStorage`, el limitador se guarda en memoria y no existe renovación de tokens. Para producción con mayores requisitos se recomiendan cookies `httpOnly`, HTTPS y limitación distribuida.
-2. **Datos de productos:** la API ya no modifica `productos.json`; utiliza MongoDB. El JSON sigue siendo el origen de la carga inicial. Ingredientes y reglas se leen de JSON porque no requieren escrituras.
-3. **Despliegue separado y CORS:** GitHub Pages no ejecuta Express. La API acepta los orígenes enumerados en `CORS_ORIGINS`; el valor de producción debe incluir `https://danncho.github.io`, sin una ruta de repositorio.
-4. **Validación de solicitudes de interés:** el backend vuelve a validar los IDs y límites de una creación y recalcula su precio; los valores que el cliente envíe para precio o local no se usan. El límite por IP continúa en memoria.
-5. **IA y menores:** los términos de Gemini API prohíben su uso en aplicaciones dirigidas a menores o que probablemente serán accedidas por ellos. El asistente público no llama a Gemini ni a otro proveedor; el generador Gemini requiere autenticación y se limita al panel de administración. No trasladar la llamada a una ruta pública.
-6. **Publicación parcial y persistencia no confirmada:** GitHub Pages sirve el frontend; el endpoint de salud de Render devolvió HTTP 503, por lo que no se confirma la API operativa ni la persistencia de productos y solicitudes.
-7. **Revisión de secretos histórica pendiente:** el escaneo de archivos presentes (excluyendo `backend/.env`, `.git`, dependencias y artefactos) no encontró patrones de credenciales de alta confianza. No se inspeccionó `backend/.env` ni el historial de commits; por tanto, no se puede confirmar si una clave se publicó anteriormente.
-8. **Muestras frente a información real:** productos e ingredientes actuales están marcados como ejemplo, y los productores se identifican como ficticios. Mantener esas etiquetas hasta reemplazarlos por información confirmada.
-9. **Contenido de salud y sostenibilidad:** en las páginas de React revisadas no aparecen las afirmaciones médicas ni las frases “100% ecológico” o “único”. El snapshot histórico `v1-js-puro` incluye textos como “ingredientes 100% naturales” y “garantizar frescura y naturalidad”; no forman parte del build actual y no se deben reutilizar como afirmaciones verificadas.
-10. **Redes sociales:** el pie de página actual no muestra enlaces sociales, porque no se confirmaron perfiles oficiales.
-
-## f. Revisión de secretos
-
-La revisión fue sobre archivos presentes, no sobre el historial:
-
-- `backend/.env` existe localmente y `.gitignore` excluye los archivos `.env`. No se leyó ni se modificó su contenido.
-- `.gitignore` incluye `backend/data/pedidos.json`, `backend/data/contactos.json` y `backend/data/alianzas.json`. Esos tres archivos no existen en el árbol actual.
-- `backend/data/productos.json` y `backend/data/ingredientes.json` no están excluidos; contienen los ejemplos del proyecto y deben seguir siendo datos no sensibles.
-- `backend/.env.example` contiene marcadores para configurar variables, no valores privados.
-- En el escaneo de archivos presentes no se encontraron patrones de claves conocidas, JWT literales, asignaciones de credenciales o URI de bases de datos con credenciales. La revisión no garantiza encontrar todo secreto posible y excluyó `backend/.env`, `.git`, dependencias y artefactos generados.
-- **No verificado:** si `backend/.env` o algún dato sensible apareció en un commit anterior o sigue presente en ramas remotas. No se revisó el historial porque la instrucción de esta tarea prohíbe ejecutar comandos de Git.
-
-Comandos de solo lectura que puedes ejecutar desde la raíz para revisar historial. No modifican el repositorio. El segundo solo muestra commits y nombres de archivos con diferencias que coinciden con patrones sensibles; no imprime las líneas encontradas:
+Requiere Node.js de la versión mayor 22, npm y una base MongoDB accesible. En PowerShell:
 
 ```powershell
-git log --all --oneline --decorate
-git log --all -G "(password|passwd|secret|token|api[_-]?key|mongodb(\+srv)?://|postgres(ql)?://|mysql://|BEGIN .*PRIVATE KEY)" --format="%h %s" --name-only
-git log --all --name-status -- .env backend/.env backend/data/pedidos.json backend/data/contactos.json backend/data/alianzas.json
+cd backend
+npm ci
+Copy-Item .env.example .env
 ```
 
-Si un commit aparece, revísalo en privado y no pegues claves en chats, capturas ni documentación. Si encuentras un secreto publicado, quitarlo del último estado no basta: revoca o cambia la clave y coordina la limpieza del historial antes de hacer público el repositorio.
+Configura localmente las variables requeridas sin compartirlas. Después:
 
-## g. Plan de migración por fases
+```powershell
+npm run seed
+npm run crear-admin
+npm start
+```
 
-| Fase | Qué se hace | Qué se reutiliza | Riesgo principal |
-|---|---|---|---|
-| 1. React base con Vite, Router y layout | Implementado; `frontend/` usa React, Vite y HashRouter. | Elementos visuales adaptados desde el snapshot histórico `v1-js-puro`. | Mantener las rutas del build estático. |
-| 2. Landing, catálogo e informativas en React | Implementado en código; el catálogo y el constructor dependen de que la API esté saludable. | Datos y API de productos, ingredientes y reglas de ejemplo; estilo visual revisado. | Enlaces incompletos o datos de ejemplo presentados como reales. |
-| 3. Base de datos real (MongoDB Atlas + Mongoose) | Modelos, conexión y seed implementados; salud de producción devolvió 503 y la conexión no quedó verificada. Ingredientes y reglas siguen como JSON. | `Producto`, conexión Mongoose y `productos.json` como fuente de seed. | Credenciales filtradas, modelo incorrecto o datos de muestra tomados como reales. |
-| 4. Contacto real con solicitudes | Formulario y persistencia Mongoose implementados; guardado publicado no verificado por el 503 de salud. | Modelo `Solicitud`, servicio API, estilo de marca. | Recopilar datos personales sin reglas de acceso, retención y protección. |
-| 5. Publicación (GitHub Pages + Render) | Frontend publicado y alcanzable; backend Render responde 503 en salud. | Vite, API separada, URL y CORS configurables. | GitHub Pages no ejecuta Node; se requiere conexión entre los servicios y base disponible. |
-| 6. Login real con JWT y panel admin | Implementado en código; login publicado sin verificar. | Usuarios, hashes bcrypt, token de dos horas y endpoints protegidos. | El token se guarda en `sessionStorage`; el limitador es solo de memoria y no hay renovación. |
-| 7. Sorbi público y creatividad Gemini admin | Sorbi guiado corre en el navegador con datos públicos y reglas locales. Gemini solo se llama desde `POST /api/ia/admin/generar`, con JWT, datos de producto, cuotas, filtro y respaldo de descripción. | Catálogo y reglas de marca aprobadas. | Mantener Gemini exclusivamente en administración adulta; el nivel gratuito puede usar entradas para mejorar productos. |
-| 8. Constructor de smoothies en React (extra) | Implementado en código; probar registro y panel cuando MongoDB esté disponible. | Ingredientes, `constructorRules.js`, alérgenos y SVG. | Tratar datos de ejemplo como precios comerciales o mostrar la simulación como una venta real. |
-| 9. Animaciones y responsive (extra) | Probar en tamaños de pantalla y agregar animaciones pequeñas solo si aportan claridad y se respetan preferencias de movimiento reducido. | Variables CSS y diseño actual. | Dependencias adicionales, carga lenta o movimiento que dificulte la accesibilidad. |
-| 10. Revisión final y guía de defensa | Probar rutas y formularios, revisar seguridad, datos, contenido, publicación, documentación y preparar explicaciones en palabras del estudiante. | `README.md`, este diagnóstico y las reglas de contenido. | Declarar cumplido algo que no se haya probado o desplegado realmente. |
+En otra terminal, inicia el sitio y valida el motor:
 
-## h. Dependencias nuevas en orden de incorporación
+```powershell
+cd frontend
+npm ci
+npm run dev
+npm run test:sorbi
+npm run build
+```
 
-Las dependencias indicadas reflejan el estado actual del proyecto.
+La dirección de Vite se muestra al iniciar. El usuario administrador de desarrollo solo debe ser creado en la base de datos de desarrollo prevista.
 
-| Orden | Dependencia | Para qué sirve y por qué se necesita |
-|---|---|---|
-| 1 | `react` | Permite construir la interfaz en componentes reutilizables. |
-| 2 | `react-dom` | Renderiza la aplicación React en el DOM del navegador. |
-| 3 | `vite` | Ejecuta el entorno de desarrollo y genera los archivos estáticos para GitHub Pages. |
-| 4 | `@vitejs/plugin-react` | Integra React y JSX con Vite durante desarrollo y compilación. |
-| 5 | `react-router-dom` | Proporciona `HashRouter` y rutas compatibles con hosting estático como GitHub Pages. |
-| 6 | `mongoose` | Define modelos y conecta el backend Node.js con MongoDB Atlas; ya está instalado para persistir productos. |
-| 7 | `cors` | Permite llamadas del frontend alojado en otro dominio, limitando los orígenes autorizados. |
-| 8 | `bcryptjs` | Genera y compara hashes de contraseña sin guardar la contraseña como texto plano. |
-| 9 | `jsonwebtoken` | Firma y verifica los tokens JWT usados para autenticar sesiones y proteger operaciones administrativas. |
-| Opcional | Librería de animaciones (por decidir) | Podría facilitar animaciones, pero no es necesaria para los requisitos base y se debe justificar antes de añadirla. |
+## Despliegue
 
-`express` y `dotenv` ya están declaradas en el backend. La integración usa `fetch` nativo de Node.js 22, así que no agrega SDK ni otra dependencia. No se requiere una dependencia separada para el formulario de contacto.
+- **GitHub Pages:** `.github/workflows/deploy.yml` ejecuta en Node.js la instalación limpia (`npm ci`), comprueba que exista `VITE_API_URL`, construye con Vite y publica el directorio de build. El workflow se activa ante cambios bajo `frontend/` o el propio workflow en `main`, o manualmente.
+- **Render:** el código Node/Express se ejecuta por separado. El proveedor debe tener configurados el comando de inicio y las variables privadas, incluidos MongoDB, JWT y los orígenes CORS. Este repositorio no incluye una definición de Render; la configuración actual del servicio debe comprobarse en su panel.
+- **MongoDB Atlas:** el backend se conecta mediante `MONGODB_URI`; el usuario, contraseña y acceso de red se configuran privadamente en Atlas y el proveedor backend.
+- **Prueba disponible:** la página de GitHub Pages devolvió HTML y `/api/health` devolvió estado disponible el 03-11-2026. No se hizo una compra, envío de formulario, login ni solicitud Gemini en la app pública en esa comprobación.
 
-## i. Checklist de requisitos del curso
+## Pruebas y estado verificable
 
-| Requisito | Estado | Evidencia local |
-|---|---|---|
-| Landing / inicio con marca, mensaje, secciones y navegación | Cumple en código y publicada | `frontend/src/pages/HomePage.jsx`; GitHub Pages respondió durante esta revisión. |
-| Catálogo con productos y detalles claros | Implementado en código; disponible en producción no verificado | `frontend/src/pages/SmoothiesPage.jsx` y `GET /api/productos`; `/api/health` de Render devolvió 503. |
-| Contacto real que envíe o registre solicitudes | Implementado en código; persistencia publicada no verificada | `frontend/src/pages/ContactPage.jsx`, `POST /api/solicitudes` y modelo Mongoose `Solicitud`; la API respondió 503. |
-| Panel admin con login y zona de gestión | Implementado en código; login publicado no verificado | `AdminLoginPage.jsx`, `AdminPage.jsx`, bcrypt, JWT y endpoints protegidos; depende de MongoDB disponible y `JWT_SECRET`. |
-| IA aplicada al negocio | Sorbi usa reglas locales en el navegador; Gemini real pendiente de configurar/probar | Gemini solo en `backend/routes/ia-admin.js`, protegido con JWT. Sorbi no envía mensajes y no tiene endpoint público de conversación. |
-| Publicación disponible en internet | Parcial | El workflow publica el frontend y la página se alcanzó; el backend Render devuelve HTTP 503 en `/api/health`. |
-| Frontend con React | Cumple | Vite, React, HashRouter, layout, landing, catálogo y páginas informativas en `frontend/`. |
-| Mínimo 15 commits | No verificado | No se ejecutaron comandos de Git, según la instrucción. Debe comprobarse con el historial local. |
-| Repositorio en GitHub | Público y alcanzable | `https://github.com/Danncho/SmoothieFit` respondió durante esta revisión. |
-| Despliegue del frontend en GitHub Pages | Publicado y alcanzable | `.github/workflows/deploy.yml`; la URL pública respondió durante esta revisión. |
-| Diseño responsive | Parcial | `frontend/src/styles/base.css` incluye estilos responsive; hace falta confirmar la experiencia en navegadores/tamaños reales. |
-| Dependencias justificadas y explicables | Parcial | La integración usa `fetch` nativo de Node.js 22 y no agregó dependencias. Revisar términos y privacidad de Google antes de configurar una clave. |
-| Reglas de contenido y muestras | Parcial | Productos e ingredientes tienen `esEjemplo`; productores indican que son ficticios. Revisar todo texto nuevo al migrar. |
+- `frontend/src/sorbi/engine.test.js` tiene pruebas Node integradas para normalización, errores de escritura, intenciones, recomendaciones, exclusión de ingredientes, límites de entrada y ubicación.
+- CSS declara puntos de quiebre y reduce animaciones si el sistema solicita movimiento reducido. Esto demuestra estilos adaptables en código, no una revisión visual; probar a mano en móvil, escritorio, zoom y teclado.
+- El acceso a GitHub Pages y el estado de conexión de MongoDB se comprobaron de forma puntual; el éxito de un endpoint de salud no demuestra que los datos de negocio se guarden correctamente.
+- Para comprobar el mínimo de commits se requiere que el estudiante ejecute `git rev-list --count HEAD`; no se ejecutó Git para esta tarea.
 
-Los estados “No verificado” significan que la instrucción de no usar Git o la falta de evidencia local impide confirmarlo; no equivalen a que el requisito se haya cumplido.
+## Límites del proyecto
+
+- No hay local abierto. El único punto es un plan sin ubicación interior, formato, horario, teléfono ni coordenadas confirmadas.
+- La solicitud de retiro es una simulación académica, no una compra.
+- Los precios, productos e ingredientes son ejemplos; los votos son pruebas y no representan demanda del mercado.
+- No se han confirmado ventas, proveedores, acuerdos, costos, permisos ni aceptación del público.
+- La operación de guardar formularios, administrar productos, iniciar sesión y llamar a Gemini requiere pruebas de extremo a extremo con un entorno autorizado.

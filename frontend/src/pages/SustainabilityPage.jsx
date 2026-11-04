@@ -5,7 +5,7 @@ const packagingIdeas = [
   {
     icon: '♻',
     title: 'Materiales por evaluar',
-    description: 'Buscamos opciones de empaque con materiales que puedan reciclarse donde exista un sistema adecuado para recibirlos. Revisaremos la información de cada proveedor antes de elegir.'
+    description: 'Buscamos opciones de empaque con materiales que puedan reciclarse donde exista un sistema adecuado para recibirlos.'
   },
   {
     icon: '↘',
@@ -22,14 +22,6 @@ const packagingIdeas = [
 function SustainabilityPage() {
   return (
     <div className="container page-content info-page">
-      <section className="info-hero">
-        <SectionTitle
-          eyebrow="Pequeñas decisiones, paso a paso"
-          title="Queremos cuidar también el lugar que compartimos"
-          description="En SmoothieFit buscamos tomar decisiones más conscientes sobre los empaques y los materiales que usamos."
-          level="h1"
-        />
-      </section>
       <section className="info-section info-section-soft">
         <SectionTitle
           eyebrow="Nuestro punto de partida"

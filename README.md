@@ -1,80 +1,180 @@
 # SmoothieFit
 
-SmoothieFit es un proyecto académico de un emprendimiento de smoothies de frutas, verduras y semillas. La aplicación presenta la marca y un catálogo, recibe solicitudes de contacto y ofrece un panel para que la persona administradora gestione productos y solicitudes. Los productos del catálogo inicial son ejemplos; no deben presentarse como una oferta comercial confirmada.
+SmoothieFit es un proyecto académico que presenta una propuesta de smoothies, una experiencia para explorar combinaciones y un modelo de operación todavía en planificación. Los productos, ingredientes y precios publicados en el ejemplo no son una oferta comercial confirmada.
 
-## Estado de los seis entregables
+## Estado de los entregables
 
-| Entregable | Estado revisado el 24-10-2026 | Evidencia y límite actual |
+Estado revisado el 03-11-2026. La revisión de la página y del endpoint de salud confirma disponibilidad puntual, no una prueba completa de todos los flujos con datos reales.
+
+| Entregable | Estado real | Evidencia y límite |
 |---|---|---|
-| Landing | Verificada manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; implementada en `frontend/src/pages/HomePage.jsx`. |
-| Catálogo | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `frontend/src/pages/SmoothiesPage.jsx` consulta `GET /api/productos`. |
-| Contacto real | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `frontend/src/pages/ContactPage.jsx` envía solicitudes a `POST /api/solicitudes`. |
-| Panel admin con login | Verificado manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; `AdminLoginPage.jsx`, `AdminPage.jsx` y autenticación JWT. |
-| Asistente público y sugerencias admin | Sorbi responde en el navegador; Gemini sigue separado para administración. | Sorbi usa datos públicos del sitio y reglas locales, sin enviar mensajes. La API solo conserva la ruta de Gemini protegida para administración. Gemini requiere configuración privada y verificación de producción. |
-| Publicación | Verificada manualmente en producción hoy; funciona. | Comprobación manual del usuario el 24-10-2026; frontend en GitHub Pages y backend en Render. |
+| Landing | Cumple como implementación; GitHub Pages respondió con el HTML de la app. | `frontend/src/pages/HomePage.jsx`. La apariencia completa debe revisarse manualmente en distintos dispositivos. |
+| Catálogo “Favoritos del público” | Cumple como implementación; el flujo público completo no se volvió a probar aquí. | `frontend/src/pages/SmoothiesPage.jsx`, `GET /api/productos` y `POST /api/productos/:id/voto`. Los votos disponibles son pruebas académicas, no una encuesta representativa ni prueba de demanda. |
+| Contacto real | Implementado; envío y persistencia de extremo a extremo no verificados en esta revisión. | `ContactPage.jsx`, `POST /api/solicitudes`, modelo `Solicitud` y MongoDB vía Mongoose. |
+| Panel con login | Implementado; no se probó el login ni una operación administrativa en producción. | `AdminLoginPage.jsx`, `AdminPage.jsx`, bcrypt, JWT y rutas protegidas. |
+| IA aplicada | Parcial. | Gemini está integrado para asistir al administrador con texto de productos; no se probó una llamada de producción. Sorbi es determinista y no usa IA externa. |
+| Publicación | Cumple como publicación configurada; revisión funcional completa pendiente. | La página de GitHub Pages devolvió HTML y `/api/health` respondió `disponible`. La respuesta confirma que el backend veía MongoDB conectado en ese instante, no que todos los formularios o rutas estén operativos. |
 
-## Enlaces de publicación
+Otros requisitos del curso:
 
-- [Aplicación en GitHub Pages](https://danncho.github.io/SmoothieFit/)
-- [Salud de la API en Render](https://smoothiefit-api.onrender.com/api/health) — respondió HTTP 503 el 24-10-2026, código que el servidor usa cuando MongoDB no está disponible.
-- [Repositorio en GitHub](https://github.com/Danncho/SmoothieFit)
+- **React:** implementado con React, React DOM, Vite y `HashRouter`.
+- **Responsive:** existen reglas adaptables y preferencias de movimiento reducido en `frontend/src/styles/base.css`; la revisión visual en tamaños y dispositivos reales es manual y queda pendiente.
+- **Repositorio en GitHub:** el enlace público al repositorio respondió durante esta revisión.
+- **GitHub Pages:** la página respondió el 03-11-2026.
+- **Mínimo de commits:** **no verificado**. El estudiante puede comprobarlo desde la raíz con `git rev-list --count HEAD`; no se ejecutó Git para esta documentación.
 
-## Arquitectura y tecnologías
+## Modelo de negocio — PLAN
 
-| Tecnología | Uso y motivo |
-|---|---|
-| React y React DOM | Construyen la interfaz con componentes que se pueden reutilizar y mantener. |
-| Vite | Sirve el frontend durante el desarrollo y crea archivos estáticos para GitHub Pages. |
-| React Router con `HashRouter` | Cambia de página dentro de un hosting estático sin requerir que GitHub Pages ejecute un servidor de rutas. |
-| Node.js 22 y Express | Ejecutan la API REST y la lógica de servidor en Render. |
-| MongoDB Atlas y Mongoose | Guardan productos, solicitudes de contacto y cuentas administrativas; Mongoose define sus modelos. |
-| bcryptjs y jsonwebtoken | Guardan hashes de contraseñas y emiten/verifican tokens de sesión para el panel. |
-| `fetch` nativo de Node.js | Llama a Gemini desde el backend sin SDK adicional y mantiene la clave fuera del navegador. |
-| CSS | Define el diseño responsive, la paleta y los estados de la interfaz sin una biblioteca visual adicional. |
-| GitHub Pages y Render | Publican por separado la aplicación estática y la API Node.js. |
+Se propone un **único punto piloto pequeño en el Mall del Sol, Guayaquil**. Hoy no hay local abierto. El punto exacto sería de preferencia cerca de un gimnasio, por confirmar. El formato también está por definir: isla o kiosco, local pequeño o rincón dentro de un gimnasio.
 
-Gemini se utiliza únicamente para sugerencias de nombres, descripciones y eslóganes en el panel administrativo. Sorbi es un asistente guiado con reglas deterministas que se ejecutan en el navegador: al abrirse consulta los datos públicos de productos, el local y los ingredientes, y después no envía los mensajes a la API ni a servicios externos. El proyecto se dirige también a menores y los términos de Gemini API no permiten el uso en aplicaciones destinadas a menores o que probablemente accedan a ellas. Las sugerencias administrativas envían a Google solo datos del producto, nunca datos de clientes. En el nivel gratuito, Google puede usar entradas y respuestas para mejorar sus productos; no ingreses información personal o confidencial.
+- **Público prioritario:** jóvenes y adultos activos.
+- **Público secundario:** familias y colegios; la propuesta para colegios está en desarrollo.
+- **Canales en propuesta:** atención en el local si se concreta; pedido para retirar, que ahora es una simulación académica; conversaciones con colegios y posibles alianzas con gimnasios y tiendas de salud. No hay acuerdos confirmados.
+- **Validación del punto:** observar afluencia de público, gimnasios cercanos, arriendo, condiciones y reglas del centro comercial (horarios, agua, electricidad e ingreso de proveedores), y competencia visible.
+- **Validación de demanda antes de abrir:** medir ventas por hora en una prueba piloto y realizar una encuesta de intención de compra. No hay resultados de esas mediciones documentados.
+- **Decisión de crecimiento:** dependerá de los resultados del piloto.
+
+No se han confirmado arriendo, ventas, costos operativos, proveedores, clientes, acuerdos, horario, teléfono ni punto exacto dentro del centro comercial.
+
+## Números financieros — SUPUESTOS del ejemplo
+
+Estos valores son exclusivamente un ejercicio para estimar viabilidad; no son costos, precios, ventas ni proyecciones observadas de SmoothieFit.
+
+- Precio supuesto por smoothie: **USD 3,00**.
+- Costo variable supuesto por unidad: **USD 1,50**.
+- Margen de contribución supuesto por unidad: **USD 1,50**.
+- Costos fijos usados en el escenario central: **USD 5.000 al mes**.
+- Fórmula: **punto de equilibrio en unidades = costos fijos mensuales / margen por unidad**. Se redondea hacia arriba para cubrir los costos.
+
+| Costos fijos mensuales del ejemplo | Unidades aproximadas al mes | Unidades aproximadas al día |
+|---:|---:|---:|
+| USD 3.000 | 2.000 | 67 |
+| USD 4.000 | 2.667 | 89 |
+| USD 5.000 | 3.334 | 111 |
+
+Como regla del ejercicio, cada **USD 1.000** de costos fijos mensuales exige aproximadamente **667 smoothies al mes**, o unos **22 al día**. La referencia diaria usa un mes de 30 días.
+
+El margen de USD 1,50 no incluye mermas, comisiones de cobro ni impuestos. La tabla debe completarse con arriendo, personal, servicios y permisos reales. Los precios del constructor son ejemplos y deben recalcularse con el costo real de cada ingrediente. El punto de equilibrio no es una meta de ventas confirmada.
+
+## Trámites y requisitos por verificar
+
+Esta lista es una guía para consultar con las entidades y el centro comercial; **ningún requisito, categoría, tasa o vigencia está confirmado en este documento**. No sustituye asesoría legal o contable.
+
+- Permiso de funcionamiento de ARCSA para establecimientos de alimentos y bebidas: confirmar categoría aplicable, tasas, vigencia y condiciones.
+- RUC ante el SRI.
+- Patente municipal de Guayaquil.
+- Permiso del Cuerpo de Bomberos.
+- Uso de suelo.
+- Certificados o requisitos aplicables al personal que manipula alimentos.
+- Requisitos propios del centro comercial, incluyendo horarios, agua, electricidad, ingreso de proveedores, formato permitido y condiciones de arriendo.
+
+## Arquitectura
+
+| Parte | Tecnología | Responsabilidad |
+|---|---|---|
+| Sitio | React, React DOM, Vite, `HashRouter` y CSS | Landing, favoritos, constructor, contacto, asistente y panel. |
+| API | Node.js 22, Express y Mongoose | Validación de solicitudes, cálculo del constructor, autenticación y operaciones de administración. |
+| Base de datos | MongoDB Atlas mediante Mongoose | Productos, solicitudes y cuentas administrativas. La conexión observada en `/api/health` estaba disponible durante la comprobación indicada. |
+| Hosting del sitio | GitHub Pages | Publica el build estático del frontend. |
+| Hosting de la API | Render | Ejecuta el backend por separado; CORS permite orígenes expresamente configurados. |
+
+El repositorio contiene `.github/workflows/deploy.yml` para construir y publicar el frontend: se activa con cambios del frontend en `main` o manualmente, instala dependencias con `npm ci`, exige la variable de repositorio `VITE_API_URL` y publica `frontend/dist`. No hay en este repositorio una definición de despliegue automatizado de Render; la configuración actual del servicio debe verificarse en su panel. La página y la salud de la API se consultaron el 03-11-2026, pero no se midieron latencias ni se probaron todas las operaciones.
 
 ## Estructura principal
 
 ```text
 .
-├── backend/
-│   ├── config/              # Conexión de base de datos y reglas estáticas
-│   ├── data/                # JSON de seed y datos de lectura
-│   │   └── sucursales.json  # Ficha del local piloto planificado en Mall del Sol
-│   ├── middleware/          # Verificación de JWT
-│   ├── models/              # Modelos Mongoose
-│   ├── prompts/             # Instrucciones para las sugerencias Gemini de administración
-│   ├── routes/              # Endpoints REST
-│   ├── scripts/             # Seed y creación interactiva del administrador
-│   ├── services/            # Integración Gemini para el panel administrativo
-│   ├── .env.example
-│   └── server.js
-├── frontend/
-│   ├── src/
-│   │   ├── components/      # Header, footer, tarjetas y componentes compartidos
-│   │   │   └── sorbi/       # Widget flotante y chat reutilizable
-│   │   ├── context/         # Estado de autenticación
-│   │   ├── hooks/           # Carga de datos de la interfaz
-│   │   ├── pages/           # Landing, catálogo, contacto, login y administración
-│   │   ├── services/        # Cliente HTTP de la API
-│   │   ├── sorbi/           # Motor puro, conocimiento editable, datos y pruebas
-│   │   └── styles/          # Estilos responsive
-│   └── vite.config.js
-├── .github/workflows/       # Construcción y publicación en GitHub Pages
+├── .github/workflows/deploy.yml
 ├── CONTEXTO.md
-└── docs/
-    └── MIGRACION.md
+├── README.md
+├── docs/MIGRACION.md
+├── backend/
+│   ├── config/                 # Base de datos y reglas del constructor
+│   ├── data/                   # JSON de seed, ingredientes y ficha del punto
+│   ├── middleware/             # Verificación del JWT
+│   ├── models/                 # Producto, Solicitud y Usuario
+│   ├── prompts/                # Instrucciones de Gemini para administración
+│   ├── routes/                 # API Express
+│   ├── scripts/                # Seed y creación del administrador
+│   ├── services/               # Cliente de Gemini
+│   └── server.js
+└── frontend/
+    ├── index.html
+    ├── vite.config.js
+    └── src/
+        ├── components/         # Incluye el chat y widget de Sorbi
+        ├── config/             # Configuración de interfaz
+        ├── context/            # Sesión de administración
+        ├── hooks/              # Carga de datos
+        ├── pages/              # Pantallas de la aplicación
+        ├── services/           # Cliente HTTP
+        ├── sorbi/               # Motor, conocimiento, carga de datos y pruebas
+        ├── styles/
+        └── utils/
 ```
+
+La estructura puede cambiar conforme avance el trabajo; el detalle técnico actualizado está en [docs/MIGRACION.md](./docs/MIGRACION.md).
+
+## API REST
+
+Las rutas se montan bajo `/api`. Las rutas protegidas requieren un JWT de administrador en el encabezado `Authorization`, usando el esquema Bearer.
+
+| Método | Endpoint | Acceso y función |
+|---|---|---|
+| `GET` | `/api/health` | Público; indica si Mongoose está conectado. |
+| `POST` | `/api/auth/login` | Público; valida credenciales y devuelve JWT. |
+| `GET` | `/api/auth/me` | JWT de administrador; comprueba la sesión. |
+| `GET` | `/api/productos` | Público; lista productos. |
+| `GET` | `/api/productos/:id` | Público; consulta un producto. |
+| `POST` | `/api/productos/:id/voto` | Público; registra un voto respetando límites por IP. |
+| `POST`, `PUT`, `DELETE` | `/api/productos` y `/api/productos/:id` | JWT de administrador; gestiona productos. |
+| `GET` | `/api/ingredientes` | Público; devuelve ingredientes de ejemplo desde JSON. |
+| `GET` | `/api/reglas-constructor` | Público; devuelve reglas y valores de ejemplo. |
+| `GET` | `/api/sucursales` | Público; por compatibilidad de nombre, devuelve una lista con la ficha del único punto planificado. |
+| `POST` | `/api/solicitudes` | Público; valida y guarda solicitudes. Para el tipo `pedido`, valida la creación y calcula el precio en el servidor. |
+| `GET`, `PATCH` | `/api/solicitudes` y `/api/solicitudes/:id` | JWT de administrador; consulta solicitudes y actualiza su estado. |
+| `POST` | `/api/ia/admin/generar` | JWT de administrador; solicita sugerencias a Gemini para un producto. |
+
+El límite de solicitudes públicas y los controles de login, votos y Gemini son en memoria; no se comparten entre instancias y se reinician al reiniciar el proceso.
+
+## Votos, constructor y solicitudes
+
+- Los votos se guardan en el producto de MongoDB. El backend limita un voto por producto e IP dentro de una ventana de 24 horas y un máximo de 20 votos por hora desde esa conexión. El navegador también guarda una marca local temporal. Estos límites no prueban identidad y no hacen que los votos sean una encuesta representativa; los conteos de la demostración son pruebas académicas.
+- El constructor carga ingredientes y reglas de ejemplo desde la API. El navegador calcula una estimación para mostrarla; al enviar, el backend vuelve a comprobar los identificadores, tamaño y límites y calcula el precio con sus propias reglas. Así no confía en un precio enviado por el navegador.
+- La solicitud de retiro se guarda como interés académico, con código de referencia. No procesa pago, no confirma inventario ni garantiza retiro. El local del Mall del Sol sigue planificado y no está abierto.
+- Los alérgenos que aparecen proceden de los datos declarados para ingredientes de ejemplo. No son una garantía de ausencia de contaminación cruzada ni de que el producto sea seguro para una persona alérgica.
+
+## Sorbi, Gemini y privacidad
+
+Sorbi normaliza el texto, identifica intenciones y preferencias mediante vocabulario y sinónimos, y tolera ciertos errores de escritura mediante distancia de edición. Sus recomendaciones usan reglas locales y datos públicos previamente cargados; las preguntas se procesan en el navegador, sin enviarse a un modelo o servicio externo. El motor y sus pruebas están en `frontend/src/sorbi/`.
+
+La geolocalización solo se intenta después de una acción del usuario y del permiso del navegador. Si se entregan coordenadas, Sorbi calcula una distancia aproximada en el dispositivo y no envía ni guarda esas coordenadas. Actualmente las coordenadas del punto están por definir; por ello no se puede calcular esa distancia.
+
+Gemini se llama desde el backend únicamente para sugerencias administrativas. El servidor valida campos de producto, filtra entradas con patrones de datos personales, instrucciones evidentes y contenido prohibido, exige una respuesta JSON con opciones de texto y limita longitud y cantidad. Si falla Gemini, una descripción puede generarse con una plantilla local; no es una respuesta de un segundo modelo. La clave permanece en el entorno privado del backend. Como el sitio incluye menores, Gemini no forma parte de la experiencia pública y su uso debe respetar las restricciones vigentes de la API.
+
+## Configuración de entorno
+
+Solo se documentan nombres y propósitos; nunca se deben publicar valores. Los secretos van en el entorno privado del proveedor o en un archivo local ignorado.
+
+| Variable | Dónde | Propósito |
+|---|---|---|
+| `PORT` | Backend | Puerto HTTP; localmente el servidor usa un valor de respaldo. |
+| `CORS_ORIGINS` | Backend | Orígenes frontend permitidos, separados por comas; no se permite `*`. |
+| `MONGODB_URI` | Backend | URI privada para MongoDB Atlas o una base local. |
+| `JWT_SECRET` | Backend | Clave privada de firma JWT; producción requiere al menos 32 caracteres. |
+| `GEMINI_API_KEY`, `MODELO_IA` | Backend | Clave privada y modelo para sugerencias administrativas. |
+| `LIMITE_IA_POR_MINUTO`, `LIMITE_IA_DIARIO` | Backend, opcionales | Límites configurables de sugerencias Gemini; el control reside en memoria. |
+| `VITE_API_URL` | Build frontend / GitHub Actions | Base pública de la API, incluida la ruta `/api`; el workflow la requiere. |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Solo `crear-admin`, opcionales | Permiten creación no interactiva del primer administrador; deben configurarse juntos. |
+| `NODE_ENV` | Backend | El servidor comprueba la longitud del secreto en producción. |
+
+`backend/.env.example` contiene nombres y valores de muestra para configuración; no copies sus marcadores como credenciales reales. No se debe subir ningún `.env`.
 
 ## Ejecutar en local
 
-Requisitos: Node.js 22, npm y una base MongoDB accesible. El archivo `backend/.env.example` contiene marcadores, no credenciales; crea `backend/.env` localmente y reemplaza los marcadores con valores privados. No publiques ese archivo.
+Requisitos: Node.js compatible con el proyecto, npm y una instancia MongoDB accesible. En PowerShell, abre una terminal para cada servicio.
 
-### Backend
-
-En PowerShell:
+Backend:
 
 ```powershell
 cd backend
@@ -82,7 +182,7 @@ npm ci
 Copy-Item .env.example .env
 ```
 
-Completa en `backend/.env` las variables necesarias de la tabla siguiente. Con MongoDB configurado, carga los productos de ejemplo que aún no existan y crea la cuenta administradora:
+Configura las variables necesarias localmente sin compartirlas. Luego:
 
 ```powershell
 npm run seed
@@ -90,153 +190,114 @@ npm run crear-admin
 npm start
 ```
 
-`npm run crear-admin` pide correo y contraseña en la terminal de forma interactiva; la contraseña no se muestra. La contraseña debe tener al menos 12 caracteres. También acepta `ADMIN_EMAIL` y `ADMIN_PASSWORD` como variables de entorno solo para creación no interactiva; deben configurarse juntas y no conviene guardarlas en archivos versionados.
+El seed carga los productos de ejemplo que todavía no existan. `crear-admin` solicita las credenciales de manera interactiva y oculta la contraseña, o admite las dos variables de creación no interactiva documentadas arriba.
 
-### Frontend
-
-En otra terminal:
+Frontend, en otra terminal:
 
 ```powershell
 cd frontend
 npm ci
 npm run dev
-```
-
-Abre la dirección local que indique Vite (normalmente `http://localhost:5173`). En desarrollo Vite reenvía `/api` al backend local en el puerto 3000. El login local está en `/#/admin/login`.
-
-El motor de Sorbi tiene pruebas integradas de Node.js, sin dependencias nuevas:
-
-```powershell
 npm run test:sorbi
+npm run build
 ```
 
-Al abrir Sorbi, el frontend carga una vez los productos, el local y los ingredientes mediante los endpoints públicos existentes. Sus reglas se ejecutan en el navegador; después de esa carga, los mensajes no se envían a la API ni a servicios externos.
+Vite muestra la dirección local. Su proxy envía `/api` al backend local. La prueba de Sorbi usa `node:test` y no requiere servicio externo.
 
-### Variables de entorno
+## Guía de trámites antes de operar
 
-Configura cada variable en el entorno privado del backend (Render para producción). En GitHub Actions, `VITE_API_URL` se configura como una variable del repositorio, no como secreto, porque forma parte del bundle público.
+Verifica con ARCSA la categoría, tasas y vigencia aplicables al permiso de funcionamiento de alimentos y bebidas. También consulta RUC con el SRI, patente municipal de Guayaquil, Cuerpo de Bomberos, uso de suelo, requisitos/certificados del personal que manipule alimentos y condiciones propias del centro comercial. **Todo está por verificar; este repositorio no acredita que un trámite se haya iniciado, aprobado o pagado.**
 
-| Variable | Dónde | Propósito |
-|---|---|---|
-| `PORT` | Backend | Puerto del servidor; Render lo proporciona y localmente se usa 3000 si falta. |
-| `CORS_ORIGINS` | Backend | Lista separada por comas de orígenes frontend permitidos; debe incluir el origen publicado y los de desarrollo que se utilicen. No admite `*`. |
-| `MONGODB_URI` | Backend | URI privada de conexión a MongoDB Atlas o a una instancia MongoDB local. |
-| `JWT_SECRET` | Backend | Clave privada para firmar/verificar JWT; en producción debe tener al menos 32 caracteres. |
-| `GEMINI_API_KEY` | Backend | Clave privada de Google AI Studio; solo se usa al generar sugerencias en administración. |
-| `MODELO_IA` | Backend | Identificador vigente de un modelo Gemini compatible con `generateContent`; no hay valor predeterminado. |
-| `LIMITE_IA_POR_MINUTO` | Backend, opcional | Tope global de generación Gemini por minuto; valor de respaldo: 5. |
-| `LIMITE_IA_DIARIO` | Backend, opcional | Tope global diario de generación Gemini; valor de respaldo: 100. |
-| `VITE_API_URL` | Frontend durante build | URL base de la API, incluido `/api`; requerida por el workflow de GitHub Pages. En desarrollo, Vite usa su proxy local. |
-| `ADMIN_EMAIL` y `ADMIN_PASSWORD` | Solo proceso `crear-admin`, opcionales | Credenciales iniciales para crear el primer administrador sin preguntas interactivas. No son necesarias al ejecutar el servidor. |
-| `NODE_ENV` | Backend | Render lo define para producción; el servidor comprueba la longitud de `JWT_SECRET` en ese modo. |
+## Mejoras futuras (no implementadas)
 
-## API REST
-
-Las rutas se montan bajo `/api`. El token de administrador se envía en el encabezado `Authorization: Bearer <token>` para endpoints protegidos.
-
-| Método | Endpoint | Acceso y función |
-|---|---|---|
-| `GET` | `/api/health` | Público; informa disponibilidad de MongoDB. |
-| `POST` | `/api/auth/login` | Público; valida credenciales y devuelve un JWT de dos horas. |
-| `GET` | `/api/auth/me` | JWT admin; valida la sesión actual. |
-| `GET` | `/api/productos` | Público; lista el catálogo desde MongoDB. |
-| `GET` | `/api/productos/:id` | Público; consulta un producto. |
-| `POST` | `/api/productos` | JWT admin; crea un producto. |
-| `PUT` | `/api/productos/:id` | JWT admin; actualiza un producto. |
-| `DELETE` | `/api/productos/:id` | JWT admin; elimina un producto. |
-| `GET` | `/api/ingredientes` | Público; lista ingredientes estáticos de ejemplo. |
-| `GET` | `/api/reglas-constructor` | Público; expone tamaños, precios y límites de selección de ejemplo para el constructor. |
-| `GET` | `/api/sucursales` | Público; devuelve la lista de locales desde `backend/data/sucursales.json`. |
-| `POST` | `/api/solicitudes` | Público; valida y guarda una solicitud en MongoDB. Para `tipo: "pedido"` acepta opcionalmente una creación, la valida y calcula su precio en el servidor. |
-| `GET` | `/api/solicitudes` | JWT admin; consulta solicitudes. |
-| `PATCH` | `/api/solicitudes/:id` | JWT admin; actualiza el estado permitido de una solicitud. |
-| `POST` | `/api/ia/admin/generar` | JWT admin; genera hasta tres sugerencias de producto con Gemini. Si Gemini no está configurado o falla, una descripción puede usar una plantilla local; nombres y eslóganes requieren que el servicio responda. |
-
-## Estado de datos y limitaciones
-
-- Productos y solicitudes se guardan en MongoDB cuando la base está disponible. `backend/data/productos.json` es la fuente para el seed y los productos iniciales son ejemplos; los ingredientes y reglas se leen de JSON.
-- El backend publicado responde actualmente HTTP 503 en `/api/health`, que según `server.js` indica que MongoDB no está conectado. Por eso el catálogo, el envío de contacto, el login y la generación Gemini no están confirmados de extremo a extremo en producción.
-- Los límites de intentos y sugerencias se guardan en memoria: al reiniciar o escalar a varias instancias no son un control compartido.
-- El JWT se guarda en `sessionStorage`; no hay renovación automática.
-- `/crea-tu-smoothie` ofrece un constructor con ingredientes y precios de ejemplo. El servidor vuelve a validar cada pedido, calcula el precio y asigna el local y un código de retiro. Es una simulación académica: el local del Mall del Sol sigue planificado y la solicitud expresa interés, no confirma una compra ni una entrega.
-- `backend/data/sucursales.json` contiene un único local piloto planificado en Mall del Sol, Guayaquil; todavía no está abierto. El crecimiento dependerá de los resultados del piloto y no hay otro local planificado.
-- El pie de página no muestra enlaces sociales; se añadirán cuando existan perfiles oficiales.
-- La versión anterior archivada en el tag histórico `v1-js-puro` incluye textos como “ingredientes 100% naturales” y “garantizar frescura y naturalidad”. No forma parte del build de React y esas frases no deben reutilizarse como afirmaciones verificadas.
-- Hay animaciones pequeñas de aparición en la interfaz; queda como mejora futura probar y pulir el movimiento en dispositivos reales y verificar las preferencias de movimiento reducido.
-
-## Mejoras futuras
-
-1. Recuperar la disponibilidad de MongoDB y comprobar en producción el catálogo, el formulario, el login y las rutas administrativas.
-2. Configurar y probar Gemini solo después de revisar los términos y la privacidad; nunca trasladar su llamada a la experiencia pública de Sorbi.
-3. Mantener el constructor con precios de ejemplo hasta disponer de costos confirmados; verificar el guardado y la consulta de solicitudes en producción cuando MongoDB esté disponible.
-4. Añadir enlaces sociales cuando existan perfiles oficiales.
-5. Mejorar la escalabilidad de los límites de uso, el manejo de sesión y las pruebas automatizadas.
-6. Probar diseño responsive, accesibilidad y animaciones en dispositivos y navegadores reales.
-7. Consultar el tag histórico `v1-js-puro` solo si hace falta revisar la versión anterior; no volver a integrar sus textos no verificados.
-
-### Actualizar la ficha del local
-
-Edita `backend/data/sucursales.json` manteniendo cada objeto válido. `destinoMapa` acepta un texto o `null`; `lat` y `lng` deben ser ambos coordenadas numéricas válidas o ambos `null`. Cuando haya coordenadas, la web usa un mapa de OpenStreetMap y un enlace de direcciones por coordenadas. Sin coordenadas, `destinoMapa` permite abrir indicaciones de Google Maps; sin coordenadas ni destino, se muestra “Ubicación por confirmar”.
-
-Para completar la ficha del local, reemplaza `lat` y `lng` por las coordenadas del punto confirmado, `horario` por el horario confirmado y `telefono` por el teléfono confirmado. Hasta confirmar esa información, conserva los valores `null`. Cambia `estado` solo cuando el plan avance: `planificada`, `proxima` o `abierta`; no marques el local como abierto antes de abrirlo. La validación acepta una o más fichas y rechaza tipos incorrectos, coordenadas fuera de rango y estados desconocidos.
-
-### Constructor y precios de ejemplo
-
-`backend/data/ingredientes.json` contiene ingredientes de ejemplo y `backend/config/constructorRules.js` es la fuente única de tamaños, precios de tamaño y reglas de selección. El catálogo del constructor carga ambas listas desde `GET /api/ingredientes` y `GET /api/reglas-constructor`; no mantiene una copia de precios o límites.
-
-El servidor acepta una creación junto a los campos habituales de `POST /api/solicitudes` cuando `tipo` es `pedido`. Comprueba los IDs contra el catálogo, valida tamaño, base y cantidades, vuelve a calcular el precio e ignora valores de precio o local enviados por el navegador. Asigna el local planificado desde `backend/data/sucursales.json` y crea el código de retiro. El panel admin muestra estos datos. Nombre y correo son necesarios para registrar el interés; la nota es opcional y no debe contener datos personales.
-
-Los precios y los ingredientes son ejemplos académicos, no precios comerciales: tamaño pequeño USD 2,50, mediano USD 3,00 y grande USD 3,75; base de agua USD 0,00, leche USD 0,25 y bebida vegetal o yogur USD 0,40; frutas y verduras USD 0,20 cada una; extras USD 0,30 cada uno. Se requiere una base, al menos una fruta, máximo cuatro frutas y verduras en conjunto, y máximo dos extras. El valor real del producto requeriría calcular costos confirmados.
+- Añadir animaciones suaves y revisarlas respetando la preferencia de movimiento reducido.
+- Preparar una tabla de costos reales por ingrediente antes de fijar precios comerciales.
+- Desarrollar un script seguro para cambiar la contraseña administrativa y un reinicio de votos protegido.
+- Hacer configurable el límite de solicitudes públicas.
+- Simplificar el menú si la revisión de contenido lo justifica.
+- Considerar cualquier expansión solo si los resultados del piloto la justifican; el plan actual sigue siendo validar un punto piloto.
 
 ## Guía breve de defensa
 
 ### Resumen de un minuto
 
-SmoothieFit separa la interfaz y los servicios. El frontend está hecho con React y Vite, usa `HashRouter` y se publica como archivos estáticos en GitHub Pages. Hace solicitudes HTTP a una API REST de Express desplegada por separado en Render. La API usa Mongoose para guardar productos, solicitudes y usuarios en MongoDB. Para el panel, las contraseñas se guardan como hashes con bcrypt y el servidor entrega JWT que protegen las operaciones administrativas. Gemini solo se usa desde ese panel para sugerir nombres, descripciones y eslóganes. Sorbi usa un motor determinista en el navegador y datos públicos del sitio; los mensajes no se transmiten. La publicación del frontend está disponible, pero el backend actualmente responde 503 en su chequeo de salud, así que falta recuperar y probar el funcionamiento completo.
+“SmoothieFit separa la web del servidor. La web está hecha con React y Vite y se publica en GitHub Pages. Se comunica con una API de Express que corre por separado en Render; esa API usa Mongoose para guardar productos, solicitudes y usuarios en MongoDB Atlas. El panel inicia sesión con una contraseña comparada mediante bcrypt y recibe un JWT para las operaciones privadas. El constructor muestra un cálculo orientativo, pero el servidor valida las opciones y vuelve a calcular el precio. El pedido para retirar es solo una simulación porque el único local propuesto en el Mall del Sol todavía no está abierto. Sorbi entiende preguntas con reglas en el navegador y no usa servicios externos; Gemini está restringido a sugerencias del panel. La idea de negocio sigue en etapa de planificación y debe validarse antes de abrir.”
 
-### 15 preguntas probables
+### Veinte preguntas probables
 
-1. **¿Qué es React y por qué lo usamos?**  
-   React permite construir la interfaz con piezas reutilizables llamadas componentes y actualizar la pantalla cuando cambian los datos.
+1. **¿Por qué proponen un solo punto piloto?**  
+   “Para concentrar la validación en un lugar concreto y no asumir que la demanda existe. Primero mediríamos ventas por hora en una prueba piloto y preguntaríamos la intención de compra.”
 
-2. **¿Qué es un componente?**  
-   Es una parte independiente de la interfaz, por ejemplo el encabezado, una tarjeta de producto o una página.
+2. **¿Por qué el Mall del Sol y qué falta decidir?**  
+   “Es el lugar propuesto en Guayaquil. Preferimos explorar un punto cerca de un gimnasio, pero el lugar exacto y el formato —isla, kiosco, local pequeño o rincón en un gimnasio— están por confirmar. No tenemos un local abierto.”
 
-3. **¿Para qué sirven los hooks?**  
-   Hooks como `useState` guardan el estado de la pantalla; `useEffect` permite sincronizarse con servicios o eventos; los hooks propios reutilizan lógica.
+3. **¿Cómo elegirían el punto exacto?**  
+   “Revisaríamos afluencia, gimnasios cercanos, arriendo, competencia visible y reglas del centro comercial sobre horario, agua, electricidad e ingreso de proveedores.”
 
-4. **¿Qué significa que la API sea REST?**  
-   Que ofrece rutas HTTP con operaciones claras: `GET` consulta, `POST` crea, `PUT` reemplaza o actualiza y `DELETE` elimina.
+4. **¿Cómo interpretan el punto de equilibrio?**  
+   “Divido los costos fijos mensuales por el margen que deja cada unidad. Con los supuestos del ejercicio, USD 5.000 dividido para USD 1,50 da aproximadamente 3.334 unidades al mes, redondeando hacia arriba. No es un pronóstico.”
 
-5. **¿Dónde se guardan los datos?**  
-   Productos, solicitudes y usuarios usan modelos Mongoose conectados a MongoDB. Algunos datos estáticos, como reglas e ingredientes de ejemplo, siguen en JSON.
+5. **¿Qué significan los escenarios de costos?**  
+   “Son ejemplos: con USD 3.000 serían cerca de 2.000 unidades al mes; con USD 4.000, unas 2.667; y con USD 5.000, unas 3.334. Cada USD 1.000 adicional requiere alrededor de 667 unidades mensuales. Hay que reemplazarlos con costos reales.”
 
-6. **¿Cómo funciona el login y qué es JWT?**  
-   El backend compara la contraseña con su hash bcrypt y, si es correcta, entrega un token firmado que vence en dos horas. Las rutas privadas verifican ese token y el rol admin.
+6. **¿Qué no incluye ese margen?**  
+   “No incluye mermas, comisiones de cobro ni impuestos. Tampoco es un margen medido: el precio y costo variable son supuestos. Debemos cotizar ingredientes y completar arriendo, personal, servicios y permisos.”
 
-7. **¿Por qué Gemini solo se usa en el panel?**  
-   SmoothieFit también se dirige a menores y los términos de Gemini API no permiten su uso en apps dirigidas a menores o probablemente accesibles por ellos. Por eso la llamada está protegida y separada de Sorbi público.
+7. **¿Qué trámites faltan para abrir?**  
+   “Debemos verificar con las entidades ARCSA y su categoría, tasas y vigencia; el RUC del SRI; patente municipal; Bomberos; uso de suelo; requisitos del personal manipulador y las reglas del centro comercial. No afirmamos que estén aprobados.”
 
-8. **¿Qué es la inyección de instrucciones y cómo se mitiga?**  
-   Es texto de entrada que intenta hacer que un modelo ignore sus reglas. Se limita la entrada a campos de producto, se buscan patrones evidentes de inyección y el prompt dice que esos campos son datos, no órdenes. Ninguna defensa es perfecta.
+8. **¿Cómo se calcula el precio del constructor?**  
+   “El código suma el valor base del tamaño, la base y los ingredientes elegidos. Hoy esos valores son de ejemplo. Para vender, primero haríamos una tabla con el costo real de cada ingrediente.”
 
-9. **¿Por qué se valida la salida de Gemini?**  
-   Porque el modelo puede devolver contenido inventado o un formato inesperado. El backend exige JSON, limita la cantidad y longitud de opciones y descarta expresiones prohibidas antes de mostrarlas.
+9. **¿Por qué se recalcula el precio en el servidor?**  
+   “El navegador se puede modificar. El servidor vuelve a validar los IDs y las reglas y calcula con sus propios datos, así no acepta como verdadero un precio enviado por el cliente.”
 
-10. **¿Qué es el respaldo sin IA?**  
-    Si Gemini no está configurado o falla, para descripciones se forma una frase con el nombre e ingredientes ingresados. No hace una llamada alternativa a otro modelo.
+10. **¿Cómo funcionan los votos y qué limitaciones tienen?**  
+    “El servidor suma el voto al producto y limita por IP: un voto al mismo producto en 24 horas y hasta 20 votos por hora. El navegador también recuerda temporalmente el voto. No comprueba identidad y los conteos actuales son pruebas, no evidencia de preferencia del mercado.”
 
-11. **¿Qué implica el nivel gratuito para la privacidad?**  
-    Google puede usar entradas y respuestas para mejorar productos y permitir revisión humana. Por eso el formulario administrativo envía solo datos del producto y no se deben escribir datos personales o confidenciales.
+11. **¿El pedido del constructor es una venta?**  
+    “No. Es una solicitud de interés para un retiro hipotético. No hay pago, inventario ni retiro confirmado, porque el local sigue en plan.”
 
-12. **¿Qué es CORS?**  
-    Es una regla del navegador que controla qué sitios pueden leer respuestas de la API. El backend permite orígenes configurados explícitamente y rechaza el comodín `*`.
+12. **¿Cómo entiende Sorbi una pregunta?**  
+    “Normaliza mayúsculas, tildes y signos, compara el texto con intenciones, palabras clave y sinónimos, y luego aplica reglas para responder o recomendar.”
 
-13. **¿Por qué frontend y backend están en servicios distintos?**  
-    GitHub Pages sirve archivos estáticos; no ejecuta Express. Render mantiene el servidor Node.js y la API, y CORS permite que la web autorizada se conecte.
+13. **¿Cómo tolera errores de escritura?**  
+    “Compara palabras con distancia de edición, que cuenta cambios de letras. El límite es pequeño y depende del largo de la palabra, así que puede fallar; no es comprensión humana.”
 
-14. **¿Por qué el servidor gratuito puede tardar la primera vez?**  
-    Si el servicio de Render usa una instancia gratuita que se duerme después de inactividad, tiene que arrancar al llegar una nueva petición. Ese inicio en frío puede demorar la primera respuesta.
+14. **¿Por qué Sorbi corre en el navegador y no usa IA?**  
+    “Sus reglas son deterministas, simples de explicar y sus respuestas no necesitan un modelo externo. Carga datos públicos y luego procesa el texto localmente; así no manda la conversación a otro servicio.”
 
-15. **¿Cuáles son las limitaciones actuales?**  
-    El backend publicado devuelve 503 en salud; por eso no se ha confirmado la persistencia pública. El constructor React está implementado y registra una simulación de creación; los datos iniciales son ejemplos y varios límites de uso solo viven en memoria.
+15. **¿Por qué Gemini está solo en el panel?**  
+    “El sitio también puede ser usado por menores y los términos de la API tienen restricciones para ese tipo de aplicación. Por prudencia lo limitamos a la asistencia administrativa y debemos revisar los términos vigentes antes de habilitarlo.”
+
+16. **¿Qué hace Gemini y cómo revisan lo que devuelve?**  
+    “Propone nombres, descripciones o eslóganes para productos. El backend valida los campos, pide JSON, comprueba que las opciones sean texto, limita su cantidad y largo, y filtra expresiones prohibidas. La salida aún requiere criterio humano.”
+
+17. **¿Qué datos envía Sorbi y cómo maneja la ubicación?**  
+    “Las preguntas de Sorbi no salen del navegador. Si la persona pide calcular distancia, el navegador solicita permiso y calcula con coordenadas; actualmente esas coordenadas están por definir. La distancia no se envía ni se guarda.”
+
+18. **¿Cómo protegen el panel y por qué CORS?**  
+    “La contraseña se compara con su hash bcrypt. El backend firma un JWT y exige que las rutas privadas verifiquen el token y rol. CORS limita qué orígenes web pueden llamar a la API; no reemplaza la autenticación.”
+
+19. **¿Por qué podría tardar en responder Render?**  
+    “Si el servicio está en un plan que entra en reposo, puede tardar en despertar después de inactividad. No verificamos aquí el plan ni medimos esa demora; hoy el chequeo de salud sí respondió disponible.”
+
+20. **¿Qué limitaciones tienen los alérgenos y qué harían con más tiempo?**  
+    “Mostramos lo declarado para cada ingrediente, pero no podemos garantizar ausencia de contaminación cruzada. Después completaríamos costos reales, revisaríamos el sitio en dispositivos, mejoraríamos animaciones y límites, y estudiaríamos cualquier expansión solo si el piloto lo justifica.”
+
+## Comprobaciones manuales antes de la defensa
+
+- Abrir GitHub Pages en un teléfono y una computadora; probar navegación, imágenes y tamaños de texto.
+- Probar en entorno controlado catálogo, voto, formulario, constructor, login, edición de producto y solicitudes; no usar datos personales de terceros.
+- Confirmar en `GET /api/health` que la base está disponible y comprobar que el formulario de prueba se guarde y aparezca en el panel; retirar los datos de prueba después según el procedimiento autorizado.
+- Verificar que no se revelen credenciales en el navegador y que las variables privadas estén solo en el proveedor correspondiente.
+- Consultar y documentar requisitos, categorías, tasas y vigencias con cada entidad y con el centro comercial; no anunciar apertura antes de confirmar el local y sus permisos.
+- Comprobar el total de commits con el comando indicado y preparar una explicación propia de cada parte del proyecto.
+
+## Referencias
+
+- [Contexto del proyecto](./CONTEXTO.md)
+- [Guía técnica, rutas, variables y estado](./docs/MIGRACION.md)
+- [Repositorio SmoothieFit](https://github.com/Danncho/SmoothieFit)
+- [Aplicación en GitHub Pages](https://danncho.github.io/SmoothieFit/)
+- [Chequeo de salud de la API](https://smoothiefit-api.onrender.com/api/health)

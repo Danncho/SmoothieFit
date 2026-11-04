@@ -33,14 +33,14 @@ function HomePage() {
         <div className="container hero-inner">
           <div className="hero-copy">
             <p className="eyebrow">Un momento rico, a tu manera</p>
-            <h1>Fruta, color y buen sabor en cada sorbo</h1>
+            <h1>Fruta, color y buen sabor</h1>
             <p>
-              Smoothies hechos con frutas, verduras y semillas de productores locales.
-              Explora el catálogo y encuentra una mezcla para disfrutar.
+              Smoothies hechos con productos de origen nacional.
+              Explora el catálogo y encuentra tu mezcla favorita.
             </p>
             <div className="hero-actions">
               <Link className="button button-primary" to="/smoothies">Ver smoothies</Link>
-              <Link className="button button-secondary" to="/asistente">Pregúntale a Sorbi</Link>
+              <Link className="button button-secondary" to="/asistente">Sorbi ¡Ayuda!</Link>
             </div>
           </div>
           <div className="hero-art" role="img" aria-label="Ilustración de un smoothie sonriente con sorbete">
@@ -77,9 +77,9 @@ function HomePage() {
       <section className="home-section featured-section" aria-labelledby="featured-title">
         <div className="container">
           <SectionTitle
-            eyebrow="Elegidos por la gente"
+            eyebrow="Los mas elegidos"
             title="Favoritos"
-            description={hayVotos ? 'Los smoothies con más votos del público.' : 'Mezclas para empezar'}
+            description={hayVotos ? 'Los smoothies con más votos del público.' : 'Elige tu favorito'}
             id="featured-title"
           />
           <ProductsStatus
@@ -110,7 +110,7 @@ function HomePage() {
           <div>
             <p className="eyebrow">A tu manera</p>
             <h2>Constructor de smoothies</h2>
-            <p>Elige una base, combina ingredientes y revisa el resumen de tu creación.</p>
+            <p>Elige una base, combina ingredientes y crea tu propio smoothie.</p>
           </div>
           <Link className="button button-primary" to="/crea-tu-smoothie">Crea tu smoothie</Link>
         </div>
@@ -120,7 +120,7 @@ function HomePage() {
         <SectionTitle
           eyebrow="Ubicación en planificación"
           title="Dónde estaremos"
-          description="Nuestro único local piloto está planificado en Mall del Sol; todavía no hemos abierto."
+          description="Nuestro único local piloto está planificado en Mall del Sol."
           id="home-branches-title"
         />
         {sucursalesLoading && <p role="status">Cargando ubicaciones...</p>}
@@ -138,7 +138,7 @@ function HomePage() {
           </div>
         )}
         <p>
-          El crecimiento dependerá de los resultados del piloto; por ahora, no hay otro local planificado.
+          El crecimiento dependerá de los resultados del piloto.
         </p>
       </section>
 
