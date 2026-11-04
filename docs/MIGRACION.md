@@ -11,8 +11,9 @@ smoothiefit/
 │       └── deploy.yml
 ├── .gitignore
 ├── CONTEXTO.md
-├── MIGRACION.md
 ├── README.md
+├── docs/
+│   └── MIGRACION.md
 ├── backend/
 │   ├── .env                         (local, ignorado por Git)
 │   ├── .env.example
@@ -22,7 +23,8 @@ smoothiefit/
 │   ├── data/
 │   │   ├── .gitkeep
 │   │   ├── ingredientes.json
-│   │   └── productos.json
+│   │   ├── productos.json
+│   │   └── sucursales.json
 │   ├── middleware/
 │   │   └── verificarToken.js
 │   ├── models/
@@ -39,7 +41,8 @@ smoothiefit/
 │   │   ├── productos.js
 │   │   ├── reglas-constructor.js
 │   │   ├── solicitudes-admin.js
-│   │   └── solicitudes.js
+│   │   ├── solicitudes.js
+│   │   └── sucursales.js
 │   ├── scripts/
 │   │   ├── crear-admin.js
 │   │   └── seed.js

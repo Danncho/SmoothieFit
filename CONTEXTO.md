@@ -48,7 +48,7 @@ Completar SmoothieFit como proyecto web académico y prepararlo para defenderlo 
 - Entregar una landing, un catálogo, contacto real, un panel admin con login, una función de IA con respaldo y una publicación disponible en internet.
 - Usar React en el frontend, Git con mínimo 15 commits, un repositorio GitHub y GitHub Pages para el frontend.
 - Mantener diseño responsive y elegir dependencias que el estudiante pueda justificar y explicar.
-- El estado real revisado y la evidencia disponible están en `MIGRACION.md`. El archivo `.git/config` identifica el remoto `Danncho/SmoothieFit`; no se verificaron el historial de commits, la visibilidad pública ni una URL de despliegue.
+- El estado real revisado y la evidencia disponible están en `docs/MIGRACION.md`. El archivo `.git/config` identifica el remoto `Danncho/SmoothieFit`; no se verificaron el historial de commits, la visibilidad pública ni una URL de despliegue.
 
 ## Estado del proyecto
 

@@ -48,7 +48,7 @@ Gemini se utiliza únicamente para sugerencias de nombres, descripciones y esló
 │   ├── prompts/             # Instrucciones para las sugerencias Gemini de administración
 │   ├── routes/              # Endpoints REST
 │   ├── scripts/             # Seed y creación interactiva del administrador
-│   ├── services/            # Integración Gemini y respuesta pública antigua sin uso
+│   ├── services/            # Integración Gemini para el panel administrativo
 │   ├── .env.example
 │   └── server.js
 ├── frontend/
@@ -64,7 +64,8 @@ Gemini se utiliza únicamente para sugerencias de nombres, descripciones y esló
 │   └── vite.config.js
 ├── .github/workflows/       # Construcción y publicación en GitHub Pages
 ├── CONTEXTO.md
-└── MIGRACION.md
+└── docs/
+    └── MIGRACION.md
 ```
 
 ## Ejecutar en local
@@ -238,4 +239,4 @@ SmoothieFit separa la interfaz y los servicios. El frontend está hecho con Reac
     Si el servicio de Render usa una instancia gratuita que se duerme después de inactividad, tiene que arrancar al llegar una nueva petición. Ese inicio en frío puede demorar la primera respuesta.
 
 15. **¿Cuáles son las limitaciones actuales?**  
-    El backend publicado devuelve 503 en salud; por eso no se ha confirmado la persistencia pública. El constructor React es un placeholder, los datos iniciales son ejemplos y varios límites de uso solo viven en memoria.
+    El backend publicado devuelve 503 en salud; por eso no se ha confirmado la persistencia pública. El constructor React está implementado y registra una simulación de creación; los datos iniciales son ejemplos y varios límites de uso solo viven en memoria.
