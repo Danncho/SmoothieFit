@@ -8,25 +8,6 @@ const values = [
   { title: 'Colaboración', description: 'Aprender en equipo y reconocer el aporte de productores y aliados.' }
 ];
 
-const teamAreas = [
-  {
-    title: 'Nutrición y desarrollo de producto',
-    description: 'Propone combinaciones, organiza la información de ingredientes y ayuda a presentar cada producto con claridad.'
-  },
-  {
-    title: 'Marketing',
-    description: 'Comparte la personalidad de SmoothieFit y busca formas cercanas de conversar con sus públicos.'
-  },
-  {
-    title: 'Logística',
-    description: 'Organiza ideas para coordinar ingredientes, preparación y posibles entregas del proyecto.'
-  },
-  {
-    title: 'Finanzas',
-    description: 'Apoya la organización de costos, precios de ejemplo y recursos necesarios para desarrollar la propuesta.'
-  }
-];
-
 function AboutPage() {
   return (
     <div className="container page-content info-page">
@@ -79,26 +60,6 @@ function AboutPage() {
             <article className="card value-card" key={value.title}>
               <h3>{value.title}</h3>
               <p>{value.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-      <section className="info-section info-section-soft">
-        <SectionTitle
-          eyebrow="Cada idea suma"
-          title="Nuestro equipo"
-          description="Estos espacios están listos para agregar fotos y nombres del equipo del proyecto."
-          level="h2"
-        />
-        <div className="grid team-grid">
-          {teamAreas.map((area) => (
-            <article className="card team-card" key={area.title}>
-              <div className="team-photo" role="img" aria-label={`Espacio para foto: ${area.title}`}>
-                Foto del equipo
-              </div>
-              <h3>{area.title}</h3>
-              <p className="team-name">Nombre del integrante</p>
-              <p>{area.description}</p>
             </article>
           ))}
         </div>
