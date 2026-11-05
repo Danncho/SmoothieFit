@@ -301,7 +301,7 @@ function ContactPage() {
             </p>
           )}
           <p className="privacy-note">
-            Usaremos tus datos solo para responder a esta solicitud. SmoothieFit es un proyecto académico.
+            Usaremos tus datos solo para responder a esta solicitud.
           </p>
           {message && (
             <p className={isSuccess ? 'form-success' : 'form-error'} role={isSuccess ? 'status' : 'alert'}>

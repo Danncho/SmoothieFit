@@ -5,7 +5,6 @@ const values = [
   { title: 'Cercanía', description: 'Escuchar, conversar y tratar a cada persona con amabilidad.' },
   { title: 'Creatividad', description: 'Disfrutar el proceso de probar combinaciones y compartir ideas.' },
   { title: 'Transparencia', description: 'Contar con claridad qué es una propuesta, un ejemplo o una meta por cumplir.' },
-  { title: 'Colaboración', description: 'Aprender en equipo y reconocer el aporte de productores y aliados.' }
 ];
 
 function AboutPage() {

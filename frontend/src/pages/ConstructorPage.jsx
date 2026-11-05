@@ -554,7 +554,7 @@ function ConstructorPage() {
           <section className="constructor-order" aria-labelledby="order-title">
             <h2 id="order-title">Guardar mi creación y pedirla para retirar</h2>
             <p className="constructor-simulation">
-              Simulación académica: todavía no abrimos el local en el Mall del Sol; tu creación queda registrada como interés.
+              Simulación: todavía no abrimos el local en el Mall del Sol; tu creación queda registrada como interés.
               {datos.local.estado === 'planificada' && ' El local está planificado.'}
             </p>
             <p>
