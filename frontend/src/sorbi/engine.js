@@ -348,11 +348,17 @@ export function buildAssistantReply(message, data) {
   return { intents, responses, shouldRecommend };
 }
 
+function joinNaturalList(items) {
+  if (items.length < 2) return items[0] || '';
+  return `${items.slice(0, -1).join(', ')} y ${items[items.length - 1]}`;
+}
+
 export function recommendationReason(result) {
-  const matchingLabels = [...result.tasteMatches, ...result.momentMatches];
+  const matchingLabels = [...new Set([...result.tasteMatches, ...result.momentMatches])];
   const ingredientNames = Array.isArray(result.product.ingredientes)
-    ? result.product.ingredientes.join(', ')
+    ? joinNaturalList(result.product.ingredientes)
     : '';
   if (!matchingLabels.length) return `Te la sugiero por sus ingredientes: ${ingredientNames}.`;
-  return `Coincide con los sabores ${matchingLabels.join(', ')}; lleva ${ingredientNames}.`;
+  const labelDescription = joinNaturalList(matchingLabels);
+  return `Te la recomendamos por su perfil ${labelDescription}; lleva ${ingredientNames}.`;
 }

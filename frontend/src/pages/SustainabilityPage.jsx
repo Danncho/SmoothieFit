@@ -27,7 +27,7 @@ function SustainabilityPage() {
           eyebrow="Nuestro punto de partida"
           title="Un empaque pensado con cuidado"
           description="Estamos definiendo opciones para presentar nuestros smoothies de forma práctica, sin dejar de pensar en los residuos que pueden generar."
-          level="h2"
+          level="h1"
         />
         <div className="grid info-card-grid sustainability-grid">
           {packagingIdeas.map((idea) => (

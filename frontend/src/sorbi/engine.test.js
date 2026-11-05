@@ -9,6 +9,7 @@ import {
   getInputIssue,
   getDirectionsUrl,
   normalizeText,
+  recommendationReason,
   scoreProducts
 } from './engine.js';
 
@@ -94,6 +95,19 @@ test('excluye productos que incluyen un ingrediente a evitar', () => {
     avoidIngredients: [ingredients[1]]
   });
   assert.ok(ranked.every(({ product }) => !product.ingredientes.includes('mango')));
+});
+
+test('no repite etiquetas en una explicación de recomendación', () => {
+  const ranked = scoreProducts([{
+    id: 4,
+    nombre: 'Banano con Cacao',
+    ingredientes: ['banano', 'cacao', 'avena']
+  }], { tastes: ['dulce'], moment: 'snack', avoidIngredients: [] });
+
+  assert.equal(
+    recommendationReason(ranked[0]),
+    'Te la recomendamos por su perfil dulce y cremoso; lleva banano, cacao y avena.'
+  );
 });
 
 test('calcula la distancia Haversine entre dos puntos conocidos', () => {
