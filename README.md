@@ -4,7 +4,7 @@ SmoothieFit es un proyecto académico que presenta una propuesta de smoothies, u
 
 ## Estado de los entregables
 
-Evaluación actualizada el 05-11-2026. Se comprobaron manualmente en producción la landing, la publicación con carga de datos, los votos, contacto, constructor y pedido, el login del administrador, Gemini en el panel y Sorbi. Las operaciones administrativas de editar o borrar productos y cambiar el estado de solicitudes no se probaron.
+Evaluación actualizada el 05-11-2026. Se comprobaron manualmente en producción la landing, la publicación con carga de datos, los votos, contacto, constructor y pedido, el login del administrador, la creación, edición y eliminación de un producto de prueba, el cambio de estado de una solicitud, Gemini en el panel y Sorbi.
 
 | Entregable | Estado real | Evidencia y límite |
 |---|---|---|
@@ -12,7 +12,7 @@ Evaluación actualizada el 05-11-2026. Se comprobaron manualmente en producción
 | Catálogo “Favoritos del público” | Verificado manualmente en producción hoy: votos. | `frontend/src/pages/SmoothiesPage.jsx`, `GET /api/productos` y `POST /api/productos/:id/voto`. Los votos disponibles son pruebas académicas, no una encuesta representativa ni prueba de demanda. |
 | Contacto real | Verificado manualmente en producción hoy. | `ContactPage.jsx`, `POST /api/solicitudes`, modelo `Solicitud` y MongoDB vía Mongoose. |
 | Constructor y pedido | Verificado manualmente en producción hoy. | `ConstructorPage.jsx`; la creación y el pedido siguen siendo una simulación académica. |
-| Panel con login | Verificado manualmente en producción hoy: login del administrador. | `AdminLoginPage.jsx`, `AdminPage.jsx`, bcrypt, JWT y rutas protegidas. Editar o borrar productos y cambiar el estado de solicitudes: no verificado. |
+| Panel con login y administración | Verificado manualmente en producción hoy: login, creación, edición y eliminación de un producto de prueba, y cambio de estado de una solicitud. | `AdminLoginPage.jsx`, `AdminPage.jsx`, bcrypt, JWT y rutas protegidas. |
 | IA aplicada | Verificada manualmente en producción hoy: Gemini en el panel y Sorbi. | Gemini asiste al administrador con texto de productos. Sorbi recomienda, indica el local y responde sin dar consejo nutricional. |
 | Publicación | Verificada manualmente en producción hoy: la página abre y carga datos. | Se comprobó la carga de la página y sus datos; otras operaciones administrativas no se verificaron. |
 
