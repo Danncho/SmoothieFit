@@ -4,21 +4,22 @@ SmoothieFit es un proyecto académico que presenta una propuesta de smoothies, u
 
 ## Estado de los entregables
 
-Estado revisado el 03-11-2026. La revisión de la página y del endpoint de salud confirma disponibilidad puntual, no una prueba completa de todos los flujos con datos reales.
+Evaluación actualizada el 05-11-2026. Se comprobaron manualmente en producción la landing, la publicación con carga de datos, los votos, contacto, constructor y pedido, el login del administrador, Gemini en el panel y Sorbi. Las operaciones administrativas de editar o borrar productos y cambiar el estado de solicitudes no se probaron.
 
 | Entregable | Estado real | Evidencia y límite |
 |---|---|---|
-| Landing | Cumple como implementación; GitHub Pages respondió con el HTML de la app. | `frontend/src/pages/HomePage.jsx`. La apariencia completa debe revisarse manualmente en distintos dispositivos. |
-| Catálogo “Favoritos del público” | Cumple como implementación; el flujo público completo no se volvió a probar aquí. | `frontend/src/pages/SmoothiesPage.jsx`, `GET /api/productos` y `POST /api/productos/:id/voto`. Los votos disponibles son pruebas académicas, no una encuesta representativa ni prueba de demanda. |
-| Contacto real | Implementado; envío y persistencia de extremo a extremo no verificados en esta revisión. | `ContactPage.jsx`, `POST /api/solicitudes`, modelo `Solicitud` y MongoDB vía Mongoose. |
-| Panel con login | Implementado; no se probó el login ni una operación administrativa en producción. | `AdminLoginPage.jsx`, `AdminPage.jsx`, bcrypt, JWT y rutas protegidas. |
-| IA aplicada | Parcial. | Gemini está integrado para asistir al administrador con texto de productos; no se probó una llamada de producción. Sorbi es determinista y no usa IA externa. |
-| Publicación | Cumple como publicación configurada; revisión funcional completa pendiente. | La página de GitHub Pages devolvió HTML y `/api/health` respondió `disponible`. La respuesta confirma que el backend veía MongoDB conectado en ese instante, no que todos los formularios o rutas estén operativos. |
+| Landing | Verificada manualmente en producción hoy. | `frontend/src/pages/HomePage.jsx`; la página abre y muestra contenido. |
+| Catálogo “Favoritos del público” | Verificado manualmente en producción hoy: votos. | `frontend/src/pages/SmoothiesPage.jsx`, `GET /api/productos` y `POST /api/productos/:id/voto`. Los votos disponibles son pruebas académicas, no una encuesta representativa ni prueba de demanda. |
+| Contacto real | Verificado manualmente en producción hoy. | `ContactPage.jsx`, `POST /api/solicitudes`, modelo `Solicitud` y MongoDB vía Mongoose. |
+| Constructor y pedido | Verificado manualmente en producción hoy. | `ConstructorPage.jsx`; la creación y el pedido siguen siendo una simulación académica. |
+| Panel con login | Verificado manualmente en producción hoy: login del administrador. | `AdminLoginPage.jsx`, `AdminPage.jsx`, bcrypt, JWT y rutas protegidas. Editar o borrar productos y cambiar el estado de solicitudes: no verificado. |
+| IA aplicada | Verificada manualmente en producción hoy: Gemini en el panel y Sorbi. | Gemini asiste al administrador con texto de productos. Sorbi recomienda, indica el local y responde sin dar consejo nutricional. |
+| Publicación | Verificada manualmente en producción hoy: la página abre y carga datos. | Se comprobó la carga de la página y sus datos; otras operaciones administrativas no se verificaron. |
 
 Otros requisitos del curso:
 
 - **React:** implementado con React, React DOM, Vite y `HashRouter`.
-- **Responsive:** existen reglas adaptables y preferencias de movimiento reducido en `frontend/src/styles/base.css`; la revisión visual en tamaños y dispositivos reales es manual y queda pendiente.
+- **Responsive:** una revisión automática no encontró desbordamiento horizontal en 12 rutas. La revisión visual manual en celular está hecha.
 - **Repositorio en GitHub:** el enlace público al repositorio respondió durante esta revisión.
 - **GitHub Pages:** la página respondió el 03-11-2026.
 - **Mínimo de commits:** **no verificado**. El estudiante puede comprobarlo desde la raíz con `git rev-list --count HEAD`; no se ejecutó Git para esta documentación.
