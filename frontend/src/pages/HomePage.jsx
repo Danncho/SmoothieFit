@@ -6,6 +6,7 @@ import useProducts from '../hooks/useProducts.js';
 import { ordenarPorVotos, votosDelProducto } from '../utils/productRanking.js';
 import SucursalCard from '../components/SucursalCard.jsx';
 import useSucursales from '../hooks/useSucursales.js';
+import heroSmoothie from '../assets/hero-smoothie.svg';
 
 const benefits = [
   { icon: '♥', title: 'Sabor', description: 'Mezclas coloridas para disfrutar cada sorbo.' },
@@ -43,15 +44,12 @@ function HomePage() {
               <Link className="button button-secondary" to="/asistente">Sorbi ¡Ayuda!</Link>
             </div>
           </div>
-          <div className="hero-art" role="img" aria-label="Ilustración de un smoothie sonriente con sorbete">
-            <div className="smoothie-character" aria-hidden="true">
-              <span className="character-straw" />
-              <span className="character-eye character-eye-left" />
-              <span className="character-eye character-eye-right" />
-              <span className="character-smile" />
-            </div>
-            <span className="hero-sparkle sparkle-one" aria-hidden="true">✦</span>
-            <span className="hero-sparkle sparkle-two" aria-hidden="true">✦</span>
+          <div className="hero-art">
+            <img
+              className="hero-illustration"
+              src={heroSmoothie}
+              alt="Ilustración vectorial de dos smoothies rosados con fresas y pajillas, uno con una sonrisa"
+            />
           </div>
         </div>
       </section>

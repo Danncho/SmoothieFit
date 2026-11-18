@@ -254,78 +254,14 @@ button {
 }
 
 .hero-art {
-  position: relative;
   display: grid;
-  min-height: 15rem;
   place-items: center;
 }
 
-.smoothie-character {
-  position: relative;
-  width: 10rem;
-  height: 12rem;
-  border: 5px solid var(--color-purple);
-  border-radius: 2rem 2rem 3rem 3rem;
-  background: linear-gradient(160deg, #f7a6bd 0 38%, var(--color-red) 39% 100%);
-  box-shadow: 0 1rem 2rem rgb(81 43 104 / 18%);
-  transform: rotate(-5deg);
-}
-
-.character-straw {
-  position: absolute;
-  top: -3.3rem;
-  left: 5.5rem;
-  width: 0.75rem;
-  height: 4.3rem;
-  border: 3px solid var(--color-purple);
-  border-radius: 1rem;
-  background: var(--color-white);
-  transform: rotate(12deg);
-}
-
-.character-eye {
-  position: absolute;
-  top: 4rem;
-  width: 1.5rem;
-  height: 0.7rem;
-  border-bottom: 4px solid var(--color-purple);
-  border-radius: 50%;
-}
-
-.character-eye-left {
-  left: 2rem;
-}
-
-.character-eye-right {
-  right: 2rem;
-}
-
-.character-smile {
-  position: absolute;
-  top: 5.3rem;
-  left: 50%;
-  width: 2.5rem;
-  height: 1.2rem;
-  border-bottom: 4px solid var(--color-purple);
-  border-radius: 0 0 50% 50%;
-  transform: translateX(-50%);
-}
-
-.hero-sparkle {
-  position: absolute;
-  color: var(--color-red);
-  font-size: 2rem;
-}
-
-.sparkle-one {
-  top: 15%;
-  left: 18%;
-}
-
-.sparkle-two {
-  right: 14%;
-  bottom: 18%;
-  color: var(--color-purple);
+.hero-illustration {
+  display: block;
+  width: min(100%, 32rem);
+  height: auto;
 }
 
 .home-section {

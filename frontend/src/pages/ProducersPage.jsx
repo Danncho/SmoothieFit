@@ -1,24 +1,24 @@
 import { Link } from 'react-router-dom';
 import SectionTitle from '../components/SectionTitle.jsx';
 
-const producerExamples = [
+const producerProfiles = [
   {
     icon: '🍓',
-    name: 'Finca La Mora',
-    location: 'Tungurahua, Ecuador',
-    description: 'Perfil de ejemplo de una finca familiar que cultiva moras y frutillas para mercados de la zona.'
+    name: 'Frutas de temporada',
+    location: 'Productores locales por identificar',
+    description: 'Nos gustaría conocer productores de moras, frutillas y otras frutas de temporada.'
   },
   {
     icon: '🥭',
-    name: 'Huerto Sol de Manabí',
-    location: 'Manabí, Ecuador',
-    description: 'Perfil ficticio dedicado a frutas tropicales como mango y maracuyá, según la temporada.'
+    name: 'Frutas tropicales',
+    location: 'Productores locales por identificar',
+    description: 'Buscamos conversar sobre ingredientes como mango y maracuyá, según la temporada.'
   },
   {
     icon: '🍌',
-    name: 'Asociación Valle Verde',
-    location: 'Azuay, Ecuador',
-    description: 'Ejemplo ficticio de un grupo productor con banano, hierbas y otros ingredientes.'
+    name: 'Otros ingredientes locales',
+    location: 'Asociaciones por identificar',
+    description: 'Nos interesa conocer grupos productores de banano, hierbas y otros ingredientes.'
   }
 ];
 
@@ -88,16 +88,15 @@ function ProducersPage() {
       </section>
       <section className="info-section">
         <SectionTitle
-          eyebrow="Perfiles para imaginar"
-          title="Productores de ejemplo"
-          description="Estos perfiles son ficticios y se usan únicamente para presentar la idea del proyecto."
+          eyebrow="Posibles colaboraciones"
+          title="Productores que nos gustaría conocer"
+          description="Estas son categorías de interés; todavía no tenemos proveedores ni alianzas confirmadas."
           level="h2"
         />
         <div className="grid producer-grid">
-          {producerExamples.map((producer) => (
+          {producerProfiles.map((producer) => (
             <article className="card producer-card" key={producer.name}>
               <span className="producer-mark" aria-hidden="true">{producer.icon}</span>
-              <p className="sample-label">Ejemplo ficticio</p>
               <h3>{producer.name}</h3>
               <p className="producer-location">{producer.location}</p>
               <p>{producer.description}</p>
