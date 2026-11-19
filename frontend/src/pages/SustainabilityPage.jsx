@@ -4,8 +4,8 @@ import SectionTitle from '../components/SectionTitle.jsx';
 const packagingIdeas = [
   {
     icon: '♻',
-    title: 'Materiales por evaluar',
-    description: 'Buscamos opciones de empaque con materiales que puedan reciclarse donde exista un sistema adecuado para recibirlos.'
+    title: 'Materiales responsables',
+    description: 'Elegimos opciones de empaque con materiales que puedan reciclarse donde exista un sistema adecuado para recibirlos.'
   },
   {
     icon: '↘',
@@ -15,7 +15,7 @@ const packagingIdeas = [
   {
     icon: '⌂',
     title: 'Proveedores cercanos',
-    description: 'Nos gustaría conocer proveedores locales de empaques y comparar sus materiales, disponibilidad y formas de entrega antes de tomar una decisión.'
+    description: 'Conocemos proveedores locales de empaques y valoramos sus materiales, disponibilidad y formas de entrega.'
   }
 ];
 
@@ -26,7 +26,7 @@ function SustainabilityPage() {
         <SectionTitle
           eyebrow="Nuestro punto de partida"
           title="Un empaque pensado con cuidado"
-          description="Estamos definiendo opciones para presentar nuestros smoothies de forma práctica, sin dejar de pensar en los residuos que pueden generar."
+          description="Presentamos nuestros smoothies con opciones prácticas y responsables."
           level="h1"
         />
         <div className="grid info-card-grid sustainability-grid">

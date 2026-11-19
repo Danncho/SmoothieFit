@@ -643,7 +643,7 @@ function AdminPage() {
                       <p><strong>Base:</strong> {request.creacion.base}</p>
                       <p><strong>Ingredientes:</strong> {request.creacion.ingredientes.join(', ')}</p>
                       <p><strong>Precio calculado:</strong> {formatPrice(request.precioCalculado)}</p>
-                      <p><strong>Local de retiro:</strong> {request.sucursalId === 'mall-del-sol' ? 'Mall del Sol' : 'Por confirmar'}</p>
+                      <p><strong>Local de retiro:</strong> {request.sucursalId === 'mall-del-sol' ? 'Mall del Sol' : 'No especificado'}</p>
                       <p><strong>Código de retiro:</strong> {request.codigo}</p>
                     </section>
                   )}

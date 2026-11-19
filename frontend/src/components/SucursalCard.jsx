@@ -27,23 +27,18 @@ function SucursalCard({ sucursal }) {
   const esMallDelSol = sucursal.id === 'mall-del-sol';
   const urlMapa = crearUrlMapa(sucursal);
   const conCoordenadas = tieneCoordenadas(sucursal);
-  const estadoPlan = sucursal.estado === 'planificada';
 
   return (
     <article className={`card branch-card${esMallDelSol ? ' branch-card-featured' : ''}`}>
-      <p className="eyebrow">Local piloto · {estadoPlan ? 'Planificado' : 'Estado por confirmar'}</p>
       <h2>{sucursal.nombre}</h2>
-      {esMallDelSol && estadoPlan ? (
-        <p className="branch-location-status">
-          Todavía no abrimos: es la ubicación que estamos planificando
-        </p>
-      ) : null}
       <dl className="branch-details">
         <div><dt>Ciudad</dt><dd>{sucursal.ciudad}</dd></div>
         <div><dt>Zona</dt><dd>{sucursal.zona}</dd></div>
         {sucursal.direccion && <div><dt>Dirección</dt><dd>{sucursal.direccion}</dd></div>}
         <div><dt>Referencia</dt><dd>{sucursal.referencia}</dd></div>
-        <div><dt>Formato</dt><dd>{sucursal.formato}</dd></div>
+        {sucursal.formato && (
+          <div><dt>Formato</dt><dd>{sucursal.formato}</dd></div>
+        )}
         {sucursal.horario && <div><dt>Horario</dt><dd>{sucursal.horario}</dd></div>}
         {sucursal.telefono && <div><dt>Teléfono</dt><dd>{sucursal.telefono}</dd></div>}
       </dl>
@@ -65,9 +60,7 @@ function SucursalCard({ sucursal }) {
         >
           Cómo llegar
         </a>
-      ) : (
-        <p className="branch-no-location">Ubicación por confirmar</p>
-      )}
+      ) : null}
     </article>
   );
 }

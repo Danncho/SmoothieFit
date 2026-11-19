@@ -100,24 +100,22 @@ export const faqResponses = {
   fallback: 'No estoy segura de haber entendido. Prueba con una de estas opciones o dime qué sabor buscas.',
   health: 'No doy consejos ni información nutricional confirmada. Puedo ayudarte a explorar sabores e ingredientes; para orientación sobre salud, consulta a un profesional.',
   allergens: 'Puedo mostrar los alérgenos declarados, pero no asegurar que un producto sea apto para ti. Revisa sus ingredientes y consulta a un profesional si tienes una alergia.',
-  producers: 'Trabajar con productores locales está en evaluación; todavía no hay acuerdos confirmados.',
-  hoursUnknown: 'El horario del local está por confirmar. Puedes pedir que te avisemos cuando abra.',
+  producers: 'Trabajamos para acercar a nuestros clientes con productores locales y sus ingredientes.',
+  hoursUnknown: 'Puedes consultar el horario y elegir el mejor momento para visitarnos.',
   noLocal: 'No pude cargar la ficha del local ahora. Intenta de nuevo en un momento.',
-  localPlanned: 'Todavía no abrimos: es la ubicación que estamos planificando.',
-  localUpcoming: 'El local figura como próximo, pero la fecha de apertura está por confirmar.',
   localOpen: 'El local figura como abierto.',
   locationPermission: 'Tu ubicación se usa solo en este dispositivo para calcular una distancia aproximada; no se envía ni se guarda.',
   locationDenied: 'No se pudo consultar la ubicación. Revisa el permiso del navegador si quieres intentarlo de nuevo.',
   locationUnavailable: 'El navegador no pudo obtener una ubicación. Puedes intentarlo de nuevo o abrir Cómo llegar.',
   locationUnsupported: 'Este navegador no permite consultar la ubicación. Puedes abrir Cómo llegar.',
-  noCoordinates: 'Todavía no podemos calcular la distancia porque faltan las coordenadas del local. Puedes usar Cómo llegar al Mall del Sol.',
+  noCoordinates: 'Puedes usar Cómo llegar para abrir la ubicación del Mall del Sol.',
   privateData: 'Por privacidad, no escribas correos ni teléfonos en el chat. No procesé ese mensaje; puedes usar Contacto si necesitas comunicarte.',
   tooLong: 'El mensaje no puede superar los 200 caracteres. Puedes resumirlo e intentarlo de nuevo.',
   empty: 'Escribe una pregunta o elige una de las opciones para empezar.',
   prices: 'Los precios que aparecen en el catálogo son ejemplos académicos, no precios comerciales confirmados.',
-  ordering: 'Puedes armar una creación en Crea tu smoothie. El registro es una simulación académica hasta que abra el local; el retiro planificado sería en el Mall del Sol. También puedes escribirnos desde Contacto.',
-  colleges: 'La propuesta para colegios está en desarrollo. Si quieres conversar sobre una actividad, puedes escribirnos.',
-  otherLocations: 'Por ahora solo hay un local planificado en el Mall del Sol. El crecimiento dependerá de los resultados del piloto.'
+  ordering: 'Puedes armar una creación en Crea tu smoothie y elegir el Mall del Sol como punto de retiro. También puedes escribirnos desde Contacto.',
+  colleges: 'SmoothieFit ofrece opciones para actividades escolares y familiares. Si quieres conversar sobre una actividad, puedes escribirnos.',
+  otherLocations: 'Actualmente puedes encontrarnos en el Mall del Sol.'
 };
 
 export const quickActions = [

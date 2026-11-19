@@ -63,7 +63,7 @@ function makeMessage(role, text, extras = {}) {
 
 function formatPrice(price) {
   const parsed = Number(price);
-  if (!Number.isFinite(parsed)) return 'Precio por confirmar';
+  if (!Number.isFinite(parsed)) return 'Precio no disponible';
   return new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(parsed);
 }
 
@@ -401,7 +401,7 @@ function SorbiChat({
       return;
     }
     if (actionId === 'constructor') {
-      pushTextAnswer('Puedes armar una creación en el constructor. Es una simulación académica mientras el local siga planificado.', {
+      pushTextAnswer('Puedes armar una creación en el constructor y registrarla para retiro.', {
         actions: [{ label: 'Armar mi smoothie', to: '/crea-tu-smoothie' }]
       });
       return;

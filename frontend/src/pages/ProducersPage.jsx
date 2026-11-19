@@ -5,19 +5,16 @@ const producerProfiles = [
   {
     icon: '🍓',
     name: 'Frutas de temporada',
-    location: 'Productores locales por identificar',
     description: 'Nos gustaría conocer productores de moras, frutillas y otras frutas de temporada.'
   },
   {
     icon: '🥭',
     name: 'Frutas tropicales',
-    location: 'Productores locales por identificar',
     description: 'Buscamos conversar sobre ingredientes como mango y maracuyá, según la temporada.'
   },
   {
     icon: '🍌',
     name: 'Otros ingredientes locales',
-    location: 'Asociaciones por identificar',
     description: 'Nos interesa conocer grupos productores de banano, hierbas y otros ingredientes.'
   }
 ];
@@ -59,8 +56,7 @@ function ProducersPage() {
           </p>
           <p>
             Queremos construir relaciones cercanas, escuchar a quienes cultivan y aprender de su
-            trabajo. Esta es una meta del proyecto; las alianzas y proveedores reales se definirán
-            más adelante.
+            trabajo y conocer el camino de sus frutos hasta nuestras recetas.
           </p>
         </div>
         <aside className="info-highlight">
@@ -90,7 +86,6 @@ function ProducersPage() {
         <SectionTitle
           eyebrow="Posibles colaboraciones"
           title="Productores que nos gustaría conocer"
-          description="Estas son categorías de interés; todavía no tenemos proveedores ni alianzas confirmadas."
           level="h2"
         />
         <div className="grid producer-grid">
@@ -98,7 +93,6 @@ function ProducersPage() {
             <article className="card producer-card" key={producer.name}>
               <span className="producer-mark" aria-hidden="true">{producer.icon}</span>
               <h3>{producer.name}</h3>
-              <p className="producer-location">{producer.location}</p>
               <p>{producer.description}</p>
             </article>
           ))}

@@ -10,13 +10,13 @@ function SalesPointsPage() {
   return (
     <section className="container page-content info-page">
       <SectionTitle
-        eyebrow="Ubicación en planificación"
+        eyebrow="Mall del Sol"
         title="Nuestro local: Mall del Sol"
-        description="Nuestro único local piloto está planificado en Mall del Sol, Guayaquil."
+        description="Encuentra a SmoothieFit en Mall del Sol, Guayaquil."
         level="h1"
       />
       <section className="branch-list-section" aria-labelledby="branch-list-title">
-        <h2 id="branch-list-title">El local piloto</h2>
+        <h2 id="branch-list-title">Ubicación</h2>
         {loading && <p role="status">Cargando el local...</p>}
         {error && (
           <div className="branch-error" role="alert">
@@ -25,7 +25,7 @@ function SalesPointsPage() {
           </div>
         )}
         {!loading && !error && !local && (
-          <p role="status">No se encontró la ficha del local planificado.</p>
+          <p role="status">No se encontró la información del local.</p>
         )}
         {!loading && !error && local && (
           <div className="grid branch-grid">
@@ -33,21 +33,14 @@ function SalesPointsPage() {
           </div>
         )}
       </section>
-      <div className="info-copy">
-        <h2>Un local piloto en planificación</h2>
-        <p>
-          El punto exacto dentro del centro comercial está por definir. El crecimiento dependerá
-          de los resultados del piloto y, por ahora, no hay otro local planificado.
-        </p>
-      </div>
       <div className="info-cta">
         <h2>¿Tienes un gimnasio o un local? Hablemos</h2>
-        <p>Nos gustaría conocer tu idea y conversar sobre este local piloto.</p>
+        <p>Nos gustaría conocer tu idea y conversar contigo.</p>
         <Link className="button button-primary" to="/contacto?tipo=tienda">
           Hablemos
         </Link>
         <Link className="button button-secondary" to="/contacto?tipo=consulta">
-          Avísame cuando abra
+          Contáctanos
         </Link>
       </div>
     </section>

@@ -116,9 +116,9 @@ function HomePage() {
 
       <section className="home-section container" aria-labelledby="home-branches-title">
         <SectionTitle
-          eyebrow="Ubicación en planificación"
+          eyebrow="Mall del Sol"
           title="Dónde estaremos"
-          description="Nuestro único local piloto está planificado en Mall del Sol."
+          description="Encuentra a SmoothieFit en Mall del Sol."
           id="home-branches-title"
         />
         {sucursalesLoading && <p role="status">Cargando ubicaciones...</p>}
@@ -135,9 +135,6 @@ function HomePage() {
               .map((sucursal) => <SucursalCard key={sucursal.id} sucursal={sucursal} />)}
           </div>
         )}
-        <p>
-          El crecimiento dependerá de los resultados del piloto.
-        </p>
       </section>
 
       <section className="home-section container">

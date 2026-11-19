@@ -14,7 +14,7 @@ function AboutPage() {
         <SectionTitle
           eyebrow="Una idea con ganas de crecer"
           title="Somos SmoothieFit"
-          description="Un proyecto académico que imagina una forma sencilla, colorida y cercana de disfrutar smoothies hechos con ingredientes locales."
+          description="Una propuesta sencilla, colorida y cercana para disfrutar smoothies hechos con ingredientes locales."
           level="h1"
         />
       </section>
@@ -28,9 +28,6 @@ function AboutPage() {
             pudiera elegir sus ingredientes y crear una mezcla propia.
           </p>
           <p>
-            Este sitio forma parte de un proyecto académico. Estamos construyendo sus páginas y
-            funciones paso a paso, aprendiendo cómo organizar una idea y convertirla en una
-            experiencia digital.
           </p>
         </div>
         <aside className="info-highlight">

@@ -221,7 +221,7 @@ function localResponse(local) {
     local,
     actions: [
       ...(getDirectionsUrl(local) ? [{ label: 'Cómo llegar', href: getDirectionsUrl(local), external: true }] : []),
-      { label: 'Avísame cuando abra', to: '/contacto?tipo=consulta' },
+      { label: 'Contáctanos', to: '/contacto?tipo=consulta' },
       { label: 'Cerca de mí', type: 'nearby' }
     ]
   };
@@ -233,7 +233,7 @@ function favoritesResponse(products) {
     || (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base' })
   ));
   if (!ranked.length || ranked.every((product) => votosDelProducto(product) === 0)) {
-    return { text: 'Todavía no hay favoritos del público: los productos aún no tienen votos.' };
+    return { text: 'Los productos todavía están esperando los primeros votos del público.' };
   }
   return {
     text: 'Estos son los productos con más votos del catálogo:',
@@ -303,7 +303,7 @@ export function buildAssistantReply(message, data) {
       ? { text: `El horario informado es: ${data.local.horario}.` }
       : {
         text: faqResponses.hoursUnknown,
-        actions: [{ label: 'Avísame cuando abra', to: '/contacto?tipo=consulta' }]
+        actions: [{ label: 'Contáctanos', to: '/contacto?tipo=consulta' }]
       });
   }
   if (intents.includes('ordering')) {
@@ -320,7 +320,7 @@ export function buildAssistantReply(message, data) {
   }
   if (intents.includes('constructor')) {
     responses.push({
-      text: 'Puedes elegir tamaño, base y otros ingredientes en el constructor. Es una simulación académica mientras el local siga planificado.',
+      text: 'Puedes elegir tamaño, base y otros ingredientes en el constructor.',
       actions: [{ label: 'Armar mi smoothie', to: '/crea-tu-smoothie' }]
     });
   }

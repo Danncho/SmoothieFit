@@ -16,7 +16,7 @@ async function fetchSorbiData() {
         throw new Error('El sitio devolvió datos incompletos para Sorbi.');
       }
       const local = locals.find((item) => item?.id === 'mall-del-sol');
-      if (!local) throw new Error('No se encontró la ficha del local planificado.');
+      if (!local) throw new Error('No se encontró la información del local.');
       dataCache = { products, local, ingredients };
       return dataCache;
     }).finally(() => {

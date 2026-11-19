@@ -7,15 +7,14 @@ function CollegesPage() {
       <SectionTitle
         eyebrow="Para compartir"
         title="SmoothieFit para colegios y familias"
-        description="El proyecto imagina opciones para actividades, eventos y momentos para compartir."
+        description="Opciones para actividades, eventos y momentos para compartir."
         level="h1"
       />
       <div className="info-copy">
         <h2>Una propuesta por conversar</h2>
         <p>
           Nos gustaría conversar con colegios y familias sobre posibles actividades y formas de
-          compartir la propuesta SmoothieFit. Estas opciones aún están en desarrollo y no
-          representan servicios o acuerdos confirmados.
+          compartir la propuesta SmoothieFit.
         </p>
       </div>
       <div className="info-cta">

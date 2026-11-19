@@ -553,13 +553,9 @@ function ConstructorPage() {
 
           <section className="constructor-order" aria-labelledby="order-title">
             <h2 id="order-title">Guardar mi creación y pedirla para retirar</h2>
-            <p className="constructor-simulation">
-              Simulación: todavía no abrimos el local en el Mall del Sol; tu creación queda registrada como interés.
-              {datos.local.estado === 'planificada' && ' El local está planificado.'}
-            </p>
             <p>
               Si registras tu interés, el retiro sería en el Mall del Sol. No pedimos teléfono ni más datos
-              de los necesarios para esta simulación.
+              de los necesarios para registrar tu creación.
             </p>
             <form className="constructor-order-form card" onSubmit={guardarCreacion} noValidate>
               <div className="constructor-form-field">
@@ -628,9 +624,6 @@ function ConstructorPage() {
                 <p><strong>Código de retiro:</strong> {confirmacion.codigo}</p>
                 <p><strong>Precio calculado por el servidor:</strong> {formatPrice(confirmacion.precioCalculado)}</p>
                 <p><strong>Local:</strong> {confirmacion.sucursal?.nombre || 'Mall del Sol'}</p>
-                {confirmacion.sucursal?.estado === 'planificada' && (
-                  <p>El local está planificado; todavía no está abierto.</p>
-                )}
               </div>
             )}
           </section>

@@ -74,7 +74,7 @@ test('responde honestamente si se pregunta por otra ubicación', () => {
   });
   assert.ok(reply.intents.includes('otherLocations'));
   assert.ok(reply.responses.some((response) => (
-    /Por ahora solo hay un local planificado en el Mall del Sol/.test(response.text)
+    /Actual(?:mente)? puedes encontrarnos en el Mall del Sol/.test(response.text)
   )));
 });
 

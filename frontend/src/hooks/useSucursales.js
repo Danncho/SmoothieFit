@@ -23,7 +23,7 @@ function useSucursales() {
         }
       } catch (requestError) {
         if (isCurrentRequest) {
-          setError(requestError.message || 'No se pudo cargar el local planificado.');
+          setError(requestError.message || 'No se pudo cargar la información del local.');
         }
       } finally {
         if (isCurrentRequest) setLoading(false);
