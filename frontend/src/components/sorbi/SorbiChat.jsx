@@ -227,7 +227,6 @@ function RecommendationCards({ message }) {
             <p><strong>Precio de ejemplo:</strong> {formatPrice(product.precio)}</p>
           )}
           <p className="sorbi-product-reason">{reason}</p>
-          {product.esEjemplo && <span className="sorbi-sample-label">Producto de ejemplo</span>}
           <Link
             className="button button-primary"
             to={`/crea-tu-smoothie?base=${encodeURIComponent(product.id)}`}

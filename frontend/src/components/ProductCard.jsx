@@ -35,7 +35,6 @@ function ProductCard({
         {Number.isFinite(Number(product.precio)) && (
           <p className="smoothie-price">{formatPrice(product.precio)}</p>
         )}
-        {product.esEjemplo && <p className="sample-label">Producto de ejemplo</p>}
         {onVotar && (
           <div className="smoothie-card-actions">
             <button

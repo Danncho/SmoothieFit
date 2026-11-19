@@ -320,12 +320,6 @@
     font-size: 0.88rem;
   }
 
-.sorbi-sample-label {
-    color: var(--color-muted);
-    font-size: 0.78rem;
-    font-style: italic;
-  }
-
 .sorbi-product-card .button {
     justify-self: start;
     margin-top: 0.35rem;

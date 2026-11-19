@@ -778,16 +778,11 @@ button {
   font-weight: 800;
 }
 
-.smoothie-price span,
-.sample-label {
+.smoothie-price span {
   color: var(--color-muted) !important;
   font-size: 0.85rem;
   font-style: italic;
   font-weight: 400;
-}
-
-.sample-label {
-  margin-top: 0.5rem !important;
 }
 
 .smoothie-ingredients {
@@ -1599,7 +1594,17 @@ button {
 }
 
 .footer-inner {
-  display: grid;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-medium);
+}
+
+.footer-explore {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
   gap: var(--space-medium);
 }
 
@@ -1608,11 +1613,14 @@ button {
 }
 
 .footer-heading {
-  margin: 0 0 0.5rem;
+  flex: 0 0 auto;
+  margin: 0;
   font-size: 1.1rem;
 }
 
 .footer-links {
+  flex: 1;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
 
@@ -1624,7 +1632,6 @@ button {
   background: rgb(255 255 255 / 14%);
 }
 
-.project-note,
 .admin-link {
   margin: 0;
   color: #f0e7f3;
@@ -1636,6 +1643,20 @@ button {
 }
 
 @media (max-width: 62rem) {
+  .footer-inner,
+  .footer-explore {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .footer-inner {
+    gap: var(--space-small);
+  }
+
+  .footer-links {
+    justify-content: flex-start;
+  }
+
   .menu-toggle {
     display: block;
   }
@@ -1682,10 +1703,6 @@ button {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .footer-inner {
-    grid-template-columns: 1fr 1fr;
   }
 
   .info-section:not(.info-section-soft) {

@@ -13,7 +13,7 @@ function Footer() {
   return (
     <footer className="site-footer">
       <div className="container footer-inner">
-        <section aria-labelledby="footer-links-title">
+        <section className="footer-explore" aria-labelledby="footer-links-title">
           <h2 className="footer-heading" id="footer-links-title">Explora SmoothieFit</h2>
           <ul className="footer-links">
             {footerLinks.map((item) => (
@@ -21,7 +21,6 @@ function Footer() {
             ))}
           </ul>
         </section>
-        <p className="project-note">Proyecto académico</p>
         <p className="admin-link"><Link to="/admin">Administración</Link></p>
       </div>
     </footer>
