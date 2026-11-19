@@ -5,12 +5,16 @@ const path = require('path');
 const router = express.Router();
 const sucursalesFile = path.join(__dirname, '..', 'data', 'sucursales.json');
 const estadosValidos = new Set(['planificada', 'proxima', 'abierta']);
-const camposTexto = ['id', 'nombre', 'ciudad', 'zona', 'referencia', 'formato'];
+const camposTexto = ['id', 'nombre', 'ciudad', 'zona', 'referencia'];
 const camposTextoONull = ['direccion', 'destinoMapa', 'horario', 'telefono'];
 
 function validarSucursal(sucursal) {
   if (!sucursal || typeof sucursal !== 'object' || Array.isArray(sucursal)) return false;
   if (camposTexto.some((campo) => typeof sucursal[campo] !== 'string' || !sucursal[campo].trim())) {
+    return false;
+  }
+  if (sucursal.formato !== undefined
+    && (typeof sucursal.formato !== 'string' || !sucursal.formato.trim())) {
     return false;
   }
   if (camposTextoONull.some((campo) => (
